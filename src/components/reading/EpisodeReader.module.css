@@ -1,0 +1,1120 @@
+/* ══════════════════════════════════════════════════════════
+   EPISODE READER — Focus + Explore mode layout
+   ══════════════════════════════════════════════════════════ */
+
+/* ── FOCUS MODE SHELL — normal document flow ── */
+.shellFocus {
+  display: block;
+  /* ── Hero image height budget ──
+     The title/series-link/meta/action-bar/segmented-nav block needs
+     --header-reserve px; the image gets whatever's left of the
+     viewport, never more (clamped so it never vanishes or floods). */
+     /* header-reserve was 380px */
+  --header-reserve: 420px;
+  /* image height — tune ceiling here (last term of the clamp, currently 56vh) */
+  --hero-h: clamp(300px, calc(100vh - 64px - var(--header-reserve)), 56vh);
+}
+
+/* ── EXPLORE MODE SHELL — two-pane fixed-height split ── */
+/* The shell sits below the sticky navbar (64px) and is itself pinned
+   there (position: sticky; top: 64px) — it doesn't scroll with the page.
+   Article and sidebar are each their OWN independent scroll container
+   (.leftPane / .rightPane below), not a shared window scroll: scrolling
+   over the article never moves the sidebar and vice versa. This is a
+   deliberate revert of a single-scroll-surface experiment — don't
+   reintroduce a shared window scroll here. */
+.shellExplore {
+  display: grid;
+  /* minmax(0, 1fr), not a bare 1fr — a bare 1fr track's minimum width is
+     its content's min-content size, so wide article content could push
+     the grid wider than the viewport and shove the sidebar column
+     off-screen. Sidebar width scales with the viewport (see the
+     --sidebar-w breakpoints below) rather than staying fixed — matches
+     YouTube's watch page, which steps its sidebar up at wide breakpoints
+     instead of leaving it fixed while only the player column grows. */
+  grid-template-columns: minmax(0, 1fr) var(--sidebar-w);
+  --sidebar-w: 340px;
+  /* Reduced from 24px — was leaving noticeably more space between the
+     article frame and the sidebar than the page's own side margins. */
+  gap: 15px;
+  /* Fill only the area below the navbar */
+  height: calc(100vh - 64px);
+  overflow: hidden;
+  position: sticky;
+  top: 64px;
+  /* Left inset matches the 15px column gap above, not the 24px right
+     inset — otherwise the article reads with more breathing room on its
+     left than between it and the sidebar (YouTube keeps both gutters
+     equal). Right inset stays 24px; sidebar position/width untouched. */
+  padding: 0 24px 0 15px;
+  --header-reserve: 420px;
+  /* image height — tune ceiling here (last term of the clamp, currently 50vh) */
+  --hero-h: clamp(280px, calc(100vh - 64px - 48px - var(--header-reserve)), 50vh);
+}
+
+@media (min-width: 1280px) {
+  .shellExplore {
+    --sidebar-w: 380px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .shellExplore {
+    --sidebar-w: 440px;
+  }
+}
+
+@media (min-width: 1792px) {
+  .shellExplore {
+    --sidebar-w: 500px;
+  }
+}
+
+/* ── LEFT PANE — plain passthrough wrapper in Explore mode. It does NOT
+   scroll itself anymore — .articleFrame (the actual bordered/rounded
+   pane) does, so its native scrollbar renders inside that border instead
+   of floating out in the gutter past it.
+
+   overflow: hidden here (not visible) is load-bearing, not decorative:
+   .shellExplore is a CSS Grid with an implicit auto-sized row. A grid
+   item with overflow: visible reports its full (very tall, unclipped)
+   content height as its contribution to that row's auto-sizing — so the
+   ROW itself would grow to match the whole article's height, and
+   .leftPane's height: 100% would then resolve against that oversized
+   row instead of .shellExplore's real calc(100vh - 64px), breaking the
+   height chain .contentWrapper/.articleFrame depend on below. overflow:
+   hidden (like the auto it replaced) makes .leftPane report a bounded
+   contribution instead, so the row sizes correctly. .leftPane itself
+   never needs to actually clip anything visible — .articleFrame is
+   already exactly its size and does the real clipping. ── */
+.leftPane {
+  overflow: hidden;
+  height: 100%;
+  /* Shared by both modes — border-box (global reset) keeps this inside
+     the 100% height in Explore mode (no overflow past the grid row), and
+     in Focus mode it's just document-flow space before the content
+     starts. 18px matches .sidebarTabBar's own padding-top so the article
+     frame and the sidebar tabs land at the same height below the navbar. */
+  padding-top: 18px;
+}
+
+.shellFocus .leftPane {
+  /* Focus mode: normal document flow */
+  overflow: visible;
+  height: auto;
+}
+
+/* ── RIGHT PANE — sidebar. Its own independent scroll container,
+   completely decoupled from the article's scroll. Same minimal
+   scrollbar treatment as .leftPane — TWEAK HERE the same way. */
+.rightPane {
+  position: relative;
+  overflow-y: auto;
+  height: 100%;
+  border-left: none;
+  /* Scroll stays functional — only the visual bar is hidden. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  /* Slide-in entrance animation */
+  animation: sidebarSlideIn 320ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.rightPane::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes sidebarSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(32px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Soft fade at the seam with the article, so the two panes read as one
+   surface rather than a hard vertical cut. Sits above scrolled content,
+   below the tab bar (which has its own background). */
+/* .rightPane::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: px;
+  background: linear-gradient(to right, var(--bg-primary), transparent);
+  pointer-events: none;
+  z-index: 1;
+} */
+
+/* ── Sidebar tab bar — Explore | Discussion — a centered segmented
+   control, not a nav strip. No border under it: the tab group's own pill
+   background is what separates it from the panel below.
+
+   Sticky within .rightPane's own scroll container (top: 0 — .rightPane
+   itself is already positioned correctly, no navbar offset needed here)
+   so it stays visible at every scroll position within the sidebar; never
+   hides or fades. Opaque background so content scrolling up underneath
+   it is occluded cleanly, not overlapped. ── */
+.sidebarTabBar {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  justify-content: center;
+  padding: 18px 16px 12px;
+  flex-shrink: 0;
+  background: var(--bg-primary);
+}
+
+.sidebarTabGroup {
+  display: inline-flex;
+  gap: 20px;
+}
+
+.sidebarTab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  padding: 0 0 4px;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.sidebarTab:hover {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.sidebarTabActive {
+  color: #fff;
+  border-bottom: 2px solid var(--accent-strong);
+}
+
+.sidebarTabActive:hover {
+  color: #fff;
+}
+
+.sidebarComments {
+  padding: 4px 20px 24px;
+}
+
+/* ══════════════════════════════════════════════════════════
+   ARTICLE — content styles
+   ══════════════════════════════════════════════════════════ */
+
+.contentWrapper {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  /* Definite height, handed down from .leftPane (100%, from .shellExplore
+     in Explore mode) — this is what lets .articleFrame's default flex
+     `align-items: stretch` size it to fill the available height instead
+     of resolving to "auto". No-op in Focus mode, where .leftPane's own
+     height is "auto" (normal document flow) and 100% of auto is auto. */
+  height: 100%;
+}
+
+
+
+@media (min-width: 1200px) {
+  /* Focus mode: perfectly center the reading column — that's the point of
+     the mode.
+
+     The floating TOC flyout (see TableOfContents.module.css) overlaps
+     whatever's beneath it when open, including the article — that's
+     normal, expected behavior for a hover flyout, not a layout collision
+     to solve by moving the article column. It reads as a floating layer
+     (solid background, border, shadow) rather than a colliding neighbor;
+     don't reintroduce a left offset/padding here to "clear" it. */
+  .shellFocus .contentWrapper {
+    display: flex;
+    justify-content: center;
+  }
+}
+
+.article {
+  max-width: 760px;
+  width: 100%;
+  margin: 0 auto;
+  /* No width transition — avoid text-reflow jank */
+  /* No padding here — the image layer bleeds full-width to the column/
+     frame edges. Horizontal + bottom padding lives on .articleBlock and
+     the sections below the header (.chapterNav / .prose / .navigation). */
+}
+
+/* Focus mode's reading column scales with the viewport too, same
+   breakpoints as the sidebar above — stays centered throughout (that's
+   what makes this Focus mode, vs. Explore's fluid, edge-to-edge column). */
+@media (min-width: 1280px) {
+  .shellFocus .article {
+    max-width: 840px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .shellFocus .article {
+    max-width: 920px;
+  }
+}
+
+@media (min-width: 1792px) {
+  .shellFocus .article {
+    max-width: 1000px;
+  }
+}
+
+/* Explore mode: the article fills its column edge to edge (only the
+   frame's own internal padding — .articleBlock/.chapterNav/.prose/
+   .navigation's 36px — insets it, no separate centered measure on top of
+   that). The column itself is the fluid, viewport-scaling piece; capping
+   the article inside it just re-creates the old dead-space bug one level
+   in. Ultrawide monitors get a safety valve instead of scaling the
+   column-fill behavior away entirely — see the ≥2200px override below. */
+.shellExplore .article {
+  max-width: none;
+  margin: 0;
+}
+
+@media (min-width: 2200px) {
+  .shellExplore .article {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+}
+
+/* ── Article frame — bordered card in explore mode. This is now BOTH
+   the bordered/rounded pane AND the scroll container (it picks up its
+   height from flex `align-items: stretch`, via .contentWrapper's 100%
+   height — see above) — previously .leftPane owned the scroll and
+   .articleFrame just sat inside it narrower than full width, so the
+   native scrollbar rendered at .leftPane's outer edge, out in the
+   gutter past the frame's own right border. Scrolling and bordering the
+   same element fixes that: the scrollbar now renders inside this
+   border, and border-radius clips it to match the rounded corners. ── */
+.articleFrame {
+  /* Fills the fluid grid column edge to edge — it IS the column, not a
+     shrink-to-fit box floating inside it. Without this, a flex item with
+     no explicit width sizes to its content instead of the space
+     available, which is what left dead space to its left when the
+     column was wider than the content needed. The sidebar gutter now
+     comes from .shellExplore's own grid gap, not a margin here. */
+  width: 100%;
+  border: 0.5px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  overflow-y: auto;
+  /* No top margin of its own — the gap below the navbar comes from
+     .leftPane's padding-top instead (see there). */
+  /* Same tone as .articleBlock and the page body — one continuous surface
+     from the image region down through the prose, no seam between them. */
+  background-color: var(--bg-primary);
+  box-shadow: var(--shadow-sm);
+
+  /* Minimal scrollbar, styled as part of the pane rather than browser
+     chrome. TWEAK HERE: track width below sets the total reserved gutter
+     (10px); the thumb's own border creates the inset from both edges —
+     widen that border to inset further, or shrink it to make the thumb
+     thicker (visible width = track width − 2×border). */
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--text-muted) 45%, transparent) transparent;
+}
+
+.articleFrame::-webkit-scrollbar {
+  width: 10px;
+}
+
+.articleFrame::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.articleFrame::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--text-muted) 45%, transparent);
+  border-radius: 8px;
+  /* Transparent border, clipped to the padding box — this is what insets
+     the visible thumb a few px from the track's outer edge (the frame's
+     border) without needing extra markup. */
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.articleFrame::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--text-muted) 65%, transparent);
+}
+
+/* ── Left pane fade-during-transition ── */
+/* Applied by JS during mode switch to hide text reflow */
+.leftPaneFading {
+  opacity: 0;
+  transition: opacity 150ms ease;
+  pointer-events: none;
+}
+
+.leftPaneVisible {
+  opacity: 1;
+  transition: opacity 150ms ease;
+}
+
+.header {
+  /* id={TOP_ID} anchor for #episode-top deep links — clears the 64px nav. */
+  scroll-margin-top: 88px;
+}
+
+/* ══════════════════════════════════════════════════════════
+   STICKY IMAGE LAYER
+   The sticky element is this layer, not the <img> inside it —
+   an <img> made sticky inside a fixed-height wrapper un-sticks
+   immediately and produces no pinning effect at all.
+   Height comes from the --hero-h budget set on .shellFocus /
+   .shellExplore (see above) — computed, not chosen, so the title
+   below always has the room it needs.
+   ══════════════════════════════════════════════════════════ */
+.imageLayer {
+  position: sticky;
+  top: 0;
+  height: var(--hero-h);
+  z-index: 0;
+  overflow: hidden;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+/* Focus mode's sticky context is the document itself, same as the
+   navbar (position: sticky; top: 0) — without this 64px offset the
+   image would stick flush to the viewport top and scroll in underneath
+   the fixed nav instead of stopping cleanly below it. Explore mode
+   doesn't need this: its sticky context is .leftPane, which is itself
+   already positioned right below the nav (.shellExplore's own
+   position: sticky; top: 64px), so top: 0 there is already correct. */
+.shellFocus .imageLayer {
+  top: 64px;
+}
+
+.heroImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* ══════════════════════════════════════════════════════════
+   ARTICLE BLOCK
+   Rises over the pinned image via negative margin. Must be a
+   sibling that follows .imageLayer in normal flow — not nested
+   inside it — or the overlap and the sticky pin both break.
+   ══════════════════════════════════════════════════════════ */
+.articleBlock {
+  position: relative;
+  z-index: 1;
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: 2rem var(--space-md) 0;
+}
+
+/* Only pull up over the image when one actually rendered above it. */
+.articleBlockOverlap {
+  margin-top: calc(var(--hero-h) * -0.20);
+}
+
+.shellExplore .articleBlock {
+  padding: 2rem 36px 0;
+}
+
+.seriesLink {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-small);
+  color: var(--text-muted);
+  text-decoration-line: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  display: inline-block;
+  margin-bottom: var(--space-xs);
+  transition: text-decoration-color var(--transition-fast);
+}
+
+.seriesLink:hover {
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+}
+
+.title {
+  /* Long titles ("The Imbalance That Refuses to Disappear: How a
+     Battery Actually Works") must compress to fit the header budget
+     rather than pushing everything below it off-screen. */
+  font-size: clamp(1.75rem, 2.6vw, 2.4rem);
+  line-height: 1.15;
+  text-wrap: balance;
+  margin-bottom: 0.6rem;
+}
+
+/* ── ACTION BAR — Like / Comment / Bookmark (left), Share (right) ── */
+.actionBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0;
+  margin-top: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.actionGroupLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.actionGroupRight {
+  display: flex;
+  align-items: center;
+}
+
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 14px;
+  background: transparent;
+  border: 0.5px solid var(--border-subtle);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 13px;
+  transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease;
+}
+
+.actionBtn:hover {
+  border-color: var(--border-medium);
+  background: var(--bg-surface);
+}
+
+.actionIcon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  display: block;
+}
+
+/* ── Compact variant — icon + count only, no button box (insight card top bar) ── */
+.actionBtnCompact {
+  height: auto;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  font-size: 12px;
+}
+
+.actionBtnCompact:hover {
+  border-color: transparent;
+  background: transparent;
+}
+
+.actionIconCompact {
+  width: 14px;
+  height: 14px;
+}
+
+.actionInnerCompact {
+  gap: 4px;
+}
+
+/* Like — inactive muted state, active accent state */
+.likeBtn {
+  color: var(--text-muted);
+}
+
+.actionBtnLiked {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.likeInner {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.likeBtnLoading {
+  pointer-events: none;
+}
+
+.likeIconLoading {
+  opacity: 0.6;
+}
+
+/* Like: scale 1 → 1.35 → 1.0 with a spring overshoot */
+.likeIconPulseLike {
+  animation: likeScaleIn 320ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes likeScaleIn {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.35);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Unlike: softer shrink, no overshoot */
+.likeIconPulseUnlike {
+  animation: likeScaleOut 250ms ease-out;
+}
+
+@keyframes likeScaleOut {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(0.85);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Error: restrained shake, two cycles */
+.likeShake {
+  animation: likeShake 300ms ease-in-out;
+}
+
+@keyframes likeShake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  20% {
+    transform: translateX(-3px);
+  }
+
+  40% {
+    transform: translateX(3px);
+  }
+
+  60% {
+    transform: translateX(-3px);
+  }
+
+  80% {
+    transform: translateX(3px);
+  }
+}
+
+/* Like count — slot-machine tick. Both digits share one grid cell so they
+   overlap during the transition instead of needing a measured width. */
+.countSlot {
+  display: inline-grid;
+  overflow: hidden;
+  height: 1.3em;
+  line-height: 1.3em;
+  vertical-align: middle;
+}
+
+.countDigit {
+  grid-area: 1 / 1;
+}
+
+.countOutUp {
+  animation: countOutUp 200ms ease-out forwards;
+}
+
+.countInUp {
+  animation: countInUp 200ms ease-out forwards;
+}
+
+.countOutDown {
+  animation: countOutDown 200ms ease-out forwards;
+}
+
+.countInDown {
+  animation: countInDown 200ms ease-out forwards;
+}
+
+@keyframes countOutUp {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+}
+
+@keyframes countInUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes countOutDown {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes countInDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Bookmark — inactive muted state, active accent state */
+.bookmarkBtn {
+  color: var(--text-muted);
+}
+
+.bookmarkBtnActive {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.bookmarkInner {
+  display: inline-flex;
+  align-items: center;
+}
+
+.bookmarkBtnLoading {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* Save: scale 1 → 1.25 → 1 with a brief upward float — the icon "flies
+   up" to be saved. Fill flips from outline to solid at the scale peak
+   (50% of 280ms = 140ms) via a stepped (non-interpolated) keyframe. */
+.bookmarkIconSave {
+  animation:
+    bookmarkSaveTransform 280ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    bookmarkSaveFill 280ms steps(1, end);
+}
+
+@keyframes bookmarkSaveTransform {
+  0% {
+    transform: scale(1) translateY(0);
+  }
+
+  50% {
+    transform: scale(1.25) translateY(-3px);
+  }
+
+  100% {
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes bookmarkSaveFill {
+  0%,
+  49% {
+    fill: transparent;
+  }
+
+  50%,
+  100% {
+    fill: currentColor;
+  }
+}
+
+/* Remove: softer shrink, no float. Fill flips back to outline at 50% of
+   220ms = 110ms. */
+.bookmarkIconRemove {
+  animation:
+    bookmarkRemoveTransform 220ms ease-out,
+    bookmarkRemoveFill 220ms steps(1, end);
+}
+
+@keyframes bookmarkRemoveTransform {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(0.8);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes bookmarkRemoveFill {
+  0%,
+  49% {
+    fill: currentColor;
+  }
+
+  50%,
+  100% {
+    fill: transparent;
+  }
+}
+
+/* Comment — no toggle, just a hover tilt */
+.actionBtn:hover .iconRotateOnHover {
+  transform: rotate(-6deg);
+  transition: transform 150ms ease;
+}
+
+/* Share — label swaps to "Copied"; width eases to fit */
+.shareBtn {
+  transition: border-color 150ms ease, background-color 150ms ease,
+    color 150ms ease, width 150ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .likeIconPulseLike,
+  .likeIconPulseUnlike,
+  .likeShake,
+  .countOutUp,
+  .countInUp,
+  .countOutDown,
+  .countInDown,
+  .bookmarkIconSave,
+  .bookmarkIconRemove {
+    animation: none;
+  }
+
+  /* No transition to ride, so just drop the outgoing digit instead of
+     leaving it stacked fully opaque on top of the incoming one. */
+  .countOutUp,
+  .countOutDown {
+    display: none;
+  }
+
+  .actionBtn:hover .iconRotateOnHover {
+    transform: none;
+  }
+}
+
+/* ── SEGMENTED CHAPTER NAVIGATOR ── */
+.chapterNav {
+  padding: 0 var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+
+.shellExplore .chapterNav {
+  padding: 0 36px;
+}
+
+.segments {
+  display: flex;
+  gap: 5px;
+}
+
+/* One link per episode — covers the bar AND the label below it, so
+   hovering/clicking either triggers the same state. */
+.episodeItem {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  text-decoration: none;
+}
+
+.segment {
+  position: relative;
+  height: 3px;
+  border-radius: 2px;
+  overflow: visible;
+  transition: height 180ms ease;
+}
+
+.segmentPast {
+  background: var(--text-secondary);
+}
+
+.segmentFuture {
+  background: var(--border-subtle);
+}
+
+.segmentCurrent {
+  height: 5px;
+  background: var(--border-medium);
+}
+
+.episodeItem:hover .segment,
+.episodeItem:focus-visible .segment {
+  height: 8px;
+}
+
+.segmentFill {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background: var(--accent-strong);
+  border-radius: 2px;
+}
+
+/* ── TOOLTIP — "EP 03 · <title>", 16px above its segment ── */
+.tooltip {
+  position: absolute;
+  bottom: calc(100% + 16px);
+  left: 0;
+  z-index: 2;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 12px;
+  white-space: nowrap;
+  background: var(--bg-elevated);
+  border: 0.5px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  box-shadow: var(--shadow-md);
+  color: var(--text-primary);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-fast) ease;
+}
+
+.tooltipRight {
+  left: auto;
+  right: 0;
+}
+
+.episodeItem:hover .tooltip,
+.episodeItem:focus-visible .tooltip {
+  opacity: 1;
+}
+
+/* ── EPISODE LABEL — inside the same link, below the bar ── */
+.chapterLabel {
+  display: block;
+  text-align: center;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--ink-quiet);
+  transition: color 150ms ease;
+}
+
+.chapterLabelCurrent {
+  color: var(--accent-strong);
+}
+
+.episodeItem:hover .chapterLabel:not(.chapterLabelCurrent),
+.episodeItem:focus-visible .chapterLabel:not(.chapterLabelCurrent) {
+  color: var(--text-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .segment,
+  .tooltip,
+  .chapterLabel {
+    transition: none;
+  }
+}
+
+/* ── PROSE CONTENT ── */
+.prose {
+  padding: 0 var(--space-md);
+}
+
+.shellExplore .prose {
+  padding: 0 36px;
+}
+
+/* MDX figures/images must never exceed the article column width. */
+.prose figure {
+  max-width: 100%;
+  width: 100%;
+  margin: 2rem 0;
+}
+
+.prose figure img {
+  max-width: 100%;
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+}
+
+.prose figcaption {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 10px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* ── EPISODE NAVIGATION — chapter-end moment, the one intentional
+   border in this file (see .navigation's border-top). Each card is a
+   bordered surface rather than a bare text link. ── */
+.navigation {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 48px;
+  padding: 48px var(--space-md) var(--space-xl);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.shellExplore .navigation {
+  padding-left: 36px;
+  padding-right: 36px;
+}
+
+.navLink {
+  display: block;
+  padding: 20px 24px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: border-color var(--transition-base), background-color var(--transition-base);
+}
+
+.navLink:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 4%, var(--bg-elevated));
+}
+
+.navLinkNext {
+  text-align: right;
+}
+
+/* "Back to series" (no prev episode) and "Finished" (no next episode) —
+   same card, but the title reads as secondary information, not a lead. */
+.navLinkMuted .navTitle {
+  color: var(--text-muted);
+}
+
+/* Finished state renders as a <div>, not a link — no destination to hover toward. */
+.navLinkDisabled {
+  cursor: default;
+}
+
+.navLinkDisabled:hover {
+  border-color: var(--border-subtle);
+  background: var(--bg-elevated);
+}
+
+.navEpNumber {
+  display: block;
+  margin-bottom: 4px;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.navDirection {
+  display: block;
+  margin-bottom: 6px;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.navTitle {
+  display: block;
+  font-family: var(--font-heading), serif;
+  font-size: 17px;
+  line-height: 1.35;
+  color: var(--text-primary);
+}
+
+.navSubtext {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--font-body), serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ══════════════════════════════════════════════════════════
+   MOBILE — hard override at ≤767px
+   ══════════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+
+  .shellFocus,
+  .shellExplore {
+    display: block !important;
+    position: static !important;
+    height: auto !important;
+    overflow: visible !important;
+    top: auto !important;
+    padding: 0;
+  }
+
+  .leftPane {
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  .rightPane {
+    display: none !important;
+  }
+
+  .article {
+    max-width: 100% !important;
+  }
+
+  /* Image stays full-bleed; only the text sections get mobile padding. */
+  .articleBlock,
+  .chapterNav,
+  .prose,
+  .navigation {
+    padding-left: var(--space-sm) !important;
+    padding-right: var(--space-sm) !important;
+  }
+
+  .articleFrame {
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+  }
+}
+
+/* ── Responsive nav — stack vertically, prev on top (DOM order already
+   puts prev/back first), next/finished on bottom. ── */
+@media (max-width: 600px) {
+  .navigation {
+    grid-template-columns: 1fr;
+  }
+
+  .navLinkNext {
+    text-align: left;
+  }
+}

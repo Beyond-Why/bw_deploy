@@ -1,0 +1,99 @@
+/* ══════════════════════════════════════════════════════════
+   HUB PAGE — post-episode-list sequence: Discussion → Insight Collections →
+   Keep Exploring. Deliberately no divider/hard border above this — it
+   should read as a continuation of the page, not a new section starting.
+   Section headings (see SectionHeading) now carry their own visual
+   anchoring, so this spacing doesn't have to do that work too — it can
+   stay tight and confident instead of padding out a bare heading.
+   ══════════════════════════════════════════════════════════ */
+
+.section {
+  max-width: var(--container-width);
+  margin: 0 auto;
+  /* One continuous scroll surface (YouTube watch-page rule): 48px between
+     major sections (this is also the Episodes → Discussion gap, set by
+     this padding-top), 64px of page-bottom breathing room. Declared once
+     here on the flex parent — not as margins stacked on children — so
+     there's exactly one owner of inter-section spacing. */
+  /* Horizontal gutter matches .contentGrid above it (and the homepage's
+     .page container) — was a wider max(1.5rem, 5vw), which read as more
+     inset than the rest of the site on a wide screen. */
+  padding: 24px var(--space-md) 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.block {
+  width: 100%;
+}
+
+/* Subtle container scoped to Discussion only — groups the heading, sort
+   controls, comment input, and comment list as one visual unit without
+   introducing a background or divider elsewhere on the page. */
+.discussionContainer {
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: var(--radius-md);
+  padding: 20px;
+}
+
+/* Heading → first content row. SectionHeading itself carries no margin
+   (one owner, applied here via the className prop it's given). */
+.blockHeading {
+  margin: 0 0 20px;
+}
+
+/* ── Insight Collections ── */
+.cardsList {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Each collection block (InsightCollectionBlock) carries its own
+   margin-bottom for standalone contexts (e.g. the Insight Cards page) —
+   here it's a direct child of this flex column, so this selector's
+   higher specificity is what actually sets the 20px gap between
+   collections; the component's own margin is overridden, not stacked. */
+.cardsList > section {
+  margin-bottom: 20px;
+}
+
+.cardsList > section:last-child {
+  margin-bottom: 0;
+}
+
+/* Insight Collections is followed by Keep Exploring, one section-heading
+   block down — that gap needs to read as 40px (heading-to-heading feels
+   too close otherwise), 8px less than the standard 48px this flex
+   parent's `gap` sets between every other pair of major blocks. */
+.afterCollections {
+  margin-top: -8px;
+}
+
+/* Shared ghost "show more" — matches CommentSection's own so the two
+   surfaces feel like the same system. */
+.showMoreBtn {
+  display: block;
+  margin: var(--space-sm) auto 0;
+  background: none;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  padding: 8px 20px;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: border-color var(--transition-fast, 150ms ease), color var(--transition-fast, 150ms ease);
+}
+
+.showMoreBtn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .showMoreBtn {
+    transition: none;
+  }
+}

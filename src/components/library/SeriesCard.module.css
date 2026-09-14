@@ -1,0 +1,669 @@
+/* ── SERIES CARD — shared bar/square primitive for deepdive, builderlog,
+   and insight kinds. Bar geometry + thumbnail/motif/parallax are the
+   insight-bar implementation, generalized. ── */
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 60px;
+  width: 100%;
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+  border: 0.5px solid var(--border-subtle);
+  padding: 14px 16px;
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: transform 150ms ease, border-color 150ms ease, background-color 150ms ease;
+  transition-delay: 0s;
+  container-type: inline-size;
+}
+
+/* :focus-within covers builderlog's <div> wrapper, which is never itself
+   focusable — focus always lands on the title link or a rail entry link
+   inside it. :focus-visible still covers the other kinds' whole-card <a>. */
+.card:hover,
+.card:focus-visible,
+.card:focus-within {
+  transform: translateX(2px);
+  border-color: var(--border-medium);
+}
+
+/* Builder log has a permanent surface, same as every other card — the
+   base .card rule above covers both rest AND hover; background doesn't
+   change on hover at all, only the title's underline (see .title below)
+   and the shared transform/border-color lift above. */
+
+/* ── Builder log title link — the stretched-link pattern. Neither
+   .titleLink nor .body is positioned, so the ::after's containing block
+   is .card itself (the nearest positioned ancestor) and inset: 0 covers
+   the whole card, padding included. The featured block and rail entries
+   sit above it via z-index to capture their own clicks instead. ── */
+.builderlog .body {
+  position: static;
+  z-index: auto;
+  padding: 14px 16px;
+}
+
+.titleLink {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.titleLink::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: var(--radius-md);
+}
+
+/* ── Visual clip — the ONLY thing clipped to the rounded corners, so the
+   bleeding corner number and hover effects are never cut off. ── */
+.visualClip {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.visualDrift {
+  position: absolute;
+  inset: -10px;
+  transition: transform 150ms ease-out;
+  mask-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.5) 100%);
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(255, 255, 255, 0.5) 100%
+  );
+}
+
+.thumbImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.motif {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.motifStroke {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 0.7;
+}
+
+.motifFill {
+  fill: var(--accent);
+  stroke: none;
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    color-mix(in srgb, var(--bg-elevated) 20%, transparent) 45%,
+    color-mix(in srgb, var(--bg-elevated) 88%, transparent) 100%
+  );
+}
+
+/* Insight bar cards (.reveal only renders for kind="insight") are a
+   short, single-line bar with the title vertically centered across the
+   whole height, not anchored top or bottom — the graphic runs behind
+   the full line, so a top-to-bottom fade doesn't help here. A flat
+   scrim gives the title a contrast floor across its whole line instead. */
+.card:has(.reveal) .scrim {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* ── Stroke-number corner overlay — insight (position or collection name)
+   and deepdive (position) only. Omitted for builderlog. ── */
+.numberAccent {
+  position: relative;
+  z-index: 2;
+  display: block;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+.numberCorner {
+  position: absolute;
+  top: -8px;
+  left: -6px;
+  z-index: 2;
+  font-family: var(--font-heading), serif;
+  font-size: clamp(18px, 2vw, 22px);
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--text-muted);
+  pointer-events: none;
+}
+
+.numberCorner + .body {
+  margin-top: 18px;
+}
+
+/* ── NewTag corner overlay — empty span (no size) when NewTag renders
+   null, so it never affects layout for non-new content. ── */
+.newTagCorner {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* ── Body — text + strip content ── */
+.body {
+  position: relative;
+  z-index: 1;
+}
+
+.eyebrowRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+/* Accent marks category, underline marks interactivity — this label is
+   the former, so it's a resting color, never hover-triggered. */
+.typeLabel {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* Underline marks interactivity: transparent at rest, fading in on
+   hover. Triggered by :hover/:focus-within on .card itself (not just
+   .titleLink) — :hover matches whenever the pointer is anywhere inside
+   the card's own box, including over the featured block or a rail entry,
+   so the title stays underlined no matter which specific log within the
+   card is being hovered. */
+.title {
+  font-family: var(--font-heading), serif;
+  font-size: 1rem;
+  line-height: 1.2;
+  font-weight: 400;
+  text-wrap: balance;
+  color: var(--text-primary);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-decoration-line: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  transition: text-decoration-color 150ms ease;
+}
+
+.card:hover .title,
+.card:focus-visible .title,
+.card:focus-within .title {
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+}
+
+/* Builder log's series title matches DeepDiveCard's title size — the
+   card is deliberately as large/wide as a Deep Dive entry now, so its
+   title shouldn't read smaller than one. */
+.builderlog .title {
+  font-size: clamp(1.5rem, 1.4vw, 1.9rem);
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+}
+
+.description {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin: 4px 0 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ══════════════════════════════════════════════════════════
+   FEATURED LOG — the newest entry, expanded above the rail. Its own
+   link (stretched-link z-index pattern, same as a rail column) to that
+   specific log. No thumbnail fallback: the image slot only exists when
+   the log has one, and collapses entirely (not a placeholder) otherwise —
+   the text side just runs full width via normal flex reflow.
+   ══════════════════════════════════════════════════════════ */
+.featured {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-top: 14px;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.featuredThumb {
+  flex-shrink: 0;
+  width: 132px;
+  height: 84px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+}
+
+.featuredThumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.featuredBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.featuredMeta {
+  display: block;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-quiet);
+  margin-bottom: 4px;
+}
+
+/* Outer layout wrapper — same reserved-height approach as .railTitle, so
+   the featured block's height doesn't depend on whether the title needs
+   one line or two. Stays --text-primary on hover — the underline below
+   is the only hover affordance, no color change. */
+.featuredTitle {
+  font-family: var(--font-heading), serif;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+  max-width: 100%;
+  min-height: 2.5em;
+  text-decoration-line: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  transition: text-decoration-color 150ms ease;
+}
+
+.featuredTitleWide {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.featuredTitleNarrow {
+  display: none;
+}
+
+@container (max-width: 460px) {
+  .featuredTitle {
+    min-height: 0;
+  }
+  .featuredTitleWide {
+    display: none;
+  }
+  .featuredTitleNarrow {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: min(32ch, 100%);
+  }
+}
+
+.featured:hover .featuredTitle,
+.featured:focus-visible .featuredTitle {
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+}
+
+/* Only rendered when the log has an excerpt at all — reserving 2 lines'
+   worth of empty space for a log with none would be padding to reach a
+   height, which item 4 rules out. When it IS rendered, the clamp still
+   keeps a short and a long excerpt the same height. */
+.featuredExcerpt {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--text-secondary);
+  margin: 0;
+  min-height: 2.8em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ══════════════════════════════════════════════════════════
+   BUILDER LOG RAIL — the remaining logs (the newest is featured above,
+   not repeated here), newest-first left to right, all at the same
+   weight/opacity. Node + label for a given log live in the SAME grid
+   column, so they're aligned by construction rather than by two
+   independently-computed lists. Only the rail line's final segment and
+   the terminal "N earlier" affordance fade — nothing else does.
+   ══════════════════════════════════════════════════════════ */
+.rail {
+  position: relative;
+  margin-top: 14px;
+}
+
+/* Connecting line, drawn once behind every column at the node's vertical
+   center (nodes are all 8px, so that's 4px from the top of the grid).
+   Full strength up to --rail-fade-start (set inline per-render from the
+   actual column count — see RailStrip), fading to transparent only in
+   the last segment, leading into the terminal node. No terminal, no
+   fade: --rail-fade-start is 100% and the line stays solid throughout. */
+.railLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 4px;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    var(--border-medium) 0%,
+    var(--border-medium) var(--rail-fade-start, 100%),
+    transparent 100%
+  );
+  z-index: 0;
+}
+
+.railGrid {
+  position: relative;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  column-gap: 20px;
+}
+
+.railColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Only real log entries are links — elevate them above the card's
+   stretched title-link overlay so they capture their own clicks. The
+   terminal "N earlier" affordance is a plain div and stays beneath it,
+   so a click there falls through to the series page like everywhere else. */
+a.railColumn {
+  position: relative;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.railNode {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-primary);
+  transition: transform 150ms ease;
+}
+
+a.railColumn:hover .railNode,
+a.railColumn:focus-visible .railNode {
+  transform: scale(1.25);
+}
+
+a.railColumn:hover .railTitle,
+a.railColumn:focus-visible .railTitle {
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+}
+
+/* The only faded elements in the rail besides the line's tail. */
+.railNodeTerminal {
+  background: transparent;
+  border: 1px solid var(--border-medium);
+  opacity: 0.5;
+}
+
+.railMeta {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-quiet);
+  white-space: nowrap;
+}
+
+/* Outer layout wrapper — reserves the 2-line height even for a 1-line
+   title, so the rail (and the card's overall height) never shifts with
+   title length. The actual clamped/truncated text lives in .railTitleWide
+   or .railTitleNarrow below; only one is ever displayed. Every entry is
+   the same weight/opacity — the newest-of-all is featured above, not
+   here, so there's no "boldest" entry left to distinguish. */
+.railTitle {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--text-primary);
+  max-width: 100%;
+  min-height: 2.6em;
+  text-decoration-line: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 2px;
+  transition: text-decoration-color 150ms ease;
+}
+
+/* Wraps to a max of 2 lines rather than truncating. Each word is its own
+   nowrap span (see WordSafeText) so the clamp's cut always lands between
+   words, never inside one. */
+.railTitleWide {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.railTitleNarrow {
+  display: none;
+}
+
+/* Narrow renders (Explore sidebar, mobile): a two-line wrap would push
+   the card too tall, so this is the one place a single-line character
+   clamp is worth it. The text is already truncated at a word boundary in
+   JS (truncateAtWord) before it reaches here — -webkit-line-clamp: 1
+   truncates at the pixel/character level regardless of element
+   boundaries (there's no "next line" for an overflowing word to move to
+   whole), so unlike the 2-line wrap above, it can't be trusted to stay
+   word-safe on its own. */
+@container (max-width: 460px) {
+  .railTitle {
+    min-height: 0;
+  }
+  .railTitleWide {
+    display: none;
+  }
+  .railTitleNarrow {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    /* Belt-and-suspenders only — the JS truncation above already keeps
+       this within ~32 word-safe characters, so this should rarely fire.
+       It only catches the case where the rail has dropped to 2 narrow
+       columns and 32ch still doesn't fit either one. */
+    text-overflow: ellipsis;
+    max-width: min(32ch, 100%);
+  }
+}
+
+.railEarlier {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 0.68rem;
+  color: var(--ink-quiet);
+  white-space: nowrap;
+  opacity: 0.5;
+}
+
+/* Container-query degrade — measures the CARD's own width, not the
+   viewport, so this works correctly in sidebars and multi-column shelves.
+   Drops the rightmost columns only; type size never shrinks. Works
+   regardless of whether the trailing column is a real log or the
+   terminal affordance. */
+@container (max-width: 640px) {
+  .railGrid > :nth-child(n + 4) {
+    display: none;
+  }
+}
+
+@container (max-width: 460px) {
+  .railGrid > :nth-child(n + 3) {
+    display: none;
+  }
+}
+
+@container (max-width: 320px) {
+  .railGrid > :nth-child(n + 2) {
+    display: none;
+  }
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   DEEP DIVE METER — segmented, same visual language as the chapter
+   navigator: completed segments solid, remaining as hairlines.
+   ══════════════════════════════════════════════════════════ */
+.meterRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.meterSegments {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.meterSegment {
+  height: 3px;
+  flex: 1;
+  border-radius: 2px;
+  background: var(--border-subtle);
+}
+
+.meterSegmentDone {
+  background: var(--text-secondary);
+}
+
+.meterCount {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════════════════════
+   INSIGHT HOVER REVEAL — teaser + "Read →", collapsed at rest.
+   ══════════════════════════════════════════════════════════ */
+/* transition-delay here governs the CLOSING edge (mouse-leave reverts to
+   this base rule); the :hover/:focus-visible rule below sets its own
+   delay for the OPENING edge. Same delay both ways, so the reveal never
+   feels like it's snapping in either direction. */
+.reveal {
+  position: relative;
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transform: translateY(4px);
+  margin-top: 0;
+  transition: grid-template-rows 200ms ease, opacity 200ms ease, transform 200ms ease,
+    margin-top 200ms ease;
+  transition-delay: 200ms;
+}
+
+.revealInner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.card:hover .reveal,
+.card:focus-visible .reveal {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transform: translateY(0);
+  margin-top: 6px;
+  transition-delay: 200ms;
+}
+
+.teaser {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-xs);
+  line-height: 1.3;
+  color: var(--text-muted);
+  margin: 0 0 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Same affordance language as "Follow the build →" — quiet ink, never
+   accent. This text only ever renders while .reveal is already open (the
+   card is being hovered), so its underline is just always on rather than
+   transitioning in a second time on top of the reveal itself. */
+.readMore {
+  display: block;
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-xs);
+  line-height: 1.3;
+  font-weight: 500;
+  color: var(--ink-quiet);
+  text-decoration-line: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+  text-underline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .visualDrift,
+  .title,
+  .featuredTitle,
+  .railTitle,
+  .reveal {
+    transition: none;
+    animation: none;
+  }
+}

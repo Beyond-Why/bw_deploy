@@ -1,0 +1,219 @@
+/* ── SHARE MODAL — minimal, dark, editorial. No corporate-rounded chrome. ── */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.panel {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: 20px;
+  opacity: 1;
+  /* Clips .progressBar's corners to the panel's own border-radius so it
+     sits flush at the bottom with no gap. */
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .panel {
+    animation: shareModalIn 220ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+}
+
+@keyframes shareModalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.closeButton {
+  position: absolute;
+  top: var(--space-sm);
+  right: var(--space-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.closeButton:hover {
+  background: var(--border-subtle);
+  color: var(--text-primary);
+}
+
+.title {
+  font-family: var(--font-heading), serif;
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: var(--text-primary);
+  margin: 0 0 12px;
+}
+
+.iconRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+/* Layout/shape only — each button also carries a .brand* class below
+   that supplies its background and (white) icon color, replacing the
+   dark neutral circle entirely. */
+.iconBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: transform var(--transition-fast), filter var(--transition-fast);
+}
+
+.iconBtn:hover,
+.iconBtn:focus-visible {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+
+.iconBtn svg {
+  width: 28px;
+  height: 28px;
+}
+
+.brandWhatsapp {
+  background: #25d366;
+  color: #fff;
+}
+
+.brandInstagram {
+  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+  color: #fff;
+}
+
+.brandFacebook {
+  background: #1877f2;
+  color: #fff;
+}
+
+.brandX {
+  background: #000000;
+  color: #fff;
+}
+
+.copyRow {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-xs);
+}
+
+.urlInput {
+  flex: 1;
+  min-width: 0;
+  padding: 0.65rem 0.8rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.urlInput:focus {
+  outline: none;
+  border-color: var(--border-medium);
+  color: var(--text-primary);
+}
+
+.copyBtn {
+  flex-shrink: 0;
+  padding: 0.65rem 1rem;
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color var(--transition-fast), color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.copyBtn:hover {
+  color: var(--text-primary);
+  border-color: var(--border-medium);
+  background: var(--bg-surface);
+}
+
+.copyBtn.copied {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+
+/* ── AUTO-CLOSE PROGRESS BAR ── */
+/* Flush against the panel's bottom edge, clipped to its border-radius by
+   .panel's own overflow: hidden. The drain is a pure CSS animation —
+   toggling .paused flips animation-play-state, which the browser resumes
+   from its current position rather than restarting, so pausing on hover
+   doesn't need any JS-side visual bookkeeping (the actual auto-close
+   timer is tracked separately in ShareModal.tsx, since a JS timeout
+   doesn't inherit that pause-and-resume behavior for free). */
+.progressBar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: var(--accent);
+  width: 100%;
+  animation: shareProgressDrain 10s linear forwards;
+}
+
+.progressBar.paused {
+  animation-play-state: paused;
+}
+
+@keyframes shareProgressDrain {
+  from {
+    width: 100%;
+  }
+
+  to {
+    width: 0%;
+  }
+}

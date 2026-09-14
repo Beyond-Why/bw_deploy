@@ -1,0 +1,166 @@
+/* ── MDX COMPONENT STYLES ──
+   Tuned for distraction-free, calm reading. */
+
+/* ── HEADINGS ── */
+.h1 {
+  font-family: var(--font-heading), serif;
+  font-size: var(--font-size-h1);
+  font-weight: 400;
+  line-height: var(--line-height-heading);
+  margin-bottom: var(--space-md);
+  opacity: 0.95;
+}
+
+.h2 {
+  font-family: var(--font-heading), serif;
+  font-size: var(--font-size-h2);
+  font-weight: 400;
+  line-height: var(--line-height-heading);
+  margin-top: var(--space-xl);
+  margin-bottom: var(--space-sm);
+  scroll-margin-top: 88px;
+}
+
+.h3 {
+  font-family: var(--font-heading), serif;
+  font-size: var(--font-size-h3);
+  font-weight: 400;
+  line-height: var(--line-height-tight);
+  margin-top: var(--space-lg);
+  margin-bottom: var(--space-xs);
+  scroll-margin-top: 88px;
+}
+
+.h4 {
+  font-family: var(--font-heading), serif;
+  font-size: var(--font-size-h4);
+  font-weight: 400;
+  line-height: var(--line-height-tight);
+  margin-top: var(--space-md);
+  margin-bottom: var(--space-xs);
+  color: var(--text-secondary);
+  scroll-margin-top: 88px;
+}
+
+/* ── PARAGRAPH ── */
+.p {
+  margin-bottom: var(--space-md);
+  line-height: var(--line-height-body);
+}
+
+/* ── LINKS — accent marks category, underline marks interactivity; a
+   prose link stays the surrounding text's own color, gaining only a
+   fading-in underline on hover. ── */
+.a {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  transition: text-decoration-color var(--transition-fast);
+}
+
+.a:hover {
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+}
+
+/* ── BLOCKQUOTE ── */
+.blockquote {
+  border-left: 2.5px solid var(--accent);
+  padding: 8px 0 8px 18px;
+  margin: 4px 0;
+}
+
+.blockquote p {
+  font-style: italic;
+  color: var(--text-secondary);
+  margin-bottom: 0;
+}
+
+/* ── LISTS ── */
+.ul,
+.ol {
+  margin-bottom: var(--space-md);
+  padding-left: var(--space-lg);
+}
+
+.li {
+  margin-bottom: var(--space-xs);
+  line-height: var(--line-height-body);
+}
+
+.li::marker {
+  color: var(--text-muted);
+}
+
+/* ── CODE ── */
+.codeInline {
+  font-family: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+  font-size: 0.875em;
+  padding: 0.15em 0.4em;
+  background: var(--bg-code);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  color: var(--text-primary);
+}
+
+.pre {
+  margin: var(--space-lg) 0;
+  padding: var(--space-md);
+  background: var(--bg-code);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  font-family: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+}
+
+.codeBlock {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* ── HORIZONTAL RULE ── */
+.hr {
+  border: none;
+  height: 1px;
+  background: var(--border-subtle);
+  margin: var(--space-xl) 0;
+}
+
+/* ── IMAGES ── */
+.figure {
+  margin: var(--space-lg) 0;
+}
+
+.img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+  display: block;
+}
+
+.figcaption {
+  margin-top: var(--space-xs);
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* ── EMPHASIS ── */
+.strong {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.em {
+  font-style: italic;
+}

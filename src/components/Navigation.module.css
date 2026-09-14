@@ -1,0 +1,83 @@
+.header {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  background: color-mix(in srgb, var(--bg-primary) 90%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.nav {
+  width: 100%;
+  max-width: var(--container-width);
+  margin: 0 auto;
+  padding: 0 var(--space-md);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+}
+
+/* Explore mode's reader (EpisodeReader.module.css .shellExplore) is a
+   full-bleed split view with its own 15px left inset, not centered at
+   --container-width — so keeping .nav centered here misaligns the logo
+   with the content below it on wide screens. ModeToggleBtn toggles this
+   class on <html> in sync with the reader's mode. */
+:global(.explore-mode-active) .nav {
+  max-width: none;
+  padding-left: 15px;
+}
+
+.rightSection {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  flex: 1;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+.tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.signIn {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-small);
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-decoration-line: none;
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  transition: color var(--transition-fast), border-color var(--transition-fast),
+    background var(--transition-fast);
+  white-space: nowrap;
+  /* Now rendered as a <button> (opens the auth modal) rather than a <Link> —
+     these reset the browser's default button chrome so it still looks
+     identical to the plain-text anchor it replaced. */
+  background: none;
+  cursor: pointer;
+}
+
+.signIn:hover {
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  border-color: var(--border-medium);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  .rightSection {
+    gap: var(--space-sm);
+  }
+}

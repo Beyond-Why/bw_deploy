@@ -1,0 +1,35 @@
+/* ══════════════════════════════════════════════════════════
+   SECTION HEADING — one structural-marker treatment, two levels.
+   No accent mark — flush left, aligned with the content below it.
+   ══════════════════════════════════════════════════════════ */
+
+.heading {
+  margin: 0;
+}
+
+.label {
+  font-family: var(--font-heading), serif;
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+.meta {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  margin-left: 10px;
+}
+
+/* ── Sub level — one step down, e.g. Physics/Robotics inside a section
+   like Insight Collections. Smaller label — same device, quieter volume. ── */
+.sub .label {
+  font-size: 1.1rem;
+  font-weight: 400;
+}
+
+.sub .meta {
+  font-size: 0.8rem;
+}

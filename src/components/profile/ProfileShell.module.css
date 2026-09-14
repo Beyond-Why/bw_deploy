@@ -1,0 +1,9 @@
+/* Same container sizing as the homepage/nav/insight-cards pages
+   (var(--container-width) + var(--space-md) horizontal padding — see
+   the .container utility in globals.css) so the profile page's edges
+   line up with the rest of the site instead of using its own value. */
+.shell {
+  max-width: var(--container-width);
+  margin: 0 auto;
+  padding: 0 var(--space-md);
+}

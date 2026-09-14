@@ -1,0 +1,222 @@
+/* ── INSIGHT COLLECTION BLOCK — heading + one row of bars, swipe-paginated ── */
+
+/* Trailing space below the card row before whatever comes next — 16px.
+   A parent that stacks several of these (e.g. HubDiscussion's cardsList,
+   InsightSaveStack) may override this with its own higher-specificity
+   rule for the between-instances gap, but this is the default for a
+   single instance and for the last one in any stack. */
+.block {
+  margin-bottom: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  /* Label → its card row: 12px. */
+  margin-bottom: 12px;
+}
+
+.headingLeft {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.headingText {
+  font-family: var(--font-heading), serif;
+  font-size: var(--font-size-h3);
+  font-weight: 400;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* Opt-in quiet variant — a bookmark preview context (Recently Saved,
+   the Insight Cards tab) wants the collection name to read as a label
+   above the carousel, not a page-level heading. Declared after
+   .headingText so it wins the cascade when both classes are applied. */
+.headingTextQuiet {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.count {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+
+/* ── Swipe control — replaces the old "Open collection →" link ── */
+.swipe {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+}
+
+.swipeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  border: 0.5px solid var(--border-subtle);
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: opacity var(--transition-fast) ease, border-color var(--transition-fast) ease,
+    color var(--transition-fast) ease;
+}
+
+.swipeBtn:hover:not(:disabled) {
+  color: var(--accent);
+  border-color: var(--border-medium);
+}
+
+.swipeBtn:disabled {
+  opacity: 0.3;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* ── Stack — the visible pair, plus an overlaid outgoing pair while paging.
+   Padding + matching negative margin gives the bar cards' bleeding corner
+   number (top:-8px, left:-6px) room before the swipe-clip boundary — net
+   zero shift to .stack's own position/size, just breathing room inside. ── */
+.stack {
+  position: relative;
+  overflow: hidden;
+  padding: 10px 0 0 8px;
+  margin: -10px 0 0 -8px;
+}
+
+.barsLayer {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  .barsLayer {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.barsLayerOverlay {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+}
+
+@keyframes blockSlideOutFwd {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+@keyframes blockSlideOutRev {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes blockSlideInFwd {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes blockSlideInRev {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.slideOutFwd {
+  animation: blockSlideOutFwd 280ms ease-out forwards;
+}
+
+.slideOutRev {
+  animation: blockSlideOutRev 280ms ease-out forwards;
+}
+
+.slideInFwd {
+  animation: blockSlideInFwd 280ms ease-out forwards;
+}
+
+.slideInRev {
+  animation: blockSlideInRev 280ms ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .swipeBtn {
+    transition: none;
+  }
+
+  .slideOutFwd,
+  .slideOutRev,
+  .slideInFwd,
+  .slideInRev {
+    animation: none;
+  }
+}
+
+/* ── MOBILE — header collapses to just the title and the arrow cluster;
+   the card count / saved-at text drops so there's room for both without
+   wrapping to a second line. ── */
+@media (max-width: 600px) {
+  .header {
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+
+  .headingLeft {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .headingText,
+  .headingTextQuiet {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .count {
+    display: none;
+  }
+
+  .swipe {
+    flex: none;
+    align-self: center;
+    margin-left: 8px;
+  }
+}

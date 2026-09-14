@@ -1,0 +1,332 @@
+.wrapper {
+  position: relative;
+}
+
+.btn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: color var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.btn:hover,
+.btn[aria-expanded="true"] {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent-strong);
+}
+
+/* ── MENU ── */
+.menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 340px;
+  max-width: calc(100vw - 2 * var(--space-md));
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  z-index: 300;
+  overflow: hidden;
+  transform-origin: top right;
+  animation: dropdownIn 180ms ease-out forwards;
+}
+
+@keyframes dropdownIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu {
+    animation: none;
+  }
+}
+
+/* .menu's `right: 0` aligns to .wrapper's own edge, not the viewport's —
+   fine on desktop where the bell sits flush against the navbar's right
+   edge, but UserDropdown's avatar sits to its right in .tools, so on
+   mobile that 340px-wide menu extends left from a point already inset
+   from the screen edge and runs off the left side. Anchoring to the
+   viewport via `fixed` + matching left/right insets fixes that
+   regardless of what else is in the navbar. */
+@media (max-width: 600px) {
+  .menu {
+    position: fixed;
+    top: 74px;
+    left: var(--space-md);
+    right: var(--space-md);
+    width: auto;
+    max-width: none;
+    transform-origin: top center;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.headerTitle {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.markAllButton {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 12px;
+  color: var(--accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.markAllButton:hover {
+  color: var(--accent-hover);
+}
+
+.markAllButton:disabled {
+  color: var(--text-muted);
+  cursor: default;
+}
+
+.list {
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.empty {
+  padding: 28px 16px;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border-subtle);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.item:hover {
+  background: var(--bg-surface);
+}
+
+.itemUnread {
+  background: var(--accent-light);
+}
+
+.itemUnread:hover {
+  background: color-mix(in srgb, var(--accent-light) 70%, var(--bg-surface));
+}
+
+.itemIcon {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  color: var(--accent);
+  display: grid;
+  place-items: center;
+  margin-top: 1px;
+}
+
+.itemBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.itemTitle {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.itemMessage {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.itemTime {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ── POLL NOTIFICATIONS — self-contained, not a nav row ── */
+.itemPoll {
+  cursor: default;
+}
+
+.pollLoading,
+.pollError {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.pollOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 2px 0;
+}
+
+.pollOptionButton {
+  width: 100%;
+  text-align: left;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 12.5px;
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.pollOptionButton:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+
+.pollOptionButton:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.pollResults {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 3px 0;
+}
+
+.pollResultRow {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.pollResultRowChosen {
+  padding-left: 7px;
+  border-left: 2px solid var(--accent-strong);
+}
+
+.pollResultLabelRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.pollResultLabel {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 12.5px;
+  color: var(--text-primary);
+}
+
+.pollResultRowChosen .pollResultLabel {
+  color: var(--accent-strong);
+  font-weight: 600;
+}
+
+.pollResultPct {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 11px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.pollResultBarTrack {
+  position: relative;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+}
+
+.pollResultBarFill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--accent-muted);
+  border-radius: 999px;
+  transition: width 200ms ease;
+}
+
+.pollResultRowChosen .pollResultBarFill {
+  background: var(--accent-strong);
+}
+
+.pollTotal {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pollResultBarFill {
+    transition: none;
+  }
+}

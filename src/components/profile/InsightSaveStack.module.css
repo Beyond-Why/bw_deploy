@@ -1,0 +1,40 @@
+/* No gap here — each save's own InsightCollectionBlock already carries a
+   16px trailing margin (see InsightCollectionBlock.module.css .block),
+   which is what separates consecutive saves. Adding a flex gap on top
+   would double-count that spacing. */
+.stack {
+  display: flex;
+  flex-direction: column;
+}
+
+.block {
+  position: relative;
+}
+
+/* The last save's own trailing margin would double up with
+   .episodeSpacer's margin-top (RecentSaved.module.css) right below it —
+   zero it so that 16px is the only gap between the carousel and the
+   episode grid, not 16+16. */
+.block:last-child section {
+  margin-bottom: 0;
+}
+
+.removing {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 250ms ease;
+}
+
+/* Reuses the collection block's own pagination-arrow styling, so the
+   remove control reads as a third member of the same button cluster
+   instead of a foreign element bolted onto the card. */
+.removeBtn {
+  composes: swipeBtn from "../library/InsightCollectionBlock.module.css";
+  font-size: 1.1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .removing {
+    transition: none;
+  }
+}

@@ -1,0 +1,106 @@
+.section {
+  margin-bottom: var(--space-xl);
+  padding: 0;
+  max-width: var(--container-width);
+  margin-inline: auto;
+}
+
+/* Natural in-flow header — just sits in the document, scrolls away cleanly */
+.headerNatural {
+  background-color: var(--bg-primary);
+  margin-left: calc(-1 * var(--space-md));
+  margin-right: calc(-1 * var(--space-md));
+  padding-left: var(--space-md);
+  padding-right: var(--space-md);
+  padding-top: var(--space-sm);
+  padding-bottom: var(--space-xs);
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: var(--space-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+@media (min-width: 768px) {
+  .headerNatural {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.sectionTitle {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-h3);
+  color: var(--text-primary);
+  margin: 0;
+  /* margin-top: var(--space-sm); */
+}
+
+.tabContainer {
+  display: flex;
+}
+
+.tabs {
+  display: flex;
+  background-color: var(--bg-surface);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+  gap: 4px;
+  border: 1px solid var(--border-subtle);
+}
+
+.tab {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-small);
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 6px 16px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.tab:hover {
+  color: var(--text-primary);
+}
+
+.activeTab {
+  background-color: var(--bg-elevated);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── LAYOUT WRAPPERS ──
+   1.75rem is the shared row-to-row gap token — same value the Insight
+   Cards tab's InsightCollectionBlock already uses, so rhythm is identical
+   across all four tabs. ── */
+
+/* "All" tab — every shelf item (a single deep-dive card, a single builder
+   log card, or a whole InsightRow) is one flex child here, so consecutive
+   shelves get exactly one gap between them regardless of type. Previously
+   each shelf wrapper carried its own margin-bottom (var(--space-xl), 64px)
+   on top of nothing here — double the Deep-Dives-tab spacing below. */
+.feedContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+/* Deep Dives: Verge-style horizontal list */
+.deepDiveList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  max-width: 100%;
+  margin-inline: 0;
+}
+
+/* Insight Cards tab: one InsightCollectionBlock per collection, stacked —
+   each block already carries its own 1.75rem margin-bottom. */
+.insightCollectionRows {
+  display: flex;
+  flex-direction: column;
+}

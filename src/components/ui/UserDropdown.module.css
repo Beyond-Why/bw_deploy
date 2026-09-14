@@ -1,0 +1,209 @@
+.wrapper {
+  position: relative;
+}
+
+.avatarButton {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  padding: 0;
+  cursor: pointer;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: border-color var(--transition-fast);
+}
+
+.avatarButton:hover,
+.avatarButton[aria-expanded="true"] {
+  border-color: var(--accent);
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarInitial {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* ── MENU ── */
+.menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 220px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  z-index: 300;
+  overflow: hidden;
+  transform-origin: top right;
+}
+
+.menuOpen {
+  animation: dropdownIn 180ms ease-out forwards;
+}
+
+.menuClosing {
+  animation: dropdownOut 130ms ease-in forwards;
+}
+
+@keyframes dropdownIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dropdownOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menuOpen,
+  .menuClosing {
+    animation: none;
+  }
+}
+
+/* Matches NotificationBell's mobile treatment (see its .menu media query)
+   so the two dropdowns behave identically on small screens — anchored to
+   the viewport via `fixed` + matching left/right insets rather than each
+   trigger's own edge, so their width/position reads as one consistent
+   pattern instead of two different dropdown behaviors side by side. */
+@media (max-width: 600px) {
+  .menu {
+    position: fixed;
+    top: 74px;
+    left: var(--space-md);
+    right: var(--space-md);
+    min-width: 0;
+    width: auto;
+    transform-origin: top center;
+  }
+}
+
+/* ── HEADER (identity — not clickable) ── */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+}
+
+.headerAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.headerText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.headerName {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.headerUsername {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.divider {
+  height: 1px;
+  background: var(--border-subtle);
+}
+
+/* ── NAVIGATION ROWS ── */
+.menuItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 40px;
+  padding: 0 16px;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 14px;
+  color: var(--text-primary);
+  background: none;
+  border: none;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.menuItem:hover {
+  background: var(--bg-surface);
+}
+
+.arrow {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* ── SIGN OUT ── */
+.signOutForm {
+  margin: 0;
+}
+
+.signOutBtn {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 40px;
+  padding: 0 16px;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 14px;
+  color: #e05c5c;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.signOutBtn:hover {
+  background: rgba(224, 92, 92, 0.08);
+}

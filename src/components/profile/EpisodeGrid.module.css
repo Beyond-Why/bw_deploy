@@ -1,0 +1,170 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+}
+
+/* ── Row cap (Recently Saved only) ──
+   Each insight-collection carousel above this grid is always exactly one
+   full-width row, however many cards it holds. The row budget for the
+   *combined* section is 3 rows at ≥768px (3+ columns) and 5 rows below
+   that (1–2 columns) — so the grid's own share is (budget − collectionRows)
+   rows, and at N columns that's (budget − collectionRows) × N cards.
+   data-collection-rows carries that count from the server (0–3, see
+   BookmarksSection); it's simply absent on the standalone Deep Dives tab,
+   so none of these selectors match there and the full list renders. */
+
+/* 5 columns, ≥1400px — budget 3 rows: 15 / 10 / 5 / 0 cards */
+@media (min-width: 1400px) {
+  .grid[data-collection-rows="0"] > *:nth-child(n + 16) {
+    display: none;
+  }
+  .grid[data-collection-rows="1"] > *:nth-child(n + 11) {
+    display: none;
+  }
+  .grid[data-collection-rows="2"] > *:nth-child(n + 6) {
+    display: none;
+  }
+  .grid[data-collection-rows="3"] > * {
+    display: none;
+  }
+}
+
+@media (max-width: 1399px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* 4 columns, 1100–1399px — budget 3 rows: 12 / 8 / 4 / 0 cards */
+@media (min-width: 1100px) and (max-width: 1399px) {
+  .grid[data-collection-rows="0"] > *:nth-child(n + 13) {
+    display: none;
+  }
+  .grid[data-collection-rows="1"] > *:nth-child(n + 9) {
+    display: none;
+  }
+  .grid[data-collection-rows="2"] > *:nth-child(n + 5) {
+    display: none;
+  }
+  .grid[data-collection-rows="3"] > * {
+    display: none;
+  }
+}
+
+@media (max-width: 1099px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* 3 columns, 768–1099px — budget 3 rows: 9 / 6 / 3 / 0 cards */
+@media (min-width: 768px) and (max-width: 1099px) {
+  .grid[data-collection-rows="0"] > *:nth-child(n + 10) {
+    display: none;
+  }
+  .grid[data-collection-rows="1"] > *:nth-child(n + 7) {
+    display: none;
+  }
+  .grid[data-collection-rows="2"] > *:nth-child(n + 4) {
+    display: none;
+  }
+  .grid[data-collection-rows="3"] > * {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* 2 columns, 480–767px — budget 5 rows: 10 / 8 / 6 / 4 cards */
+@media (min-width: 480px) and (max-width: 767px) {
+  .grid[data-collection-rows="0"] > *:nth-child(n + 11) {
+    display: none;
+  }
+  .grid[data-collection-rows="1"] > *:nth-child(n + 9) {
+    display: none;
+  }
+  .grid[data-collection-rows="2"] > *:nth-child(n + 7) {
+    display: none;
+  }
+  .grid[data-collection-rows="3"] > *:nth-child(n + 5) {
+    display: none;
+  }
+}
+
+@media (max-width: 479px) {
+  .grid {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
+/* 1 column, ≤479px — budget 5 rows: 5 / 4 / 3 / 2 cards */
+@media (max-width: 479px) {
+  .grid[data-collection-rows="0"] > *:nth-child(n + 6) {
+    display: none;
+  }
+  .grid[data-collection-rows="1"] > *:nth-child(n + 5) {
+    display: none;
+  }
+  .grid[data-collection-rows="2"] > *:nth-child(n + 4) {
+    display: none;
+  }
+  .grid[data-collection-rows="3"] > *:nth-child(n + 3) {
+    display: none;
+  }
+}
+
+.entry {
+  position: relative;
+}
+
+.removing {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 250ms ease;
+}
+
+.removeBtn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-sm);
+  color: var(--text-muted);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 150ms ease, color 150ms ease;
+}
+
+.entry:hover .removeBtn,
+.entry:focus-within .removeBtn {
+  opacity: 1;
+}
+
+.removeBtn:hover {
+  color: var(--text-primary);
+}
+
+.removeBtn:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .removing {
+    transition: none;
+  }
+}

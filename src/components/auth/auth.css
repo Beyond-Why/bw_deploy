@@ -1,0 +1,45 @@
+/* ══════════════════════════════════════════════════════════
+   AUTH PAGES — shared design tokens
+   Imported (plain CSS, not a module) by every auth page's own CSS
+   module — signin, signup, forgot-password, reset-password,
+   AuthBrandPanel, GoogleButton, PasswordField — so there's one place
+   that defines the dark theme each of them pulls colors/spacing from.
+
+   Scoped to .authFullPage — the literal (unhashed) marker class each
+   auth page's own root element carries — rather than :root, so these
+   variables can't leak into the rest of the app. globals.css keys off
+   the same class name to hide the site header on these pages; both
+   rely on it being applied verbatim (not via a CSS Modules import) on
+   each page's outermost element.
+   ══════════════════════════════════════════════════════════ */
+
+.authFullPage {
+  /* Mirrors the site's own [data-theme="dark"] token values (see
+     globals.css) rather than reading them via var() — these pages force
+     a dark presentation regardless of the visitor's light/dark
+     preference, so they need fixed values, not ones that would flip
+     light on a light-mode visitor. */
+  --auth-bg: #0a0a0a;
+  --auth-panel-bg: #0a0a0a;
+  --auth-border: #2a2a2a;
+  --auth-text-primary: #e8e0d6;
+  --auth-text-secondary: #b0a89e;
+  --auth-text-muted: #7a736b;
+  --auth-accent: #7ba4e0;
+  --auth-accent-hover: #9bbcf0;
+  --auth-input-bg: #242424;
+  --auth-input-border: #2a2a2a;
+  --auth-input-focus-border: #7ba4e0;
+  --auth-button-bg: #7ba4e0;
+  --auth-button-text: #ffffff;
+  --auth-button-hover: #9bbcf0;
+  --auth-error: #ff6b6b;
+  --auth-success: #86b36b;
+  --auth-radius: 6px;
+  /* The project's existing UI font stack (Inter) — reused here rather
+     than the body's serif reading font (Lora), which reads well for
+     prose but not for dense form/button text. */
+  --auth-font: var(--font-ui), system-ui, sans-serif;
+  --auth-heading-font: var(--font-heading), Georgia, serif;
+  --auth-body-font: var(--font-body), Georgia, serif;
+}

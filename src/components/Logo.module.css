@@ -1,0 +1,49 @@
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.logo:hover {
+  opacity: 0.75;
+}
+
+.mark {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+}
+
+.accent {
+  fill: var(--logo-accent);
+}
+
+.wordmark {
+  display: none;
+  font-family: var(--font-heading), serif;
+  font-size: 1.4rem;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+/* ── RESPONSIVE ── */
+/* Wordmark only appears alongside the mark at md and above; small screens
+   get the mark on its own. */
+@media (min-width: 768px) {
+  .wordmark {
+    display: inline;
+  }
+}
+
+@media (max-width: 600px) {
+  .wordmark {
+    font-size: 1.25rem;
+  }
+
+  .mark {
+    width: 26px;
+    height: 26px;
+  }
+}

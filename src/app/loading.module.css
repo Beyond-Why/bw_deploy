@@ -1,0 +1,35 @@
+.wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Hardcoded, not var(--bg-primary) — this can render server-side/
+     pre-hydration, before ThemeProvider's client effect has set
+     data-theme="dark" on <html>, so a theme-conditional token would
+     still resolve to :root's light default for that window. This value
+     is dark theme's --bg-primary. */
+  background: #0d0d0d;
+  /* Lets a future opacity toggle (e.g. a visible/hidden class swapped in
+     for the fade-out described below) animate smoothly instead of
+     snapping. */
+  transition: opacity 400ms ease;
+}
+
+.mark {
+  width: 80px;
+  height: 80px;
+}
+
+.staticMark {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animatedMark {
+    display: none;
+  }
+
+  .staticMark {
+    display: block;
+  }
+}

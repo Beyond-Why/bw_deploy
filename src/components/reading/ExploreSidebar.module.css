@@ -1,0 +1,241 @@
+/* ══════════════════════════════════════════════════════════
+   EXPLORE SIDEBAR — YouTube-inspired episode queue + feed
+   ══════════════════════════════════════════════════════════ */
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  /* No right padding — the sidebar is the rightmost element on the page
+     (see .shellExplore's own padding, which is now left-only) and its
+     content should run out to meet .rightPane's scrollbar, not leave a
+     dead strip between the cards and the scrollbar track. */
+  padding-left: 6px;
+}
+
+/* ══════════════════════════════════════════════════════════
+   TOP — Episode queue panel
+   ══════════════════════════════════════════════════════════ */
+.queuePanel {
+  /* Self-contained elevated card — header + episode rows together in one box */
+  background: color-mix(in srgb, var(--bg-elevated) 60%, var(--bg-surface));
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+  overflow: hidden;
+  /* clips child hover backgrounds to rounded corners.
+     Gap to .feedSection below comes from .feedSection's own top padding —
+     one source of that gap, not two stacked together. */
+}
+
+.queueHeader {
+  /* Header sits inside the card with its own horizontal padding */
+  padding: 12px 16px 10px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.queueSeriesLink {
+  display: block;
+  font-family: var(--font-heading), serif;
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: var(--text-primary);
+  text-decoration-line: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  line-height: 1.35;
+  margin-bottom: 3px;
+  transition: text-decoration-color var(--transition-fast);
+  /* Clamp to 2 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.queueSeriesLink:hover {
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+}
+
+.queueMeta {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin: 4px 0 0;
+}
+
+/* ── Episode rows ── */
+.episodeList {
+  /* No max-height — sidebar scrolls; the list fills whatever space it needs */
+  overflow-y: visible;
+}
+
+
+.episodeRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  /* Compact rows — thumbnail dominates, text is secondary, like YT Mix rows */
+  padding: 7px 12px;
+  text-decoration: none;
+  color: var(--text-primary);
+  position: relative;
+  transition: background var(--transition-fast);
+  cursor: pointer;
+  /* Left accent border — 3px, transparent by default */
+  border-left: 3px solid transparent;
+  /* Compensate for border so text doesn't jump on active */
+  padding-left: 9px;
+}
+
+.episodeRow:hover {
+  background: color-mix(in srgb, var(--accent) 6%, var(--bg-surface));
+}
+
+/* Active / now playing row */
+.episodeRowActive {
+  background: color-mix(in srgb, var(--accent) 9%, var(--bg-surface));
+  border-left-color: var(--accent);
+}
+
+.episodeRowActive:hover {
+  background: color-mix(in srgb, var(--accent) 13%, var(--bg-surface));
+}
+
+/* Thin left accent bar on active row */
+.playingBar {
+  display: none;
+  /* handled by border-left on .episodeRowActive */
+}
+
+/* ── Episode thumbnail — 16:9, like YouTube Mix panel rows. Scales with
+   the row (and so with the sidebar's own responsive width — see
+   --sidebar-w in EpisodeReader.module.css) instead of staying a fixed
+   130px: at the widest sidebar tier a fixed thumbnail would just leave
+   .epInfo to absorb all the extra width as awkward whitespace. Clamped
+   so it neither shrinks below a legible size nor balloons past a
+   sensible cap. ── */
+.epThumb {
+  flex-shrink: 0;
+  width: clamp(120px, 40%, 190px);
+  aspect-ratio: 16 / 9;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--bg-elevated);
+  position: relative;
+}
+
+.epThumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.epThumbPlaceholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg,
+      var(--bg-elevated) 0%,
+      color-mix(in srgb, var(--accent) 14%, var(--bg-elevated)) 100%);
+}
+
+/* Now playing play icon overlay */
+.nowPlayingOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.42);
+  color: #fff;
+}
+
+/* ── Episode text info ── */
+.epInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.epNum {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-quiet);
+  line-height: 1;
+}
+
+.episodeRowActive .epNum {
+  color: var(--accent-strong);
+}
+
+.nowPlayingLabel {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--accent-strong);
+}
+
+.epTitle {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  line-height: 1.35;
+  margin: 0;
+  color: var(--text-primary);
+  /* 2-line clamp */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-decoration-line: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 2px;
+  transition: text-decoration-color var(--transition-fast);
+}
+
+/* Wide screens only (>1400px) — nudge the episode-row title up by
+   ~1-2px. 13" laptops and anything ≤1400px keep the 0.82rem size above. */
+@media (min-width: 1401px) {
+  .epTitle {
+    font-size: 0.92rem;
+  }
+}
+
+.episodeRow:hover .epTitle {
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+}
+
+/* ══════════════════════════════════════════════════════════
+   BOTTOM — Unified recommendation feed. Same compaction pass as the
+   homepage and insight-card sections: one gap token for entries within a
+   section (12px, matching InsightRow's .bars), a larger one between
+   sections (1.75rem, matching ContentFeed's .feedContainer) — spacing
+   alone does the separating, no divider lines anywhere.
+   ══════════════════════════════════════════════════════════ */
+.feedSection {
+  padding: 1.75rem 0 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+/* Card feed — vertical stack of full-width bars, one gap token throughout. */
+.cardFeed {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cardItem {
+  /* No horizontal padding — sidebar container provides it */
+  padding: 0;
+}

@@ -1,0 +1,221 @@
+.seriesPage {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: var(--space-2xl) var(--space-md) var(--space-xl);
+}
+
+/* ── HEADER ── */
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+  flex-wrap: wrap;
+}
+
+/* "Builder Log" + the category value read together as one content-type ·
+   category tag — accent marks category, per the site-wide rule. */
+.label {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+}
+
+.category {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-xs);
+  color: var(--accent);
+}
+
+.category::before {
+  content: "·";
+  margin-right: var(--space-xs);
+}
+
+.title {
+  font-size: var(--font-size-h1);
+  margin-bottom: var(--space-md);
+}
+
+/* ── TECH STACK — moved off the card ── */
+.techRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-lg);
+}
+
+.techChip {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 4px 9px;
+}
+
+/* ── MILESTONES — moved off the card ── */
+.milestoneBlock {
+  margin: var(--space-xl) 0;
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.milestoneTitle {
+  font-family: var(--font-heading), serif;
+  font-size: var(--font-size-h3);
+  font-weight: 400;
+  margin-bottom: var(--space-sm);
+}
+
+.milestoneMeter {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.milestoneSegments {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+}
+
+.milestoneSegment {
+  height: 4px;
+  flex: 1;
+  border-radius: 2px;
+  background: var(--border-subtle);
+}
+
+.milestoneSegmentDone {
+  height: 4px;
+  flex: 1;
+  border-radius: 2px;
+  background: var(--status-complete);
+}
+
+.milestoneCount {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-small);
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* ── TIMELINE ── */
+.timeline {
+  margin-top: var(--space-xl);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.timelineTitle {
+  font-family: var(--font-heading), serif;
+  font-size: var(--font-size-h3);
+  font-weight: 400;
+  margin-bottom: var(--space-md);
+}
+
+.episodes {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+}
+
+/* Vertical line */
+.episodes::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 24px;
+  bottom: 24px;
+  width: 1px;
+  background: var(--border-subtle);
+}
+
+.episodeItem {
+  margin: 0;
+}
+
+.episodeLink {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-sm) var(--space-sm) 0;
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: background-color var(--transition-base);
+  border-radius: var(--radius-md);
+}
+
+.episodeLink:hover {
+  background: var(--bg-surface);
+}
+
+.timelineDot {
+  width: 15px;
+  height: 15px;
+  min-width: 15px;
+  border-radius: 50%;
+  border: 2px solid var(--border-medium);
+  background: var(--bg-primary);
+  margin-top: 4px;
+  position: relative;
+  z-index: 1;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.episodeLink:hover .timelineDot {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+
+.episodeContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.episodeNum {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--ink-quiet);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.episodeTitle {
+  font-family: var(--font-heading), serif;
+  font-size: var(--font-size-body);
+  font-weight: 400;
+  text-decoration-line: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  transition: text-decoration-color var(--transition-fast);
+}
+
+.episodeLink:hover .episodeTitle {
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+}
+
+.episodeDesc {
+  font-size: var(--font-size-small);
+  color: var(--text-muted);
+  line-height: var(--line-height-tight);
+}
+
+.episodeDate {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  margin-top: 2px;
+}

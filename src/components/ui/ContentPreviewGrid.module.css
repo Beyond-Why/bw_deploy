@@ -1,0 +1,46 @@
+/* ══════════════════════════════════════════════════════════
+   Shared responsive card grid — same column breakpoints as the profile
+   page's Recently Saved grid (EpisodeGrid.module.css: 5/4/3/2/1 columns
+   at 1400/1100/768/480px), so "Keep Exploring" and "Recently Saved" scale
+   identically even though they're built from different files.
+
+   Deliberately NOT the same component: EpisodeGrid's own CSS also carries
+   a `data-collection-rows` row-cap (nth-child hiding tuned to how many
+   full-width insight-carousel rows sit above it on the profile Home tab)
+   and its card is BookmarkEpisodeCard, which renders a remove button and
+   a "Saved Xh ago" timestamp — both bookmark-specific, meaningless for a
+   recommendation card. Reusing that file directly would mean stripping
+   the removal affordance and faking a saved-at date for content nobody
+   saved. This grid + ContentPreviewCard is the shared, generic pairing;
+   the profile page's bookmark-specific grid stays as its own thing.
+   ══════════════════════════════════════════════════════════ */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1399px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 1099px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 479px) {
+  .grid {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}

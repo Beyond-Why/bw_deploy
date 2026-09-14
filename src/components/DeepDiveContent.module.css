@@ -1,0 +1,577 @@
+/* ── DEEP DIVE CONTENT (shared between full page & modal) ── */
+
+.fullPage {
+  width: 100%;
+  margin: 0 auto;
+  /* No padding-bottom here — HubDiscussion (the Discussion/Cards/Explore
+     sequence right below) supplies its own trailing space so the two
+     don't stack into a double gap at the bottom of the page. */
+}
+
+.compact {
+  max-width: 100%;
+  padding: var(--space-md);
+}
+
+/* ── SERIES HEADER ── */
+.heroSection {
+  margin-bottom: var(--space-md);
+  /* padding: var(--space-md) 0 0; */
+}
+
+/* Palette: DARK tone */
+.toneDark {
+  --c-bg-rgb: 10, 10, 10;
+  --c-text-rgb: 245, 241, 235;
+}
+
+.canvas {
+  position: relative;
+  width: 100%;
+  min-height: 300px;
+  height: clamp(300px, 35vh, 480px);
+  background-color: rgb(var(--c-bg-rgb));
+  /* border-radius: var(--radius-lg); */
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+/* ── RIGHT: image stage ── */
+.imageStage {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 60%;
+}
+
+.image {
+  object-fit: cover;
+  object-position: center center;
+  display: block;
+}
+
+.imageFadeLeft {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right,
+      rgb(var(--c-bg-rgb)) 0%,
+      rgba(var(--c-bg-rgb), 0.78) 18%,
+      rgba(var(--c-bg-rgb), 0.22) 48%,
+      transparent 80%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.imageFadeBottom {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top,
+      rgba(var(--c-bg-rgb), 0.5) 0%,
+      transparent 38%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── LEFT: text block ── */
+.content {
+  position: relative;
+  z-index: 2;
+  /* Aligned to the same centered measure as .contentGrid/HubDiscussion
+     below (var(--container-width) + var(--space-md) gutter) instead of
+     its own viewport-relative inset, so the title's left edge lines up
+     with "Episodes" underneath it. Text itself is unaffected — this box
+     is just centered on the page, its children still stack left. */
+  width: 100%;
+  max-width: var(--container-width);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  height: 100%;
+  padding: max(1rem, 3vw) var(--space-md);
+  justify-content: flex-end;
+}
+
+.headerInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+.badgeRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+/* Accent marks category, per the site-wide rule — the divider and
+   StatusPill next to it are unaffected. */
+.badgeCategory {
+  color: var(--accent);
+}
+
+.badgeDivider {
+  opacity: 0.4;
+}
+
+.seriesTitle {
+  font-family: var(--font-heading), serif;
+  font-size: clamp(2.7rem, 3vw, 3.5rem);
+  font-weight: 500;
+  line-height: 1.15;
+  color: rgb(var(--c-text-rgb));
+  margin: 0;
+}
+
+.metadataLine {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-small);
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-top: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.synopsis {
+  font-family: var(--font-ui), sans-serif;
+  font-size: clamp(0.82rem, 1vw, 0.95rem);
+  color: rgba(var(--c-text-rgb), 0.58);
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* ── PROSE (reading column) ── */
+.prose {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 0;
+}
+
+/* Hide duplicate heading */
+.prose h1:first-of-type {
+  display: none;
+}
+
+/* ── HEADER (compact/modal view only) ── */
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  /* margin-bottom: var(--space-lg); */
+  flex-wrap: wrap;
+}
+
+/* "Deep Dive" + the category value read together as one content-type ·
+   category tag — accent marks category, per the site-wide rule. */
+.label {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--accent-strong);
+}
+
+.category {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-xs);
+  color: var(--accent-strong);
+}
+
+.category::before {
+  content: "·";
+  margin-right: var(--space-xs);
+}
+
+.compactTitle {
+  width: 100%;
+  font-family: var(--font-heading), serif;
+  font-size: var(--font-size-h2);
+  font-weight: 500;
+  margin-top: var(--space-xs);
+  color: var(--text-primary);
+}
+
+
+/* ── LOWER SECTION LAYOUT ── */
+.contentGrid {
+  max-width: var(--container-width);
+  margin: 0 auto;
+  /* Same horizontal gutter as the homepage's .page container (see
+     page.module.css) and every other page-level wrapper on the site —
+     this used to be its own wider max(1.5rem, 5vw), which is why the hub
+     page read as more inset than the rest of the site on a wide screen. */
+  padding: 0 var(--space-md);
+  display: grid;
+  grid-template-columns: 1fr 430px;
+  gap: var(--space-lg);
+  align-items: start;
+}
+
+.mainCol {
+  min-width: 0;
+  width: 100%;
+}
+
+.sidebarCol {
+  position: sticky;
+  top: var(--space-2xl);
+  width: 100%;
+}
+
+/* Must come after the base .sidebarCol rule above — same specificity, so
+   source order decides the cascade. This block used to sit above that
+   rule, which meant the base "position: sticky" always won here (even
+   under 960px) and silently defeated this override: the sidebar's intro
+   text stayed pinned in place while the reader scrolled past it, and the
+   Episodes list scrolled underneath and appeared to overlap it. */
+@media (max-width: 960px) {
+  .contentGrid {
+    display: flex;
+    flex-direction: column;
+    /* Was --space-xl (64px) — combined with the intro text's own trailing
+       paragraph spacing, that read as a much bigger gap than the page's
+       other major-section transitions (see HubDiscussion's .section,
+       which uses a tight 24px between Episodes and Discussion). --space-md
+       keeps the sections visually separated without the oversized jump,
+       and it's the same token .contentGrid already uses for its own
+       horizontal gutter, so it's not a new value. */
+    gap: var(--space-md);
+  }
+
+  .sidebarCol {
+    order: -1;
+    position: static;
+  }
+}
+
+.introBox {
+  width: 100%;
+  font-family: var(--font-lora), sans-serif;
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  line-height: 1.6;
+  border-left: 3px solid var(--text-primary);
+  padding-left: var(--space-sm);
+}
+
+.introBox h1:first-of-type {
+  display: none;
+}
+
+.introBox p {
+  margin-bottom: var(--space-md);
+}
+
+/* ── EPISODE LIST ── */
+.episodeList {
+  /* Full width of .mainCol — a 620px cap here left a large dead gap
+     between the row (thumbnail included) and the actual column edge. */
+  width: 100%;
+}
+
+/* SectionHeading itself carries no margin — this is the one owner of its
+   heading → first content row spacing (20px, matching the hub page).
+   Needs the extra `h2` element-selector specificity to beat
+   SectionHeading.module.css's own `.heading { margin: 0; }` — that class
+   lands on the same element and ties on specificity otherwise, so which
+   one wins would depend on CSS module bundling order rather than this
+   rule actually applying. */
+h2.episodeListTitle {
+  margin-bottom: 20px;
+}
+
+.episodeNumberWrapper {
+  flex-shrink: 0;
+  width: clamp(50px, 6vw, 80px);
+  height: clamp(50px, 6vw, 80px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.3;
+  transition: opacity var(--transition-base), transform var(--transition-base);
+}
+
+.episodeRow:hover .episodeNumberWrapper {
+  opacity: 1;
+  transform: translateX(-4px);
+}
+
+.episodeNumberSvg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.episodeNumberSvg text {
+  font-family: var(--font-heading), serif;
+  font-size: 50px;
+  font-weight: 300;
+  fill: transparent;
+  stroke: var(--text-primary);
+  stroke-width: 1px;
+  transition: stroke var(--transition-base), stroke-width var(--transition-base);
+}
+
+.episodeRow:hover .episodeNumberSvg text {
+  stroke: var(--accent);
+  stroke-width: 1.5px;
+}
+
+
+/* Card surface for the row list itself — previously transparent, so it
+   read as bare page background (--bg-primary) rather than the raised
+   surface tone (--bg-surface) other card/placeholder treatments on the
+   site use (see PopularSection's .imageWrapper, ContentFeed's cards). */
+.episodes {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: var(--space-xs);
+}
+
+/* Individual Episode Row */
+.episodeRow {
+  display: flex;
+  align-items: stretch;
+  /* gap: var(--space-md); */
+  padding: var(--space-sm);
+  /* --space-sm and the page's mobile gutter (--space-md, shrunk to the
+     same 1.5rem below 600px) happen to match, so this row's own padding
+     doubled up with the page gutter + .episodes' card inset, pushing the
+     episode number/title in much further than other page content that
+     sits at a single gutter's depth. Only the left side needs pulling
+     back in — top/right/bottom keep the row's normal breathing room and
+     the spacing before the thumbnail. */
+  padding-left: var(--space-xs);
+  text-decoration: none;
+  color: var(--text-primary);
+  background: transparent;
+  /* border-bottom: 1px solid var(--border-subtle); */
+  transition: transform var(--transition-fast), background-color var(--transition-fast);
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.episodeRow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--row-bg);
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-base);
+  /* Fade out the image on the left so text stays readable, solid on the right */
+  mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.05) 40%, rgba(0, 0, 0, 1) 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.05) 40%, rgba(0, 0, 0, 1) 100%);
+}
+
+/* .episodes now supplies --bg-surface as the list's own card background,
+   so the hover state needs the next step up (--bg-elevated) to still
+   read as a highlight instead of disappearing into its parent. */
+.episodeRow:hover {
+  background-color: var(--bg-elevated);
+}
+
+.episodeRow:hover::before {
+  opacity: 0.6;
+}
+
+/* Left: Rotated Label */
+.episodeLabelCol {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  position: relative;
+  /* border-right: 1px solid var(--accent); */
+  margin-right: var(--space-xs);
+  flex-shrink: 0;
+}
+
+/* An episode number, not a title — stays --ink-quiet always, hover
+   included (see .epTitle below for the row's actual underline affordance). */
+.episodeLabelText {
+  transform: rotate(-90deg);
+  white-space: nowrap;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--ink-quiet);
+  text-transform: uppercase;
+}
+
+/* Middle: Info Column */
+.infoCol {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-xs);
+}
+
+.epTitle {
+  font-family: var(--font-ui), sans-serif;
+  font-size: clamp(1.2rem, 2vw, 1.4rem);
+  font-weight: 800;
+  line-height: 1.15;
+  margin: 0;
+  color: var(--text-primary);
+  text-decoration-line: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  transition: text-decoration-color 150ms ease;
+}
+
+.episodeRow:hover .epTitle {
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+}
+
+/* Description / Metadata */
+.epMetaWrapper {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 4px;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.epAuthor {
+  color: var(--accent);
+}
+
+.epDate {
+  color: var(--text-muted);
+}
+
+.epMetaDivider {
+  color: var(--border-subtle);
+}
+
+/* Like / comment counts — real data (see the hub page's grouped
+   like/comment-count queries), same heart + speech-bubble icons as the
+   episode reader's action bar, small and muted. */
+.epStat {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--text-muted);
+}
+
+.epStat svg {
+  opacity: 0.6;
+}
+
+/* Right: Square Thumbnail */
+.thumbContainer {
+  position: relative;
+  width: clamp(60px, 10vw, 80px);
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  flex-shrink: 0;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  align-self: center;
+  transition: opacity var(--transition-base), transform var(--transition-base);
+}
+
+.episodeRow:hover .thumbContainer {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.thumbImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Trailing arrow */
+/* Arrow removed – not part of new design */
+.arrow {
+  display: none;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 640px) {
+
+  .thumbBadge {
+    top: 4px;
+    left: 4px;
+    font-size: 0.55rem;
+    padding: 2px 6px;
+  }
+
+  .arrow {
+    display: none;
+  }
+
+  .epTitle {
+    font-size: 1rem;
+  }
+
+  .epDescWrapper {
+    display: none !important;
+    /* Hide description on very small screens to keep it compact */
+  }
+}
+
+@media (max-width: 768px) {
+  /* Renamed from .heroSection's old .seriesHeader name — this rule never
+     matched after that rename, so the hero's mobile margin-bottom stayed
+     at the (globally shrunk, see globals.css's 600px query) --space-md
+     while the hero itself grew taller by stacking image-over-text below,
+     leaving too little clearance before the Episodes list. */
+  .heroSection {
+    padding-top: var(--space-md);
+    margin-bottom: var(--space-lg);
+  }
+
+  .canvas {
+    flex-direction: column;
+    align-items: flex-start;
+    height: auto;
+    min-height: 0;
+  }
+
+  .imageStage {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    order: -1;
+    flex-shrink: 0;
+  }
+
+  .imageFadeLeft {
+    background: linear-gradient(to top,
+        rgb(var(--c-bg-rgb)) 0%,
+        transparent 55%);
+  }
+
+  .content {
+    max-width: 100%;
+    padding: 1.5rem 1.5rem 2rem;
+  }
+}

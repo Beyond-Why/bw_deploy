@@ -1,0 +1,39 @@
+.pill {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.segment {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 13px;
+  line-height: 1;
+  padding: 7px 14px;
+  border-radius: 16px;
+  border: none;
+  background: none;
+  color: rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.segmentActive {
+  background: #fff;
+  color: #000;
+  font-weight: 500;
+  border-radius: 16px;
+}
+
+/* Not useful on mobile — hidden visually only; EpisodeReader's mode state
+   and the explore-toggle event listeners are untouched, so anything still
+   dispatching that event (e.g. a future mobile control) keeps working. */
+@media (max-width: 600px) {
+  .pill {
+    display: none;
+  }
+}

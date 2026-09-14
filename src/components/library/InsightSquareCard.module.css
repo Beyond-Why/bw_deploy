@@ -1,0 +1,143 @@
+/* ── INSIGHT SQUARE CARD — active-collection grid, card-page only ── */
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  aspect-ratio: 1;
+  width: 100%;
+  max-width: 170px;
+  text-decoration: none;
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+  border: 0.5px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  transition: transform 180ms ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+/* ── Active — the card currently open in the reader block.
+   box-shadow, not outline: outlines paint on top of ALL of an element's
+   descendants regardless of z-index (that's spec behavior, not a bug —
+   outlines are meant to always stay visible over content), which was
+   bleeding the accent color over the corner number despite its z-index:2.
+   An inset box-shadow paints with the card's own background/border, well
+   behind any positioned child, so it can never do that. ── */
+.active {
+  box-shadow: inset 0 0 0 1.5px var(--accent-strong);
+}
+
+/* ── Number — outline/stroke corner overlay. Negative offset so it bleeds
+   past the card's own border, reading as an overlapping design accent
+   rather than a label tucked inside. .card has no overflow:hidden (that
+   lives on .mediaClip instead), so this is never clipped. ── */
+.number {
+  position: absolute;
+  top: -8px;
+  left: -6px;
+  z-index: 2;
+  font-family: var(--font-heading), serif;
+  font-size: clamp(18px, 2vw, 22px);
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--text-muted);
+}
+
+/* Accent retained here — this is the active/position marker, not identity.
+   14% alpha fill + hairline border + accent text, never a solid chip (a
+   solid fill was overpowering the adjacent stroke number). */
+.readingPill {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  border: 0.5px solid var(--accent);
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
+/* ── Media clip — the ONLY thing clipped to the rounded corners, so the
+   bleeding corner number above stays unclipped. ── */
+.mediaClip {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  z-index: 0;
+}
+
+/* Thumbnail or motif, both faded by the same downward mask — faint top,
+   strongest bottom — so the card gets color/texture up top while the
+   title area sits over the strongest part of the image. */
+.thumbImage,
+.motif {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mask-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.5) 100%);
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(255, 255, 255, 0.5) 100%
+  );
+}
+
+.motifStroke {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 0.7;
+}
+
+.motifFill {
+  fill: var(--accent);
+  stroke: none;
+}
+
+/* Static dark-toward-bottom scrim, on top of the image, under the title —
+   keeps it legible over the strongest part of the image. */
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    color-mix(in srgb, var(--bg-elevated) 20%, transparent) 45%,
+    color-mix(in srgb, var(--bg-elevated) 88%, transparent) 100%
+  );
+}
+
+.question {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-heading), serif;
+  font-size: var(--font-size-small);
+  font-weight: 400;
+  line-height: 1.2;
+  text-wrap: balance;
+  color: var(--text-primary);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none;
+  }
+}

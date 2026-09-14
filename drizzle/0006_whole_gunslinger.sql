@@ -1,0 +1,1 @@
+ALTER TABLE "bookmarks" ADD COLUMN "active_card_index" integer DEFAULT 0;

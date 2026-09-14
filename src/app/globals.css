@@ -1,0 +1,382 @@
+/* ============================================================
+   BEYOND WHY — DESIGN SYSTEM
+   A calm, distraction-free reading experience.
+   ============================================================ */
+
+/* ── DESIGN TOKENS ── */
+:root {
+  /* Backgrounds */
+  --bg-primary: #FFF8F0;
+  --bg-surface: #F4EEE6;
+  --bg-elevated: #FFFFFF;
+  --bg-code: #F7F3ED;
+
+  /* Text */
+  --text-primary: #2A2A2A;
+  --text-secondary: #5A5550;
+  --text-muted: #7A736B;
+  --text-inverse: #FFF8F0;
+
+  /* Accent — position and action only, never identity or state. See the
+     status- and ink-quiet tokens below for identity/state marking. */
+  --accent: #5887D3;
+  --accent-hover: #4570B8;
+  --accent-strong: var(--accent-hover);
+  --accent-light: rgba(88, 135, 211, 0.08);
+  --amber: #c29300;
+  --amber-dim: #8a6b45;
+  --amber-light: rgba(194, 147, 0, 0.06);
+
+  /* Logo accent — the ember dot inside the apertures mark. A deepened,
+     more saturated take on --accent (periwinkle), ~15-20% darker so it
+     reads as a distinct mark color rather than duplicating the UI accent. */
+  --logo-accent: #2867CD;
+  /* --logo-accent: #7A222A; */ /* burgundy — swap in for a one-line comparison */
+
+  /* Status — series/episode lifecycle state (never accent) */
+  --status-progress: #E3B341;
+  --status-complete: #86B36B;
+  --status-planned: #8A8F98;
+  --status-paused: #6B6B6B;
+
+  /* Ink Quiet — identity labels: category tags, EP numbers, collection tags */
+  --ink-quiet: #9A8F80;
+
+  /* Borders & Dividers */
+  --border-subtle: #E8E0D6;
+  --border-medium: #D1C8BC;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(42, 42, 42, 0.04);
+  --shadow-md: 0 4px 12px rgba(42, 42, 42, 0.06);
+  --shadow-lg: 0 8px 24px rgba(42, 42, 42, 0.08);
+
+  /* Typography — Families (set by next/font in layout.tsx) */
+  --font-heading: var(--font-dm-serif);
+  --font-body: var(--font-lora);
+  --font-ui: var(--font-inter);
+
+  /* Typography — Sizes */
+  --font-size-display: clamp(2.5rem, 5vw, 3.5rem);
+  --font-size-h1: 2.5rem;
+  --font-size-h2: 1.75rem;
+  --font-size-h3: 1.25rem;
+  --font-size-h4: 1.1rem;
+  --font-size-body: 1.125rem;
+  --font-size-small: 0.9375rem;
+  --font-size-xs: 0.8125rem;
+
+  /* Typography — Line Heights */
+  --line-height-heading: 1.25;
+  --line-height-body: 1.8;
+  --line-height-tight: 1.4;
+
+  /* Spacing */
+  --space-xs: 0.5rem;
+  --space-sm: 1.5rem;
+  --space-md: 2.5rem;
+  --space-lg: 3.5rem;
+  --space-xl: 4rem;
+  --space-2xl: 6rem;
+
+  /* Layout */
+  --content-width: 720px;
+  --container-width: 1280px;
+  --nav-height: 72px;
+
+  /* Border Radius */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 400ms ease;
+
+  /* Theme transition */
+  --theme-transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* ── DARK THEME ── */
+[data-theme="dark"] {
+  --bg-primary: #0d0d0d;
+  --bg-surface: #111111;
+  --bg-elevated: #181818;
+  --bg-code: #141414;
+
+  --text-primary: #E8E0D6;
+  --text-secondary: #B0A89E;
+  --text-muted: #7A736B;
+  --text-inverse: #1A1A1A;
+
+  --accent: #7BA4E0;
+  --accent-hover: #9BBCF0;
+  --accent-strong: #5B9CF6;
+  --accent-muted: #2D5FA8;
+  --accent-strong-10: rgba(91, 156, 246, 0.10);
+  --accent-strong-15: rgba(91, 156, 246, 0.15);
+  --accent-strong-20: rgba(91, 156, 246, 0.20);
+  --accent-muted-20: rgba(45, 95, 168, 0.20);
+  --accent-muted-30: rgba(45, 95, 168, 0.30);
+  --accent-light: rgba(123, 164, 224, 0.1);
+  --amber: #e5b83b;
+  --amber-dim: #a07c2a;
+  --amber-light: rgba(229, 184, 59, 0.08);
+
+  --status-progress: #A87A0E;
+  --status-complete: #4E7C3A;
+  --status-planned: #6E7480;
+  --status-paused: #8A8A8A;
+
+  --ink-quiet: #7A6E60;
+
+  --border-subtle: #2A2A2A;
+  --border-medium: #3A3A3A;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* ── MOBILE SPACING ── */
+/* --space-md is the shared horizontal gutter behind .container, .prose,
+   the navbar, and most page wrappers site-wide — at the full 40px it reads
+   as wasted margin on small screens, so it's tightened a little here.
+   Everything keyed off --space-md (paddings, gaps, margins alike) scales
+   down with it automatically — no per-page changes needed. */
+@media (max-width: 600px) {
+  :root {
+    --space-md: 1.5rem;
+  }
+}
+
+/* ── GLOBAL RESET ── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+  /* Prevent elastic/rubber-band overscroll that reveals space above the hero */
+  overscroll-behavior: none;
+}
+
+/* ── BODY ── */
+body {
+  font-family: var(--font-body), "Lora", Georgia, serif;
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  transition: var(--theme-transition);
+  min-height: 100vh;
+  overscroll-behavior: none;
+}
+
+/* Auth pages (sign in/up, password reset) are full-screen, chrome-free
+   experiences with their own dark theme — no site header, no page
+   scroll. Scoped via :has() from a marker class each auth page's own
+   root element carries, rather than restructuring the route tree (the
+   site header lives in the root layout, shared by every route). */
+body:has(.authFullPage) {
+  background-color: #0a0a0a;
+  overflow: hidden;
+}
+
+body:has(.authFullPage) header {
+  display: none;
+}
+
+/* 404 / auth-error pages: header-free like the auth pages above, but these
+   stay on the site's normal (light-paper or dark, whichever the reader has
+   picked) theme instead of the auth flow's forced-dark one — they read as
+   part of the regular site, not a separate experience. */
+body:has(.noNavPage) header {
+  display: none;
+}
+
+/* ── BASE TYPOGRAPHY ── */
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-heading), "DM Serif Display", Georgia, serif;
+  line-height: var(--line-height-heading);
+  font-weight: 400;
+  color: var(--text-primary);
+}
+
+h1 {
+  font-size: var(--font-size-h1);
+  /* margin-bottom: var(--space-md); */
+  opacity: 0.95;
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+  /* margin-top: var(--space-xl);
+  margin-bottom: var(--space-sm); */
+}
+
+h3 {
+  font-size: var(--font-size-h3);
+  /* margin-top: var(--space-lg);
+  margin-bottom: var(--space-xs); */
+}
+
+h4 {
+  font-size: var(--font-size-h4);
+  /* margin-top: var(--space-md);
+  margin-bottom: var(--space-xs); */
+  color: var(--text-secondary);
+}
+
+p {
+  margin-bottom: var(--space-md);
+}
+
+/* Accent marks category, underline marks interactivity — a plain link
+   doesn't get a permanent accent color, just an underline that fades in
+   on hover, in its own (unchanged) text color at reduced opacity. */
+a {
+  color: var(--text-primary);
+  text-decoration-line: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  transition: text-decoration-color var(--transition-fast);
+}
+
+a:hover {
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+}
+
+/* ── SELECTION ── */
+::selection {
+  background-color: var(--accent-light);
+  color: var(--text-primary);
+}
+
+/* ── SCROLLBAR (subtle) ── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ── LAYOUT UTILITIES ── */
+.container {
+  max-width: var(--container-width);
+  margin: 0 auto;
+  padding: 0 var(--space-md);
+}
+
+.prose {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 0 var(--space-md);
+}
+
+/* ── VISUALLY HIDDEN ── */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ── SPACING UTILITIES ── */
+.mt-xs {
+  margin-top: var(--space-xs);
+}
+
+.mt-sm {
+  margin-top: var(--space-sm);
+}
+
+.mt-md {
+  margin-top: var(--space-md);
+}
+
+.mt-lg {
+  margin-top: var(--space-lg);
+}
+
+.mt-xl {
+  margin-top: var(--space-xl);
+}
+
+.mt-2xl {
+  margin-top: var(--space-2xl);
+}
+
+.mb-xs {
+  margin-bottom: var(--space-xs);
+}
+
+.mb-sm {
+  margin-bottom: var(--space-sm);
+}
+
+.mb-md {
+  margin-bottom: var(--space-md);
+}
+
+.mb-lg {
+  margin-bottom: var(--space-lg);
+}
+
+.mb-xl {
+  margin-bottom: var(--space-xl);
+}
+
+.mb-2xl {
+  margin-bottom: var(--space-2xl);
+}
+
+/* ── FOCUS STYLES ── */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ── KATEX (math rendering) — recolor to the site's warm palette ── */
+.katex {
+  color: var(--text-primary);
+  font-size: 1em;
+}
+
+.katex-display {
+  margin: 0.4em 0 1em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* Collapses the paragraph-gap MDX leaves before a required blank line + $$ block */
+p:has(+ .katex-display) {
+  margin-bottom: 0.3em;
+}

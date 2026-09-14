@@ -1,0 +1,80 @@
+/* ── INSIGHT CARDS PANEL — reader block + active collection grid + other rows ── */
+
+.panel {
+  width: 100%;
+}
+
+.readerWrapper {
+  /* ~2rem, moderate and consistent with the gaps below — not the large
+     void var(--space-xl) (4rem) left before this pass. */
+  margin-bottom: 2rem;
+  /* 64px fixed nav + 16px breathing room — scrollIntoView({block:"start"})
+     stops this far short of the true top so the nav never covers the
+     block's meta line. */
+  scroll-margin-top: 80px;
+}
+
+/* ── Zone 2: active collection grid ── */
+.grid {
+  margin-bottom: 2rem;
+}
+
+.gridHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: var(--space-sm);
+}
+
+.gridHeading {
+  flex: 1;
+  font-family: var(--font-heading), serif;
+  font-size: var(--font-size-h3);
+  font-weight: 400;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.gridActions {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Fixed 170px tracks matching .card's own max-width (InsightSquareCard.module.css)
+   — cards stay at their natural compact size and sit flush (gap: 0) with no
+   leftover space inside each cell. Wraps naturally once a row is full rather
+   than stretching cards to fill a 1fr track. */
+.gridCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 170px);
+  gap: 12px;
+}
+
+/* ── Zone 3: other collections ── */
+.rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.rowsHeadingRow {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: var(--space-md);
+}
+
+.rowsHeadingIcon {
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+
+.rowsHeading {
+  font-family: var(--font-heading), serif;
+  font-size: var(--font-size-h2);
+  font-weight: 400;
+  color: var(--text-primary);
+  margin: 0;
+}

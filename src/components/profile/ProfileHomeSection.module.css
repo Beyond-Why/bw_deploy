@@ -1,0 +1,13 @@
+.section {
+  margin-bottom: 32px;
+}
+
+.section:last-child {
+  margin-bottom: 0;
+}
+
+/* SectionHeading itself carries no margin — this is its one owner of
+   heading → first content row spacing (20px, matching the hub page). */
+.sectionHeader {
+  margin-bottom: 20px;
+}

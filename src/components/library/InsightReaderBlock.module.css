@@ -1,0 +1,291 @@
+/* ── INSIGHT READER BLOCK — persistent two-pane reading surface, fixed height ── */
+
+.gutterGrid {
+  /* Tunable reader-block height — the block is fixed at this height and
+     never grows; overflow content scrolls inside .rightPane instead. */
+  --reader-h: 55vh;
+  display: grid;
+  grid-template-columns: 1fr;
+  height: var(--reader-h);
+}
+
+@media (min-width: 900px) {
+  .gutterGrid {
+    grid-template-columns: 44px 1fr 44px;
+  }
+}
+
+/* ── Gutter arrows — same visual/behavioral pattern as InsightRow's carousel
+   arrows (hidden below 900px, 0.3 opacity + inert when disabled, come from
+   the composed rules — no need to redeclare them here). ── */
+.arrow {
+  composes: arrow from "./InsightRow.module.css";
+}
+
+/* ── Deck — the card plus two faint layers peeking out behind it ── */
+.deck {
+  position: relative;
+  height: 100%;
+}
+
+.deckLayer1,
+.deckLayer2 {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-md);
+  border: 0.5px solid var(--border-subtle);
+  background: var(--bg-elevated);
+}
+
+/* Stacked DOWN-and-behind (not diagonally) and scaled down slightly, so
+   the top corners stay clear for the outgoing card's diagonal exit. */
+.deckLayer1 {
+  transform: translateY(8px) scale(0.98);
+  opacity: 0.5;
+}
+
+.deckLayer2 {
+  transform: translateY(16px) scale(0.96);
+  opacity: 0.25;
+}
+
+/* ── Inner — the visible bordered box. Overflow is visible (not hidden):
+   the outgoing card needs to travel past these bounds toward a top corner
+   for the diagonal exit to actually read as an exit instead of being
+   clipped at the edge. ── */
+.inner {
+  position: relative;
+  height: 100%;
+  overflow: visible;
+  background: var(--bg-elevated);
+  border: 0.5px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+/* ── Layer — one card's full pane, absolutely stacked only while transitioning ── */
+.layer {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+}
+
+/* Forward (next): outgoing card lifts and exits toward the TOP-RIGHT
+   corner, rotating as it goes. Reverse (prev): mirrored toward TOP-LEFT. */
+@keyframes readerSlideOutFwd {
+  from {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  to {
+    transform: translate(56px, -42px) rotate(6deg);
+    opacity: 0;
+  }
+}
+
+@keyframes readerSlideOutRev {
+  from {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  to {
+    transform: translate(-56px, -42px) rotate(-6deg);
+    opacity: 0;
+  }
+}
+
+/* Incoming card always rises straight up from the deck, regardless of
+   direction — only the outgoing exit has a left/right mirror. */
+@keyframes readerSlideInRise {
+  from {
+    transform: translateY(18px) scale(0.985);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.slideOutFwd {
+  animation: readerSlideOutFwd 320ms ease-out forwards;
+}
+
+.slideOutRev {
+  animation: readerSlideOutRev 320ms ease-out forwards;
+}
+
+.slideInFwd,
+.slideInRev {
+  animation: readerSlideInRise 320ms ease-out forwards;
+}
+
+/* ── Split — left pane (meta/diagram/question) / right pane (MDX body) ── */
+.split {
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr;
+}
+
+@media (min-width: 900px) {
+  .split {
+    grid-template-columns: 40% 60%;
+    grid-template-rows: 1fr;
+  }
+}
+
+.leftPane {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: var(--space-sm);
+  border-bottom: 0.5px solid var(--border-subtle);
+  overflow: hidden;
+}
+
+@media (min-width: 900px) {
+  .leftPane {
+    border-bottom: none;
+    border-right: 0.5px solid var(--border-subtle);
+  }
+}
+
+.rightPane {
+  height: 100%;
+  padding: var(--space-sm);
+
+  /* Clip scrollbar to match border radius */
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-medium) transparent;
+}
+
+/* Webkit — constrain thumb within rounded pane */
+.rightPane::-webkit-scrollbar {
+  width: 4px;
+}
+
+.rightPane::-webkit-scrollbar-track {
+  background: transparent;
+  margin-block: 12px; /* keeps thumb away from top/bottom edges */
+}
+
+.rightPane::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: 99px;
+}
+
+/* ── Meta row — collection name / like+bookmark / position, three groups ── */
+.meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.metaLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.metaIcon {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* Accent marks category, per the site-wide rule. */
+.collectionName {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent-strong);
+}
+
+.position {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* ── Concept diagram — centered and bounded within the left pane only ── */
+.visual {
+  position: relative;
+  width: 100%;
+  max-width: 220px;
+  aspect-ratio: 1;
+  margin: 0 auto;
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+  overflow: hidden;
+}
+
+.visualImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.visualMotif {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.35;
+}
+
+.motifStroke {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 0.6;
+}
+
+.motifFill {
+  fill: var(--accent);
+  stroke: none;
+}
+
+/* ── Question — the hero of the block ── */
+.title {
+  font-family: var(--font-heading), serif;
+  font-size: clamp(1.45rem, 2.2vw, 1.9rem);
+  font-weight: 400;
+  line-height: 1.15;
+  text-wrap: balance;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* ── Right pane content ── */
+.description {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-body);
+  color: var(--text-secondary);
+  margin: 0 0 var(--space-sm);
+}
+
+.body {
+  font-family: var(--font-body), serif;
+  color: var(--text-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rightPane {
+    scroll-behavior: auto;
+  }
+
+  .slideOutFwd,
+  .slideOutRev,
+  .slideInFwd,
+  .slideInRev {
+    animation: none;
+  }
+}

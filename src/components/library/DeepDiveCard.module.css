@@ -1,0 +1,496 @@
+/* ── DEEP DIVE CARD — horizontal list item with hover episode carousel ── */
+
+/* ── Card wrapper — no longer a link itself ── */
+.card {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 20px;
+  color: var(--text-primary);
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+/* ── Left zone: thumbnail ── */
+.thumbnailWrapper {
+  flex-shrink: 0;
+  display: block;
+  width: 280px;
+  aspect-ratio: 16 / 9;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--bg-elevated);
+  text-decoration: none;
+}
+
+.thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 200ms ease;
+}
+
+.thumbnailWrapper:hover .thumbnail {
+  transform: scale(1.03);
+}
+
+.thumbnailPlaceholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg,
+      var(--bg-elevated) 0%,
+      color-mix(in srgb, var(--accent) 12%, var(--bg-elevated)) 100%);
+}
+
+/* ── Right zone: text + carousel ── */
+.body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 4px 0;
+}
+
+/* ── Text block ── */
+.textBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  max-width: 560px;
+}
+
+/* 1. Category label — accent marks category, per the site-wide rule. */
+.categoryRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.category {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--accent-strong);
+  line-height: 1;
+}
+
+/* 2. Title */
+.titleLink {
+  text-decoration: none;
+  display: inline-block;
+}
+
+/* Underline marks interactivity, per the site-wide rule — no color
+   change on hover, just a fading-in underline in the title's own color. */
+.title {
+  font-family: var(--font-heading), serif;
+  font-size: clamp(1.5rem, 1.4vw, 1.9rem);
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  color: var(--text-primary);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-decoration-line: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  transition: text-decoration-color 200ms ease;
+}
+
+.titleLink:hover .title {
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+}
+
+/* 3. Description */
+.descriptionWrapper {
+  position: relative;
+  max-height: calc(1.65 * 0.88rem * 2.3);
+  overflow: hidden;
+}
+
+.descriptionWrapper::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 65%;
+  background: linear-gradient(to bottom, transparent 0%, var(--bg-primary) 100%);
+  pointer-events: none;
+}
+
+.description {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* 4. Meta row — collapses on hover to free space */
+.meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.35rem;
+  /* Smooth collapse */
+  max-height: 40px;
+  opacity: 1;
+  overflow: hidden;
+  transition: max-height 0.28s ease, opacity 0.22s ease, margin-top 0.28s ease;
+}
+
+/* Hide date + badge once expanded — driven by JS state on .card (see
+   DeepDiveCard.tsx), not a bare :hover: the reveal must survive the mouse
+   moving off the title and into the strip it just opened, which a pure
+   `:has(.titleLink:hover)` selector can't do (hovering the strip doesn't
+   keep the title itself hovered, so it would've snapped shut). */
+.cardExpanded .meta {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+  transition-delay: 1.2s;
+}
+
+.date {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.01em;
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════════════════════
+   EPISODE CAROUSEL STRIP
+   Hidden by default. Revealed only on hovering the TITLE, not the card.
+   Full-width of the right (.body) zone.
+   ══════════════════════════════════════════════════════════ */
+.episodeStrip {
+  position: relative;
+  /* Collapse by default */
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  /* Smooth reveal */
+  transition: max-height 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.3s ease,
+    margin-top 0.3s ease;
+  transition-delay: 0s;
+  margin-top: 0;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+}
+
+/* Reveal once expanded — stays open while the mouse is anywhere over the
+   card (including this strip), closes only on .card's onMouseLeave. */
+.cardExpanded .episodeStrip {
+  max-height: 240px;
+  opacity: 1;
+  margin-top: var(--space-xs);
+  transition-delay: 1.2s;
+}
+
+/* ── Hover Progress Bar ── */
+.progressContainer {
+  width: 100%;
+  height: 2px;
+  background: transparent;
+  margin-top: 0;
+  border-radius: 2px;
+  overflow: hidden;
+  transition: margin-top 0.3s ease;
+  opacity: 0;
+}
+
+.progressBar {
+  width: 0%;
+  height: 100%;
+  background: var(--accent);
+  transition: width 0s linear;
+}
+
+.cardExpanded .progressContainer {
+  margin-top: 12px;
+  opacity: 1;
+}
+
+.cardExpanded .progressBar {
+  width: 100%;
+  transition: width 1.2s linear;
+}
+
+/* ── Carousel wrapper — arrows live in dedicated gutter columns, never
+   overlaid on the tiles. Mirrors InsightRow's carousel pattern exactly. ── */
+.carouselWrapper {
+  display: grid;
+  grid-template-columns: 40px 1fr 40px;
+  align-items: center;
+}
+
+/* ── Scroll track — inset by the gutter columns above, so nothing overlaps ── */
+.episodeScroll {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 10px 0 12px;
+}
+
+.episodeScroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Individual episode tile ── */
+.episodeTile {
+  flex: 0 0 auto;
+  width: 200px;
+  scroll-snap-align: start;
+  text-decoration: none;
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: transform 180ms ease;
+}
+
+.episodeTile:hover {
+  transform: translateY(-2px);
+  background: rgba(91, 156, 246, 0.08);
+}
+
+/* Tile thumbnail — 16:9 */
+.tileThumbnail {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 5px;
+  overflow: hidden;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+}
+
+.tileThumbnailImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 200ms ease;
+}
+
+.episodeTile:hover .tileThumbnailImg {
+  transform: scale(1.04);
+}
+
+.tileThumbnailPlaceholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg,
+      color-mix(in srgb, var(--accent) 18%, var(--bg-elevated)) 0%,
+      var(--bg-elevated) 100%);
+}
+
+/* Tile text label */
+.tileLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 2px;
+}
+
+.tileEpNum {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-quiet);
+}
+
+.tileTitle {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-decoration-line: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 2px;
+  transition: text-decoration-color 150ms ease;
+}
+
+.episodeTile:hover .tileTitle {
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+}
+
+/* ── Arrow buttons — in the gutter columns, disabled (not hidden) at each end ── */
+.arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 40px;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity 180ms ease, color var(--transition-fast) ease;
+}
+
+.arrow:hover:not(:disabled) {
+  color: var(--accent);
+}
+
+.arrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .episodeScroll {
+    scroll-behavior: auto;
+  }
+
+  .arrow {
+    transition: none;
+  }
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 640px) {
+  .card {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .thumbnailWrapper {
+    width: 120px;
+  }
+
+  .body {
+    padding: 0;
+  }
+
+  /* Hide carousel on mobile — not enough room */
+  .episodeStrip {
+    display: none;
+  }
+
+  /* Hide description on mobile to keep row compact */
+  .descriptionWrapper {
+    display: none !important;
+  }
+
+  .title {
+    font-size: 1.05rem;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   COMPACT MODE — sidebar / narrow container
+   Forces horizontal row layout + disables all hover animations.
+   Applied via the compact prop (not viewport-dependent).
+   ══════════════════════════════════════════════════════════ */
+.cardCompact {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.cardCompact .thumbnailWrapper {
+  /* Scales with the row instead of staying a fixed 170px — this card is
+     only ever used compact inside the Explore sidebar's recommendation
+     feed, whose own width now scales with the viewport (see --sidebar-w
+     in EpisodeReader.module.css); a fixed thumbnail there just left the
+     title column to absorb the extra width as whitespace. */
+  width: clamp(120px, 40%, 200px);
+  flex-shrink: 0;
+}
+
+/* Hide description wrapper in compact mode */
+.cardCompact .descriptionWrapper {
+  display: none !important;
+}
+
+/* Make title smaller to fit the horizontal row layout */
+.cardCompact .title {
+  font-size: 0.95rem;
+  line-height: 1.3;
+}
+
+/* Wide screens only (>1400px, e.g. large desktop monitors) — nudge the
+   sidebar card title up by ~1-2px. 13" laptops and anything ≤1400px must
+   keep the 0.95rem size above untouched. */
+@media (min-width: 1401px) {
+  .cardCompact .title {
+    font-size: 1.05rem;
+  }
+}
+
+/* Hide episode carousel strip */
+.cardCompact .episodeStrip {
+  display: none !important;
+}
+
+/* Freeze meta row — never collapses on hover */
+.cardCompact .meta {
+  max-height: 40px !important;
+  opacity: 1 !important;
+  margin-top: 0.35rem !important;
+  transition: none !important;
+}
+
+/* No thumbnail zoom on hover */
+.cardCompact .thumbnailWrapper:hover .thumbnail {
+  transform: none;
+}
+
+/* ══════════════════════════════════════════════════════════
+   WIDE SCREENS — home/library page cards only (>1400px)
+   Scoped to :not(.cardCompact) so the Explore-sidebar card variant
+   (styled separately above) is never touched. ══════════════════════ */
+@media (min-width: 1400px) {
+  /* Thumbnail height +~30% — width-driven via the existing 16:9 aspect-ratio. */
+  .card:not(.cardCompact) .thumbnailWrapper {
+    width: 364px;
+  }
+
+  /* Title +2-3px on top of whatever the responsive clamp already produced. */
+  .card:not(.cardCompact) .title {
+    font-size: calc(clamp(1.5rem, 1.4vw, 1.9rem) + 2.5px);
+  }
+
+  /* Description/excerpt +1-2px. */
+  .card:not(.cardCompact) .description {
+    font-size: calc(0.88rem + 1.5px);
+  }
+
+  /* Card's vertical padding +25% (4px -> 5px). */
+  .card:not(.cardCompact) .body {
+    padding: 5px 0;
+  }
+}
+
+/* Keep title colour transition but no layout changes */

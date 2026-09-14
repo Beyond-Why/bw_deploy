@@ -1,0 +1,71 @@
+/* ══════════════════════════════════════════════════════════
+   AUTH BRAND PANEL — left column, desktop only
+
+   Reads --auth-* custom properties without importing auth.css itself —
+   they resolve at runtime from whichever ancestor carries the
+   .authFullPage marker class (the page's own root, via AuthShell),
+   same as any other inherited CSS variable. Only whoever renders that
+   root needs the actual @import.
+   ══════════════════════════════════════════════════════════ */
+
+.panel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  overflow: hidden;
+  /* Falls through to .shell's --auth-bg — the dot-grid/glow texture this
+     used to carry created a visible seam against .formPanel's flat
+     background at the column boundary, so both panels now share one
+     plain surface instead. */
+  background: transparent;
+}
+
+/* Soft vignette so the dot grid fades toward the edges instead of
+   reading as a uniform texture right to the border. */
+.glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 30%,
+    var(--auth-bg) 85%
+  );
+  pointer-events: none;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 360px;
+  padding: 0 48px;
+}
+
+.wordmark {
+  margin: 0 0 14px;
+  font-family: var(--auth-heading-font);
+  font-size: 2rem;
+  font-weight: 400;
+  color: var(--auth-text-primary);
+}
+
+.tagline {
+  margin: 0;
+  font-family: var(--auth-body-font);
+  font-style: italic;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--auth-text-muted);
+}
+
+/* Hidden below the desktop two-column breakpoint — the page's own root
+   layout switches to a single (form-only) column there. */
+@media (max-width: 900px) {
+  .panel {
+    display: none;
+  }
+}

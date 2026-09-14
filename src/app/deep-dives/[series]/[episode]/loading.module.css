@@ -1,0 +1,128 @@
+.wrapper {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: var(--space-lg) var(--space-md) var(--space-2xl);
+  /* Hardcoded, not var(--bg-primary) — same reason as src/app/loading.tsx:
+     this can render server-side/pre-hydration, before ThemeProvider's
+     client effect sets data-theme="dark" on <html>, so a theme-conditional
+     token would still resolve to :root's light default for that window. */
+  background: #0d0d0d;
+}
+
+.shimmer {
+  position: relative;
+  overflow: hidden;
+  /* Hardcoded for the same pre-hydration reason as .wrapper above. */
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+}
+
+.shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* ── Fake chapter nav ── */
+.chapterNav {
+  display: flex;
+  gap: 6px;
+  margin-bottom: var(--space-lg);
+}
+
+.chapterSegment {
+  height: 4px;
+  flex: 1;
+  border-radius: 2px;
+}
+
+/* ── Hero image ── */
+.hero {
+  width: 100%;
+  height: 320px;
+  margin-bottom: var(--space-md);
+  border-radius: var(--radius-md);
+}
+
+/* ── Series link ── */
+.seriesLink {
+  width: 140px;
+  height: 12px;
+  margin-bottom: var(--space-sm);
+}
+
+/* ── Title lines ── */
+.titleLine {
+  height: 34px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 10px;
+}
+
+.titleLineWide {
+  width: 85%;
+}
+
+.titleLineNarrow {
+  width: 55%;
+  margin-bottom: var(--space-md);
+}
+
+/* ── Action bar ── */
+.actionBar {
+  display: flex;
+  gap: 14px;
+  margin-bottom: var(--space-lg);
+}
+
+.actionPill {
+  width: 64px;
+  height: 28px;
+  border-radius: var(--radius-lg);
+}
+
+/* ── Paragraph lines ── */
+.paragraph {
+  margin-bottom: var(--space-md);
+}
+
+.line {
+  height: 14px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.lineFull {
+  width: 100%;
+}
+
+.lineWide {
+  width: 92%;
+}
+
+.lineMed {
+  width: 78%;
+}
+
+.lineShort {
+  width: 40%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shimmer::after {
+    animation: none;
+  }
+}

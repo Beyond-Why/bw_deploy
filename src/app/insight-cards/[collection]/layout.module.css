@@ -1,0 +1,8 @@
+.page {
+  max-width: var(--container-width);
+  margin: 0 auto;
+  /* --space-sm (24px) top — the block should start close to the nav, not
+     float in a cavernous gap. Bottom stays generous. */
+  padding: var(--space-sm) var(--space-md) var(--space-2xl);
+  min-height: 100vh;
+}

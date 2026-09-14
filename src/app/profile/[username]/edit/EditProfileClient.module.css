@@ -1,0 +1,685 @@
+.page {
+  padding: 24px 0 var(--space-2xl);
+}
+
+/* --space-2xl (96px) as page-bottom padding reads as dead trailing
+   space once the page's own content is already tight — same complaint
+   as the public profile page, fixed there by cutting its oversized
+   shared-token gaps down to page-local values. Desktop/tablet only
+   (min-width guard, not a max-width override) so mobile — which never
+   had its own override here — is byte-for-byte unchanged. */
+@media (min-width: 769px) {
+  .page {
+    padding: 24px 0 48px;
+  }
+}
+
+.backLink {
+  display: inline-block;
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  text-decoration: none;
+  margin-bottom: var(--space-sm);
+}
+
+.backLink:hover {
+  color: var(--text-primary);
+}
+
+.title {
+  font-size: var(--font-size-h1);
+  margin-bottom: 24px;
+}
+
+/* ── TWO-PANE LAYOUT ── */
+.layout {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 48px;
+  align-items: start;
+  /* 780px fits the form-only sections; widened by the preview column's own
+     300px + 40px gap so the Profile section's right column has room without
+     shrinking the left-column field width other sections also share. */
+  max-width: 1120px;
+}
+
+.settingsSidebar {
+  position: sticky;
+  top: calc(var(--nav-height) + 24px);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebarItem {
+  display: block;
+  width: 100%;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui), sans-serif;
+  font-size: 13px;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: color 0.15s, background 0.15s;
+}
+
+.sidebarItem:hover {
+  color: var(--text-secondary);
+  background: color-mix(in srgb, var(--bg-elevated) 50%, transparent);
+}
+
+.sidebarItemActive,
+.sidebarItemActive:hover {
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+}
+
+.settingsContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  min-width: 0;
+}
+
+/* -30% of --space-md (40px) between major sections (Profile+Bio block,
+   Password, Account) — the main source of the page reading as empty
+   once each section's own internal spacing is already tight.
+   Desktop/tablet only, same min-width guard as .page above. */
+@media (min-width: 769px) {
+  .settingsContent {
+    gap: 28px;
+  }
+}
+
+.section {
+  /* Lines the section up below the sticky nav when scrollIntoView runs. */
+  scroll-margin-top: calc(var(--nav-height) + 24px);
+}
+
+.sectionHeading {
+  font-family: var(--font-ui), sans-serif;
+  /* !important: this is the only rule in the codebase that targets
+     .sectionHeading (verified via a full source search — no other file
+     or selector touches it, and the global h1-h4 rule in globals.css is
+     a bare element selector, lower specificity than this class either
+     way). If 13px still isn't rendering, it's a stale dev-server/HMR
+     CSS-module cache, not a real cascade conflict — a hard refresh
+     (Ctrl+Shift+R) or restarting `next dev` fixes that; !important can't. */
+  font-size: 13px !important;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  /* -30% of the previous 12px — this is the whole heading-to-first-body-
+     element gap (sectionBody's own gap only applies between fields, not
+     before the first one), so this single reduction covers it. */
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.sectionBody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sectionDescription {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: -8px;
+}
+
+/* ── Avatar block (Profile section) ── */
+.avatarBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+/* Camera-overlay scrim (AvatarUpload.module.css's .scrim/.cameraIcon) made
+   permanently visible for THIS page's avatar only, without touching that
+   shared component — it's also used by the public profile header, which
+   must keep its hover-only behavior. Targets the scrim by its aria-hidden
+   attribute (not a class name — AvatarUpload's own CSS Module classes
+   aren't reachable from this file) at higher specificity than its base
+   opacity:0/hover rules, so it always wins regardless of stylesheet order. */
+.avatarBlock div[aria-hidden="true"] {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.changePhotoLink {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 12px;
+  color: var(--accent);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.changePhotoLink:hover {
+  text-decoration: underline;
+}
+
+/* ── Profile tab: two-column layout (form + live preview) ── */
+.profileGrid {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 40px;
+  align-items: start;
+}
+
+.profileGridLeft {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  min-width: 0;
+}
+
+/* Same -30% treatment as .settingsContent above, for the Profile ↔ Bio
+   gap specifically (this column's own flex, separate from that one). */
+@media (min-width: 769px) {
+  .profileGridLeft {
+    gap: 28px;
+  }
+}
+
+.previewCard {
+  position: sticky;
+  top: calc(var(--nav-height) + 24px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+}
+
+.previewHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.previewLabel {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.previewBadge {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-light);
+  border-radius: 999px;
+  padding: 3px 9px;
+  white-space: nowrap;
+}
+
+.previewAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.previewAvatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.previewName {
+  font-family: var(--font-heading), serif;
+  font-size: 1.2rem;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.previewUsername {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: -8px;
+  overflow-wrap: anywhere;
+}
+
+.previewBio {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  /* .previewCard's own 12px gap above this element -4px = 8px visible. */
+  margin-top: -4px;
+}
+
+.previewDivider {
+  height: 1px;
+  background: var(--border-subtle);
+  /* .previewCard's own 12px gap above this element + 0 top margin here =
+     12px visible above; 4px bottom margin keeps the gap to .previewStats
+     below unchanged. */
+  margin: 0 0 4px;
+}
+
+.previewStats {
+  display: flex;
+  gap: 8px;
+}
+
+.statPill {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 8px 6px;
+}
+
+.statValue {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.statLabel {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ── Fields ── */
+.errorMessage {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-small);
+  color: #d16a6a;
+  background: color-mix(in srgb, #d16a6a 10%, transparent);
+  border: 1px solid color-mix(in srgb, #d16a6a 30%, transparent);
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 0.9rem;
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.fieldValue {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-small);
+  color: var(--text-primary);
+}
+
+.input {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-small);
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.75rem;
+  width: 100%;
+  transition: border-color var(--transition-fast);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.input:disabled {
+  opacity: 0.6;
+}
+
+.usernameRow {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  overflow: hidden;
+}
+
+.usernameRow:focus-within {
+  border-color: var(--accent);
+}
+
+.usernamePrefix {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-small);
+  color: var(--text-muted);
+  padding: 0.6rem 0 0.6rem 0.75rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.usernameRow .input {
+  border: none;
+  background: transparent;
+  padding-left: 2px;
+}
+
+.usernameRow .input:focus {
+  outline: none;
+}
+
+.textarea {
+  font-family: var(--font-body), serif;
+  font-size: var(--font-size-small);
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.75rem;
+  width: 100%;
+  resize: vertical;
+  line-height: var(--line-height-body);
+  transition: border-color var(--transition-fast);
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.textarea::placeholder {
+  color: var(--text-muted);
+}
+
+/* ── Save / Update buttons — shared visual style, own handlers ── */
+.saveRow {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.saveButton {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-inverse);
+  background: var(--accent-strong);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), opacity var(--transition-fast);
+}
+
+.saveButton:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.saveButton:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* ── Password section ── */
+.passwordFieldsScope {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  /* PasswordField reads these --auth-* tokens (see auth.css, scoped there
+     to .authFullPage) — aliased to the site's normal tokens here so the
+     shared component renders correctly outside the dark auth pages,
+     without forking it or pulling in the auth full-page treatment. */
+  --auth-font: var(--font-ui), sans-serif;
+  --auth-text-primary: var(--text-primary);
+  --auth-text-muted: var(--text-muted);
+  --auth-input-bg: var(--bg-elevated);
+  --auth-input-border: var(--border-subtle);
+  --auth-input-focus-border: var(--accent);
+  --auth-radius: var(--radius-sm);
+}
+
+.successMessage {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 13px;
+  color: var(--status-complete);
+}
+
+.googleOnlyNotice {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-small);
+  color: var(--text-secondary);
+  line-height: var(--line-height-body);
+}
+
+.googleOnlyNotice a {
+  color: var(--accent);
+}
+
+/* ── Account ── */
+.signOutButton {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-small);
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.signOutButton:hover {
+  color: var(--text-primary);
+  border-color: var(--border-medium);
+}
+
+.divider {
+  height: 1px;
+  background: var(--border-subtle);
+  /* .sectionBody's own 12px gap already applies above and below this
+     element (it's a flex sibling of the sign-out form and .dangerZone),
+     so 8px here brings the total visible gap on each side to 20px. */
+  margin: 8px 0;
+}
+
+.dangerZone {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.dangerLabel {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #c17a7a;
+}
+
+.dangerText {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  margin-top: 4px;
+  max-width: 360px;
+}
+
+.deleteButton {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-small);
+  color: #c17a7a;
+  background: transparent;
+  border: 1px solid color-mix(in srgb, #c17a7a 40%, transparent);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.deleteButton:hover {
+  background: color-mix(in srgb, #c17a7a 10%, transparent);
+  border-color: #c17a7a;
+}
+
+/* ── Delete confirmation dialog ── */
+.dialogOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md);
+  z-index: 200;
+}
+
+.dialog {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  max-width: 400px;
+  width: 100%;
+  box-shadow: var(--shadow-lg);
+}
+
+.dialogTitle {
+  font-family: var(--font-heading), serif;
+  font-size: var(--font-size-h4);
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.dialogBody {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-small);
+  color: var(--text-secondary);
+  line-height: var(--line-height-body);
+  margin-bottom: var(--space-sm);
+}
+
+.dialogActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.dialogCancel {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-small);
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.dialogCancel:hover {
+  color: var(--text-primary);
+  border-color: var(--border-medium);
+}
+
+.dialogConfirm {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-small);
+  font-weight: 500;
+  color: #fff;
+  background: #c1544f;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.dialogConfirm:hover {
+  background: #a8443f;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .settingsSidebar {
+    display: none;
+  }
+
+  .profileGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .previewCard {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  /* Below 600px, --space-md itself shrinks (see globals.css's own mobile
+     query), so .settingsContent's base gap quietly drops to 24px here —
+     less than the 28px the 769px+ rule above already considered "reduced
+     from 40px for density." That inversion is what reads as cramped;
+     this is a deliberate value, not tied to --space-md. */
+  .settingsContent {
+    gap: 32px;
+  }
+
+  .dangerZone {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .deleteButton {
+    width: 100%;
+  }
+
+  .saveButton {
+    width: 100%;
+  }
+}

@@ -1,0 +1,110 @@
+/* ── MODAL OVERLAY ── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: fadeIn 0.25s ease forwards;
+
+  /* Scrollable overlay for the Hotstar effect */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+
+  padding: 0 var(--space-md);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* ── MODAL CONTENT PANEL ── */
+.content {
+  position: relative;
+  width: 100%;
+  max-width: 880px;
+
+  /* Start 20vh from top and expand to bottom */
+  margin: 20vh auto 0 auto;
+  min-height: 80vh;
+
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-medium);
+  border-bottom: none;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  box-shadow:
+    0 -4px 40px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 0 80px rgba(53, 35, 35, 0.15);
+
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(40px);
+    opacity: 0.6;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ── CLOSE BUTTON ── */
+.closeButton {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-elevated);
+  border: none;
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.closeButtonInner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.closeButtonInner:hover {
+  background: var(--border-subtle);
+  color: var(--text-primary);
+  transform: scale(1.05);
+}
+
+/* ── SCROLL AREA ── */
+.scrollArea {
+  padding: var(--space-lg) var(--space-lg) var(--space-2xl);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  .overlay {
+    padding: 0;
+  }
+
+  .scrollArea {
+    padding: var(--space-md) var(--space-md) var(--space-xl);
+  }
+}

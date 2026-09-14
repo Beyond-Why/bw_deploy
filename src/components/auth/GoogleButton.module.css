@@ -1,0 +1,26 @@
+.button {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: transparent;
+  border: 1px solid var(--auth-border);
+  border-radius: var(--auth-radius);
+  padding: 12px;
+  font-family: var(--auth-font);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--auth-text-primary);
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

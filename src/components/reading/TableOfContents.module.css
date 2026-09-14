@@ -1,0 +1,172 @@
+/* ══════════════════════════════════════════════════════════
+   TABLE OF CONTENTS — Substack-style dash rail + outline panel
+   Fixed to the far left of the viewport, identical in Focus and
+   Explore mode — it doesn't anchor to the reading column, and
+   isn't nested inside either mode's scroll container (rendered
+   as a sibling in EpisodeReader.tsx). Hidden below 1100px.
+   z-index sits above the article pane (auto) but below the top
+   nav (Navigation.module.css .header, z-index: 100).
+   ══════════════════════════════════════════════════════════ */
+
+.tocNav {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 20px;
+  z-index: 50;
+}
+
+@media (max-width: 1100px) {
+  .tocNav {
+    display: none;
+  }
+}
+
+/* ── COLLAPSED RAIL ── */
+.rail {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.dash {
+  height: 1.5px;
+  border-radius: 1px;
+  background: var(--text-muted);
+  opacity: 0.4;
+  transition: background-color var(--transition-fast) ease-out,
+    opacity var(--transition-fast) ease-out,
+    height var(--transition-fast) ease-out;
+}
+
+.dashH2 {
+  width: 20px;
+}
+
+.dashH3 {
+  width: 13px;
+}
+
+.dashH4 {
+  width: 8px;
+}
+
+.dashActive {
+  height: 2px;
+  background: var(--accent);
+  opacity: 1;
+}
+
+/* ── EXPANDED PANEL — a floating layer above the article, not a layout
+   neighbor of it. Overlapping article text on open is expected (this is
+   a hover flyout, not a docked sidebar) — what matters is that it reads
+   unambiguously as a panel sitting ON TOP: a blurred, translucent
+   background (article text behind it is softened, not hidden or fully
+   sharp — a flat opaque fill read as "part of the article card" instead
+   of a layer above it), a hairline border at low opacity to define the
+   edge, and a wide, soft, low-opacity shadow for depth. z-index 50 on
+   .tocNav already puts the whole thing above all article content — no
+   z-index needed on the panel itself.
+
+   backdrop-filter isn't universally supported — the @supports fallback
+   below swaps in a solid background so the panel is never illegible on a
+   browser that ignores the blur (it would otherwise render as a fully
+   transparent, unreadable pane). ── */
+.panel {
+  position: absolute;
+  top: 0;
+  left: calc(100% + 12px);
+  width: 260px;
+  max-height: 60vh;
+  overflow-y: auto;
+  background: color-mix(in srgb, var(--bg-elevated) 82%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in srgb, var(--border-medium) 65%, transparent);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.35), 0 4px 16px rgba(0, 0, 0, 0.2);
+  /* ~120ms, not the shared --transition-fast (150ms) — a hair snappier so
+     the flyout reads as arriving on top rather than fading in lazily. */
+  transition: opacity 120ms ease-out, transform 120ms ease-out;
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .panel {
+    background: var(--bg-elevated);
+  }
+}
+
+.panelHeader {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.panelList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── ITEMS ── */
+.item {
+  display: block;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-primary);
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color var(--transition-fast) ease-out,
+    background-color var(--transition-fast) ease-out;
+}
+
+.item:hover {
+  background: var(--bg-surface);
+}
+
+.itemH3 {
+  padding-left: 22px;
+  color: var(--text-secondary);
+}
+
+.itemH4 {
+  font-size: 12px;
+  padding-left: 36px;
+  color: var(--text-muted);
+}
+
+.itemActive {
+  font-weight: 500;
+  color: var(--text-primary);
+  background: var(--accent-light);
+  border-radius: var(--radius-sm);
+}
+
+.itemAncestor {
+  color: var(--text-primary);
+  font-weight: 400;
+}
+
+/* ── MOTION & A11Y ── */
+@media (prefers-reduced-motion: reduce) {
+  .dash,
+  .panel,
+  .item {
+    transition: none;
+  }
+}

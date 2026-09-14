@@ -1,0 +1,524 @@
+/* ══════════════════════════════════════════════════════════
+   COMMENT SECTION — dark-theme-aware, editorial-but-YouTube-shaped
+   ══════════════════════════════════════════════════════════ */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* ── Header row ── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.countHeading {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.sortToggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 13px;
+}
+
+.sortBtn {
+  background: none;
+  border: none;
+  padding: 2px 2px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.sortBtn:hover {
+  color: var(--text-secondary);
+}
+
+.sortBtnActive {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.sortDivider {
+  color: var(--border-subtle);
+}
+
+/* ── Sign-in prompt (logged out) ── */
+.signInPrompt {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 10px 0 14px;
+  margin-bottom: 20px;
+  font-family: var(--font-lora), serif;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color var(--transition-fast, 150ms ease);
+}
+
+.signInPrompt:hover {
+  color: var(--accent);
+}
+
+/* ── Avatars (shared: input + item) ── */
+.avatar {
+  flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-elevated);
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.avatarInitial {
+  font-family: var(--font-ui), sans-serif;
+  font-weight: 600;
+  font-size: 0.85em;
+  color: var(--text-secondary);
+}
+
+/* ── Comment input ── */
+.inputRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.inputBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.textarea {
+  display: block;
+  width: 100%;
+  resize: none;
+  border: none;
+  border-bottom: 1px solid var(--border-subtle);
+  background: transparent;
+  font-family: var(--font-lora), serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  padding: 4px 0 8px;
+  outline: none;
+  transition: border-color var(--transition-fast, 150ms ease);
+  overflow: hidden;
+  min-height: 28px;
+}
+
+.textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.textarea:focus {
+  border-bottom-color: var(--accent);
+}
+
+.inputError {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 12px;
+  color: #c1554a;
+  margin: 6px 0 0;
+}
+
+.inputActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity var(--transition-fast, 150ms ease),
+    max-height var(--transition-fast, 150ms ease),
+    margin-top var(--transition-fast, 150ms ease);
+}
+
+.inputActionsVisible {
+  opacity: 1;
+  max-height: 44px;
+  margin-top: 10px;
+}
+
+.charCount {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-right: auto;
+}
+
+.charCountOver {
+  color: #c1554a;
+}
+
+.cancelBtn {
+  background: none;
+  border: none;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm, 6px);
+  font-family: var(--font-ui), sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background-color var(--transition-fast, 150ms ease);
+}
+
+.cancelBtn:hover {
+  background: var(--bg-elevated);
+}
+
+.submitBtn {
+  background: var(--accent-strong);
+  border: none;
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-inverse, #fff);
+  cursor: pointer;
+  transition: background-color var(--transition-fast, 150ms ease), opacity var(--transition-fast, 150ms ease);
+}
+
+.submitBtn:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.submitBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Thread list ── */
+.threadList {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.thread {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ── Comment item ── */
+.commentItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.commentBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.commentMeta {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.commentAuthor {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.commentDot {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.commentTime {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Episode-origin tag — a quiet accent chip, not a shouty uppercase label.
+   Paired with the left accent bar on .commentItemTagged so a tagged
+   comment reads as distinct at a glance, before you even read the tag. */
+.episodeTag {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 11px;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border-radius: 999px;
+  padding: 3px 10px;
+  margin-top: 6px;
+  max-width: 100%;
+}
+
+.episodeTagNum {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.episodeTagTitle {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.commentItemTagged {
+  border-left: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  padding-left: 10px;
+  margin-left: -12px;
+}
+
+.commentText {
+  font-family: var(--font-lora), serif;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 4px 0 0;
+}
+
+.commentTextDeleted {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.commentActions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 6px;
+}
+
+.textAction {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color var(--transition-fast, 150ms ease);
+}
+
+.textAction:hover {
+  color: var(--text-primary);
+}
+
+/* Like — small and unobtrusive, sits first in the action row like a
+   quiet acknowledgement rather than a prominent CTA (no thumbs/likes
+   elsewhere on comments, just this one heart). */
+.likeAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color var(--transition-fast, 150ms ease), transform var(--transition-fast, 150ms ease);
+}
+
+.likeAction:hover {
+  color: var(--text-primary);
+}
+
+.likeAction:active {
+  transform: scale(0.92);
+}
+
+/* Matches the action bar's LikeButton — liked state reads as accent, not red. */
+.likeActionActive {
+  color: var(--accent);
+}
+
+.likeCount {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ── Replies ── */
+.repliesWrap {
+  margin-left: 44px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.replyInputWrap {
+  margin-top: 4px;
+}
+
+.repliesToggle {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.repliesToggle:hover {
+  color: var(--accent-hover);
+}
+
+.repliesList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-left: 14px;
+  border-left: 2px solid var(--border-subtle);
+}
+
+.commentItemReply .avatar {
+  margin-top: 1px;
+}
+
+/* ── Empty / skeleton states ── */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  padding: 36px 0 32px;
+}
+
+.emptyIcon {
+  color: var(--border-medium);
+  margin-bottom: 2px;
+}
+
+.emptyText {
+  font-family: var(--font-lora), serif;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.emptyNudge {
+  background: none;
+  border: none;
+  padding: 2px 0;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+  transition: color var(--transition-fast, 150ms ease);
+}
+
+.emptyNudge:hover {
+  color: var(--accent-hover);
+}
+
+/* ── Show more comments / collections — ghost button, never a primary CTA ── */
+.showMoreBtn {
+  display: block;
+  margin: 20px auto 0;
+  background: none;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  padding: 8px 20px;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: border-color var(--transition-fast, 150ms ease), color var(--transition-fast, 150ms ease);
+}
+
+.showMoreBtn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.skeletonRow {
+  height: 48px;
+  border-radius: var(--radius-sm, 6px);
+  background: linear-gradient(
+    90deg,
+    var(--bg-elevated) 25%,
+    var(--border-subtle) 37%,
+    var(--bg-elevated) 63%
+  );
+  background-size: 400% 100%;
+  animation: commentShimmer 1.6s ease infinite;
+}
+
+@keyframes commentShimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeletonRow {
+    animation: none;
+  }
+
+  .inputActions,
+  .textarea,
+  .signInPrompt,
+  .submitBtn,
+  .cancelBtn,
+  .textAction,
+  .likeAction,
+  .showMoreBtn,
+  .emptyNudge {
+    transition: none;
+  }
+}
