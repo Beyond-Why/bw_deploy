@@ -22,7 +22,7 @@ const generateSlug = (children: React.ReactNode): string => {
     return children.map(generateSlug).join("-");
   }
   if (React.isValidElement(children)) {
-    return generateSlug(children.props.children);
+    return generateSlug((children.props as { children: string }).children);
   }
   return "";
 };
