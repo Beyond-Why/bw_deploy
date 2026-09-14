@@ -1,4 +1,5 @@
 import { getSeriesIndex, getEpisodes, getCollections } from "@/lib/content";
+import { notFound } from "next/navigation";
 import { DeepDiveContent, type EpisodeStats } from "@/components/DeepDiveContent";
 import { getCurrentUser } from "@/lib/auth/getUser";
 import { getProfileById } from "@/lib/profile";
@@ -13,17 +14,28 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps) {
   const { series } = await params;
-  const { frontmatter } = await getSeriesIndex("deep-dives", series);
-  return {
-    title: `${frontmatter.title} — Beyond Why`,
-    description: frontmatter.description,
-  };
+  try {
+    const { frontmatter } = await getSeriesIndex("deep-dives", series);
+    return {
+      title: `${frontmatter.title} — Beyond Why`,
+      description: frontmatter.description,
+    };
+  } catch {
+    return {};
+  }
 }
 
 export default async function DeepDiveSeriesPage({ params }: PageProps) {
   const { series } = await params;
-  const { frontmatter, content } = await getSeriesIndex("deep-dives", series);
-  const episodes = await getEpisodes("deep-dives", series);
+  let frontmatter: Awaited<ReturnType<typeof getSeriesIndex>>["frontmatter"];
+  let content: Awaited<ReturnType<typeof getSeriesIndex>>["content"];
+  let episodes: Awaited<ReturnType<typeof getEpisodes>>;
+  try {
+    ({ frontmatter, content } = await getSeriesIndex("deep-dives", series));
+    episodes = await getEpisodes("deep-dives", series);
+  } catch {
+    notFound();
+  }
 
   const user = await getCurrentUser();
   const profile = user ? await getProfileById(user.id) : null;

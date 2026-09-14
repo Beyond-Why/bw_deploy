@@ -1,4 +1,5 @@
 import { getSeriesIndex, getEpisodes } from "@/lib/content";
+import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { mdxComponents } from "@/components/mdx/MDXComponents";
 import { mdxOptions } from "@/components/mdx/mdxOptions";
@@ -12,17 +13,28 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps) {
   const { series } = await params;
-  const { frontmatter } = await getSeriesIndex("builder-log", series);
-  return {
-    title: `${frontmatter.title} — Builder Log — Beyond Why`,
-    description: frontmatter.description,
-  };
+  try {
+    const { frontmatter } = await getSeriesIndex("builder-log", series);
+    return {
+      title: `${frontmatter.title} — Builder Log — Beyond Why`,
+      description: frontmatter.description,
+    };
+  } catch {
+    return {};
+  }
 }
 
 export default async function BuilderLogSeriesPage({ params }: PageProps) {
   const { series } = await params;
-  const { frontmatter, content } = await getSeriesIndex("builder-log", series);
-  const episodes = await getEpisodes("builder-log", series);
+  let frontmatter: Awaited<ReturnType<typeof getSeriesIndex>>["frontmatter"];
+  let content: Awaited<ReturnType<typeof getSeriesIndex>>["content"];
+  let episodes: Awaited<ReturnType<typeof getEpisodes>>;
+  try {
+    ({ frontmatter, content } = await getSeriesIndex("builder-log", series));
+    episodes = await getEpisodes("builder-log", series);
+  } catch {
+    notFound();
+  }
 
   const tags = Array.isArray(frontmatter.tags) ? (frontmatter.tags as string[]) : [];
   const milestonesHit = Number(frontmatter.milestonesHit) || 0;

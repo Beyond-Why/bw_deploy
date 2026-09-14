@@ -5,6 +5,7 @@ import {
   getAllSeries,
   getAllInsightCards,
 } from "@/lib/content";
+import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { mdxComponents } from "@/components/mdx/MDXComponents";
 import { mdxOptions } from "@/components/mdx/mdxOptions";
@@ -23,12 +24,16 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps) {
   const { series, episode } = await params;
-  const { frontmatter } = await getEpisode("deep-dives", series, episode);
-  const seriesData = await getSeriesIndex("deep-dives", series);
-  return {
-    title: `${frontmatter.title} — ${seriesData.frontmatter.title} — Beyond Why`,
-    description: frontmatter.description,
-  };
+  try {
+    const { frontmatter } = await getEpisode("deep-dives", series, episode);
+    const seriesData = await getSeriesIndex("deep-dives", series);
+    return {
+      title: `${frontmatter.title} — ${seriesData.frontmatter.title} — Beyond Why`,
+      description: frontmatter.description,
+    };
+  } catch {
+    return {};
+  }
 }
 
 export default async function DeepDiveEpisodePage({ params, searchParams }: PageProps) {
@@ -36,9 +41,17 @@ export default async function DeepDiveEpisodePage({ params, searchParams }: Page
   const { resume } = await searchParams;
 
   // Core episode data
-  const { frontmatter, content } = await getEpisode("deep-dives", series, episode);
-  const seriesData = await getSeriesIndex("deep-dives", series);
-  const episodes = await getEpisodes("deep-dives", series);
+  let frontmatter: Awaited<ReturnType<typeof getEpisode>>["frontmatter"];
+  let content: Awaited<ReturnType<typeof getEpisode>>["content"];
+  let seriesData: Awaited<ReturnType<typeof getSeriesIndex>>;
+  let episodes: Awaited<ReturnType<typeof getEpisodes>>;
+  try {
+    ({ frontmatter, content } = await getEpisode("deep-dives", series, episode));
+    seriesData = await getSeriesIndex("deep-dives", series);
+    episodes = await getEpisodes("deep-dives", series);
+  } catch {
+    notFound();
+  }
 
   // Likes + reading progress — keyed by a compound id so slugs never
   // collide across series/collections.

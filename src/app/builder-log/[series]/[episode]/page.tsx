@@ -3,6 +3,7 @@ import {
   getEpisode,
   getEpisodes,
 } from "@/lib/content";
+import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { mdxComponents } from "@/components/mdx/MDXComponents";
 import { mdxOptions } from "@/components/mdx/mdxOptions";
@@ -15,23 +16,31 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps) {
   const { series, episode } = await params;
-  const { frontmatter } = await getEpisode("builder-log", series, episode);
-  const seriesData = await getSeriesIndex("builder-log", series);
-  return {
-    title: `${frontmatter.title} — ${seriesData.frontmatter.title} — Beyond Why`,
-    description: frontmatter.description,
-  };
+  try {
+    const { frontmatter } = await getEpisode("builder-log", series, episode);
+    const seriesData = await getSeriesIndex("builder-log", series);
+    return {
+      title: `${frontmatter.title} — ${seriesData.frontmatter.title} — Beyond Why`,
+      description: frontmatter.description,
+    };
+  } catch {
+    return {};
+  }
 }
 
 export default async function BuilderLogEpisodePage({ params }: PageProps) {
   const { series, episode } = await params;
-  const { frontmatter, content } = await getEpisode(
-    "builder-log",
-    series,
-    episode
-  );
-  const seriesData = await getSeriesIndex("builder-log", series);
-  const episodes = await getEpisodes("builder-log", series);
+  let frontmatter: Awaited<ReturnType<typeof getEpisode>>["frontmatter"];
+  let content: Awaited<ReturnType<typeof getEpisode>>["content"];
+  let seriesData: Awaited<ReturnType<typeof getSeriesIndex>>;
+  let episodes: Awaited<ReturnType<typeof getEpisodes>>;
+  try {
+    ({ frontmatter, content } = await getEpisode("builder-log", series, episode));
+    seriesData = await getSeriesIndex("builder-log", series);
+    episodes = await getEpisodes("builder-log", series);
+  } catch {
+    notFound();
+  }
 
   const currentIndex = episodes.findIndex((ep) => ep.slug === episode);
   const prevEpisode = currentIndex > 0 ? episodes[currentIndex - 1] : null;
