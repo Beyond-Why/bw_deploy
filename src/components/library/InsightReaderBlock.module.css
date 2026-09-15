@@ -290,48 +290,42 @@
   }
 }
 
-/* ── MOBILE NAV ROW — < counter > at the top of the card. Rendered in the
-   DOM at all widths (see InsightReaderBlock.tsx) but only shown below the
-   desktop breakpoint, where the gutter arrows (.arrow, composed from
-   InsightRow.module.css) are already hidden. ── */
+/* ── MOBILE NAV ROW — right-aligned "‹ 02/05 ›" pair below the card.
+   Composes the Explore Zone's own swipe/swipeBtn pattern (see
+   InsightCollectionBlock.module.css) instead of a new button design. ── */
 .mobileNav {
+  composes: swipe from "./InsightCollectionBlock.module.css";
   display: none;
+  width: 100%;
+  justify-content: flex-end;
+  margin-top: var(--space-sm);
 }
 
-.mobileNavArrow {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: transparent;
-  border: none;
-  color: var(--accent-strong);
-  font-size: 1.3rem;
-  line-height: 1;
-  cursor: pointer;
-  text-decoration: none;
-  transition: opacity var(--transition-fast) ease;
-}
-
-.mobileNavArrow:disabled {
-  opacity: 0.3;
-  cursor: default;
-  pointer-events: none;
+.mobileNavBtn {
+  composes: swipeBtn from "./InsightCollectionBlock.module.css";
 }
 
 .mobileNavPosition {
   font-family: var(--font-ui), sans-serif;
   font-size: var(--font-size-xs);
   color: var(--text-muted);
-  min-width: 60px;
-  text-align: center;
 }
 
-/* ── MOBILE — single scrolling column. The fixed-height deck (--reader-h)
-   and inner-scrolling right pane are a desktop-only reading affordance;
-   below the desktop breakpoint the whole page scrolls instead and the
-   card just grows to fit its content. ── */
+@media (max-width: 899px) {
+  .mobileNav {
+    display: flex;
+  }
+}
+
+/* ── MOBILE — single scrolling card. The fixed-height deck (--reader-h)
+   and the two absolutely-stacked layers exist to run the slide transition
+   at a known height; below the desktop breakpoint the card's height
+   instead tracks its own content, so only the OUTGOING layer stays
+   absolutely positioned — pinned to the top edge, sized to its own frozen
+   content, so it can overlay briefly while it exits — while the INCOMING
+   layer renders in normal flow and is what actually defines the card's
+   height. The animations themselves (keyframes above) are untouched and
+   still fire on tap, same as desktop. ── */
 @media (max-width: 899px) {
   .gutterGrid {
     height: auto;
@@ -341,8 +335,8 @@
     height: auto;
   }
 
-  /* Peeking deck layers behind the card are a desktop-only flourish tied
-     to the fixed reader height. */
+  /* Peeking deck layers assume a fixed-height card; skip them once the
+     card's height is intrinsic instead. */
   .deckLayer1,
   .deckLayer2 {
     display: none;
@@ -357,16 +351,14 @@
     height: auto;
   }
 
-  /* Stack-slide transition depends on the absolute layering above; skip it
-     on mobile, where the card is a normal scrolling block instead. */
   .slideOutFwd,
   .slideOutRev {
-    display: none;
-  }
-
-  .slideInFwd,
-  .slideInRev {
-    animation: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: auto;
+    z-index: 1;
   }
 
   .split {
@@ -375,7 +367,9 @@
   }
 
   .visual {
-    max-width: 40vw;
+    /* Square (aspect-ratio: 1 above), so capping the width caps the
+       height too — equivalent to a max-height constraint. */
+    max-width: 45vw;
   }
 
   .rightPane {
@@ -383,16 +377,8 @@
     overflow: visible;
   }
 
-  /* The counter moves into the top nav row instead — avoid showing it twice. */
+  /* Moves into the nav row below instead of sitting inside the card. */
   .position {
     display: none;
-  }
-
-  .mobileNav {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    padding: 0 var(--space-sm) var(--space-sm);
   }
 }
