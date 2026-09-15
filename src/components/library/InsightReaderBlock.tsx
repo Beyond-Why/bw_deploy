@@ -235,34 +235,6 @@ export function InsightReaderBlock({
           ›
         </button>
       )}
-
-      {/* ── Mobile-only nav — hidden on desktop via CSS, where the gutter
-          arrows above serve the same purpose. Same hrefs/handlers as those
-          arrows, so navigating here triggers the exact same route change
-          and the same slide transition. ── */}
-      <div className={styles.mobileNav}>
-        {prevHref ? (
-          <Link href={prevHref} scroll={false} className={styles.mobileNavBtn} aria-label="Previous card">
-            ‹
-          </Link>
-        ) : (
-          <button type="button" className={styles.mobileNavBtn} disabled aria-label="Previous card">
-            ‹
-          </button>
-        )}
-        <span className={styles.mobileNavPosition}>
-          {String(cardIndex + 1).padStart(2, "0")} / {String(collection.cards.length).padStart(2, "0")}
-        </span>
-        {nextHref ? (
-          <Link href={nextHref} scroll={false} className={styles.mobileNavBtn} aria-label="Next card">
-            ›
-          </Link>
-        ) : (
-          <button type="button" className={styles.mobileNavBtn} disabled aria-label="Next card">
-            ›
-          </button>
-        )}
-      </div>
     </div>
   );
 }
