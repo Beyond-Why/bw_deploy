@@ -73,6 +73,10 @@ export async function POST(request: Request) {
 
   const authHeader = request.headers.get("authorization");
   if (!verifyHookSignature(authHeader, rawBody)) {
+    console.error("send-email hook: signature verification failed", {
+      hasAuthHeader: Boolean(authHeader),
+      hasHookSecret: Boolean(process.env.SUPABASE_HOOK_SECRET),
+    });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -84,17 +88,33 @@ export async function POST(request: Request) {
     }
   })();
   if (!payload?.user?.email || !payload?.email_data?.token_hash) {
+    console.error("send-email hook: invalid payload", {
+      parsedJson: payload !== null,
+      hasUserEmail: Boolean(payload?.user?.email),
+      hasTokenHash: Boolean(payload?.email_data?.token_hash),
+    });
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 
   const { user, email_data } = payload;
   const type = ACTION_TYPE_MAP[email_data.email_action_type];
   if (!type) {
+    console.error("send-email hook: unsupported email_action_type", {
+      email_action_type: email_data.email_action_type,
+    });
     return NextResponse.json(
       { error: `Unsupported email_action_type: ${email_data.email_action_type}` },
       { status: 400 }
     );
   }
+
+  // TEMPORARY DEBUG — remove once the signup 500 is root-caused.
+  console.log(
+    "hook reached, action:",
+    email_data.email_action_type,
+    "email:",
+    user.email.slice(0, 4) + "..."
+  );
 
   const actionUrl = new URL("/auth/confirm", email_data.site_url);
   actionUrl.searchParams.set("token_hash", email_data.token_hash);
@@ -105,6 +125,8 @@ export async function POST(request: Request) {
 
   try {
     await sendAuthEmail({ to: user.email, type, actionUrl: actionUrl.toString() });
+    // TEMPORARY DEBUG — remove once the signup 500 is root-caused.
+    console.log("resend success");
   } catch (error) {
     console.error("Failed to send auth email:", error);
     return NextResponse.json({ error: "Failed to send email" }, { status: 500 });

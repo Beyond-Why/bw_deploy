@@ -8,7 +8,7 @@
   grid-template-columns: 45% 55%;
   height: 100vh;
   height: 100dvh;
-  width: 100%;
+  width: 100vw;
   overflow: hidden;
   background: var(--auth-bg);
   font-family: var(--auth-font);
@@ -17,6 +17,11 @@
 .formPanel {
   position: relative;
   height: 100%;
+  /* Grid items default to min-height: auto, which lets content taller
+     than the row force the row (and the page) past 100vh. This is what
+     actually enforces "no page scroll" — .form's own overflow-y: auto
+     is just the safety net for viewports too short to fit everything. */
+  min-height: 0;
   overflow: hidden;
   display: flex;
   align-items: center;

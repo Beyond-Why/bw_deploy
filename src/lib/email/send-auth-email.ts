@@ -22,6 +22,8 @@ export async function sendAuthEmail({ to, type, actionUrl }: SendAuthEmailParams
   });
 
   if (error) {
+    // TEMPORARY DEBUG — remove once the signup 500 is root-caused.
+    console.error("resend error:", error);
     throw new Error(`Failed to send ${type} auth email to ${to}: ${error.message}`);
   }
 }

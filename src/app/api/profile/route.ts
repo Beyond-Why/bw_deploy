@@ -3,11 +3,7 @@ import { eq } from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth/getUser";
 import { db } from "@/lib/db";
 import { profiles } from "@/lib/db/schema";
-
-// 3–30 chars, lowercase letters/digits/._- , must start and end alnum —
-// matches the citext unique constraint and the handle_new_user trigger's
-// own sanitization (see actions.ts / drizzle/0011_update_handle_new_user_trigger.sql).
-const USERNAME_PATTERN = /^[a-z0-9](?:[a-z0-9._-]{1,28}[a-z0-9])?$/;
+import { USERNAME_PATTERN } from "@/lib/auth/username";
 
 export async function PATCH(request: Request) {
   const user = await getCurrentUser();
