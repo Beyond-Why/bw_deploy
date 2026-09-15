@@ -289,3 +289,110 @@
     animation: none;
   }
 }
+
+/* ── MOBILE NAV ROW — < counter > at the top of the card. Rendered in the
+   DOM at all widths (see InsightReaderBlock.tsx) but only shown below the
+   desktop breakpoint, where the gutter arrows (.arrow, composed from
+   InsightRow.module.css) are already hidden. ── */
+.mobileNav {
+  display: none;
+}
+
+.mobileNavArrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  color: var(--accent-strong);
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity var(--transition-fast) ease;
+}
+
+.mobileNavArrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+  pointer-events: none;
+}
+
+.mobileNavPosition {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  min-width: 60px;
+  text-align: center;
+}
+
+/* ── MOBILE — single scrolling column. The fixed-height deck (--reader-h)
+   and inner-scrolling right pane are a desktop-only reading affordance;
+   below the desktop breakpoint the whole page scrolls instead and the
+   card just grows to fit its content. ── */
+@media (max-width: 899px) {
+  .gutterGrid {
+    height: auto;
+  }
+
+  .deck {
+    height: auto;
+  }
+
+  /* Peeking deck layers behind the card are a desktop-only flourish tied
+     to the fixed reader height. */
+  .deckLayer1,
+  .deckLayer2 {
+    display: none;
+  }
+
+  .inner {
+    height: auto;
+  }
+
+  .layer {
+    position: static;
+    height: auto;
+  }
+
+  /* Stack-slide transition depends on the absolute layering above; skip it
+     on mobile, where the card is a normal scrolling block instead. */
+  .slideOutFwd,
+  .slideOutRev {
+    display: none;
+  }
+
+  .slideInFwd,
+  .slideInRev {
+    animation: none;
+  }
+
+  .split {
+    height: auto;
+    grid-template-rows: auto;
+  }
+
+  .visual {
+    max-width: 40vw;
+  }
+
+  .rightPane {
+    height: auto;
+    overflow: visible;
+  }
+
+  /* The counter moves into the top nav row instead — avoid showing it twice. */
+  .position {
+    display: none;
+  }
+
+  .mobileNav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 0 var(--space-sm) var(--space-sm);
+  }
+}

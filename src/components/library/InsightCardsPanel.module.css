@@ -53,6 +53,16 @@
   gap: 12px;
 }
 
+/* Fixed 170px tracks can starve down to a single column at narrow phone
+   widths — force 2 across (InsightSquareCard is width:100%, so cards
+   shrink to fit) so the "reading" pill / active state stays reachable
+   without a full-width scroll. */
+@media (max-width: 899px) {
+  .gridCards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 /* ── Zone 3: other collections ── */
 .rows {
   display: flex;

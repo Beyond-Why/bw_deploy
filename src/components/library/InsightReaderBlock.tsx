@@ -211,6 +211,42 @@ export function InsightReaderBlock({
         <div className={styles.deckLayer1} aria-hidden="true" />
 
         <div className={styles.inner}>
+          {/* Mobile-only nav row — hidden on desktop via CSS, where the
+              gutter arrows above serve the same purpose. */}
+          <div className={styles.mobileNav}>
+            {prevHref ? (
+              <Link
+                href={prevHref}
+                scroll={false}
+                className={styles.mobileNavArrow}
+                aria-label="Previous card"
+              >
+                ‹
+              </Link>
+            ) : (
+              <button type="button" className={styles.mobileNavArrow} disabled aria-label="Previous card">
+                ‹
+              </button>
+            )}
+            <span className={styles.mobileNavPosition}>
+              {String(cardIndex + 1).padStart(2, "0")} / {String(collection.cards.length).padStart(2, "0")}
+            </span>
+            {nextHref ? (
+              <Link
+                href={nextHref}
+                scroll={false}
+                className={styles.mobileNavArrow}
+                aria-label="Next card"
+              >
+                ›
+              </Link>
+            ) : (
+              <button type="button" className={styles.mobileNavArrow} disabled aria-label="Next card">
+                ›
+              </button>
+            )}
+          </div>
+
           {outgoing && (
             <div key={outgoing.key} className={cx(styles.layer, outClass)}>
               <ReaderPane
