@@ -46,7 +46,17 @@ export async function POST(request: Request) {
       "webhook-signature": request.headers.get("webhook-signature") ?? "",
       "webhook-timestamp": request.headers.get("webhook-timestamp") ?? "",
     });
-  } catch {
+  } catch (err) {
+    // TEMPORARY DEBUG — remove once the signup 500 is root-caused.
+    console.error("verify failed:", {
+      error: err instanceof Error ? err.message : String(err),
+      secretLength: secret.length,
+      secretPrefix: secret.slice(0, 12),
+      bodyLength: rawBody.length,
+      webhookId: request.headers.get("webhook-id"),
+      webhookTimestamp: request.headers.get("webhook-timestamp"),
+      sigHeader: request.headers.get("webhook-signature")?.slice(0, 20),
+    });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
