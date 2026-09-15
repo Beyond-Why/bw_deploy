@@ -73,9 +73,11 @@ export async function POST(request: Request) {
 
   const authHeader = request.headers.get("authorization");
   if (!verifyHookSignature(authHeader, rawBody)) {
+    // TEMPORARY DEBUG — remove once the signup 500 is root-caused.
     console.error("send-email hook: signature verification failed", {
       hasAuthHeader: Boolean(authHeader),
       hasHookSecret: Boolean(process.env.SUPABASE_HOOK_SECRET),
+      incomingHeaders: [...request.headers.keys()],
     });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
