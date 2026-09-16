@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { InsightSquareCard } from "./InsightSquareCard";
 import { InsightCollectionBlock } from "./InsightCollectionBlock";
 import { InsightRowHeadingProvider, useMixedHeading } from "./InsightRowHeadingProvider";
@@ -67,6 +68,10 @@ function seededShuffle<T>(items: readonly T[], seed: number): T[] {
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
   return arr;
+}
+
+function cx(...classes: Array<string | false | undefined>): string {
+  return classes.filter(Boolean).join(" ");
 }
 
 function ZoneThreeHeading() {
@@ -185,6 +190,50 @@ export function InsightCardsPanel({
           nextHref={nextHref}
           bookmarked={bookmarkState.bookmarked}
         />
+      </div>
+
+      {/* ── Mobile-only: prev/next + dot indicators, between the card and
+          "More from ___". Desktop keeps using the reader block's own side
+          arrows instead — see .cardNavRow's display:none there. ── */}
+      <div className={styles.cardNavRow}>
+        {prevHref ? (
+          <Link href={prevHref} scroll={false} className={styles.navBtn} aria-label="Previous card">
+            ‹
+          </Link>
+        ) : (
+          <button
+            type="button"
+            className={cx(styles.navBtn, styles.navBtnDisabled)}
+            disabled
+            aria-label="Previous card"
+          >
+            ‹
+          </button>
+        )}
+
+        <div className={styles.navDots}>
+          {activeCollection.cards.map((card, i) => (
+            <span
+              key={card.slug}
+              className={cx(styles.navDot, i === cardIndex && styles.navDotActive)}
+            />
+          ))}
+        </div>
+
+        {nextHref ? (
+          <Link href={nextHref} scroll={false} className={styles.navBtn} aria-label="Next card">
+            ›
+          </Link>
+        ) : (
+          <button
+            type="button"
+            className={cx(styles.navBtn, styles.navBtnDisabled)}
+            disabled
+            aria-label="Next card"
+          >
+            ›
+          </button>
+        )}
       </div>
 
       {/* ── Zone 2: active collection grid — square cards, the one exception to bars ── */}

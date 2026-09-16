@@ -14,6 +14,66 @@
   scroll-margin-top: 80px;
 }
 
+/* ── Mobile-only card nav row — prev/next + dot indicators, between the
+   reader block and "More from ___". Desktop keeps using the reader block's
+   own side arrows (InsightReaderBlock.module.css's .arrow) instead. ── */
+.cardNavRow {
+  display: none;
+}
+
+@media (max-width: 899px) {
+  .readerWrapper {
+    /* The nav row directly below now owns the gap to the card via its own
+       margin-top, so this doesn't stack on top of it. */
+    margin-bottom: 0;
+  }
+
+  .cardNavRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 5px;
+    margin-bottom: 14px;
+  }
+}
+
+.navBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #181818;
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-primary);
+}
+
+.navBtnDisabled {
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+.navDots {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.navDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.navDotActive {
+  width: 16px;
+  border-radius: 3px;
+  background: #5b9cf6;
+}
+
 /* ── Zone 2: active collection grid ── */
 .grid {
   margin-bottom: 2rem;
