@@ -34,10 +34,9 @@ const ACTION_TYPE_MAP: Record<string, AuthEmailType> = {
 export async function POST(request: Request) {
   const rawBody = await request.text();
 
-  // The dashboard-generated secret is `v1,whsec_<base64>` — the
-  // library's own prefix-stripping only recognizes a bare `whsec_`
-  // prefix, so strip the leading `v1,` ourselves first.
-  const secret = (process.env.SUPABASE_HOOK_SECRET ?? "").replace(/^v1,/, "");
+  // The dashboard-generated secret is `v1,whsec_<base64>` — strip
+  // both prefixes to get the raw base64 secret.
+  const secret = (process.env.SUPABASE_HOOK_SECRET ?? "").replace(/^v1,whsec_/, "");
 
   try {
     const wh = new Webhook(secret);
@@ -51,7 +50,6 @@ export async function POST(request: Request) {
     console.error("verify failed:", {
       error: err instanceof Error ? err.message : String(err),
       secretLength: secret.length,
-      secretPrefix: secret.slice(0, 12),
       bodyLength: rawBody.length,
       webhookId: request.headers.get("webhook-id"),
       webhookTimestamp: request.headers.get("webhook-timestamp"),
