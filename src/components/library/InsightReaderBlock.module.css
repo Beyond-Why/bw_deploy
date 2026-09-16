@@ -277,6 +277,52 @@
   color: var(--text-primary);
 }
 
+/* ── Mobile — unified scroll. Below the desktop split (900px), the card
+   wrapper itself becomes the single scroll container instead of splitting
+   scroll between a fixed left pane and an inner-scrolling right pane, so
+   the whole card (visual + content) scrolls together under a sticky
+   header. ── */
+@media (max-width: 899px) {
+  .split {
+    overflow-y: auto;
+    height: 100%;
+
+    /* Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  }
+
+  .split::-webkit-scrollbar {
+    width: 3px;
+  }
+
+  .split::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .split::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 99px;
+  }
+
+  .leftPane {
+    overflow: visible;
+  }
+
+  .rightPane {
+    height: auto;
+    max-height: none;
+    overflow-y: visible;
+  }
+
+  .meta {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--bg-surface);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .rightPane {
     scroll-behavior: auto;
