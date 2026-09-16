@@ -280,8 +280,8 @@
 /* ── Mobile — unified scroll. Below the desktop split (900px), the card
    wrapper itself becomes the single scroll container instead of splitting
    scroll between a fixed left pane and an inner-scrolling right pane, so
-   the whole card (visual + content) scrolls together under a sticky
-   header. ── */
+   the whole card (header, visual, title, content) scrolls together as one
+   unit — nothing inside is pinned. ── */
 @media (max-width: 899px) {
   .split {
     overflow-y: auto;
@@ -311,15 +311,7 @@
 
   .rightPane {
     height: auto;
-    max-height: none;
-    overflow-y: visible;
-  }
-
-  .meta {
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    background: var(--bg-surface);
+    overflow: visible;
   }
 }
 
