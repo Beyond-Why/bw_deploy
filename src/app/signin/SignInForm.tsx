@@ -7,7 +7,6 @@ import { GoogleButton } from "@/components/auth/GoogleButton";
 import { PasswordField } from "@/components/auth/PasswordField";
 import styles from "./SignInForm.module.css";
 
-const FAILURES_BEFORE_FORGOT_LINK = 3;
 const GENERIC_ERROR = "Something went wrong. Try again.";
 const INVALID_CREDENTIALS_ERROR = "Incorrect email/username or password.";
 
@@ -28,10 +27,7 @@ export function SignInForm({
   const [error, setError] = useState<string | null>(
     initialErrored ? GENERIC_ERROR : null
   );
-  const [failedAttempts, setFailedAttempts] = useState(0);
   const identifierId = useId();
-
-  const showForgotPassword = failedAttempts >= FAILURES_BEFORE_FORGOT_LINK;
 
   async function resolveEmail(): Promise<string | null> {
     const trimmed = identifier.trim();
@@ -79,7 +75,6 @@ export function SignInForm({
     }
 
     if (signInError) {
-      setFailedAttempts((n) => n + 1);
       setError(INVALID_CREDENTIALS_ERROR);
       setBusy(false);
       return;
@@ -145,11 +140,9 @@ export function SignInForm({
           </p>
         )}
 
-        {showForgotPassword && (
-          <Link href="/forgot-password" className={styles.forgotLink}>
-            Forgot your password?
-          </Link>
-        )}
+        <Link href="/forgot-password" className={styles.forgotLink}>
+          Forgot your password?
+        </Link>
 
         <button type="submit" className={styles.submitButton} disabled={busy}>
           {busy ? "Signing in…" : "Sign in"}

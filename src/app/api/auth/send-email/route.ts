@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { Webhook } from "standardwebhooks";
 import { sendAuthEmail } from "@/lib/email/send-auth-email";
 import type { AuthEmailType } from "@/lib/email/templates/auth-email";
+import { normalizeRedirectTo } from "@/lib/auth/redirect";
 
 interface SupabaseHookPayload {
   user: { email: string };
@@ -81,8 +82,9 @@ export async function POST(request: Request) {
   const actionUrl = new URL("/auth/confirm", request.url);
   actionUrl.searchParams.set("token_hash", email_data.token_hash);
   actionUrl.searchParams.set("type", email_data.email_action_type);
-  if (email_data.redirect_to) {
-    actionUrl.searchParams.set("next", email_data.redirect_to);
+  const normalizedNext = normalizeRedirectTo(email_data.redirect_to, request.url);
+  if (normalizedNext) {
+    actionUrl.searchParams.set("next", normalizedNext);
   }
 
   try {
