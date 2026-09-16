@@ -17,29 +17,48 @@
 .formPanel {
   position: relative;
   height: 100%;
-  /* Grid items default to min-height: auto, which lets content taller
-     than the row force the row (and the page) past 100vh. This is what
-     actually enforces "no page scroll" — .form's own overflow-y: auto
-     is just the safety net for viewports too short to fit everything. */
   min-height: 0;
-  overflow: hidden;
+  overflow-y: auto;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 24px;
-  /* Falls through to .shell's --auth-bg — same surface as .panel, no seam. */
   background: transparent;
 }
 
-.mobileMark {
+.mobileHeader {
   display: none;
-  position: absolute;
-  top: 24px;
-  left: 24px;
-  font-family: var(--auth-heading-font);
-  font-size: 1.1rem;
-  letter-spacing: 0.01em;
-  color: var(--auth-text-primary);
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.mobileLogoLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: opacity 150ms ease;
+}
+
+.mobileLogoLink:hover {
+  opacity: 0.85;
+}
+
+.mobileLogoMark {
+  width: 32px;
+  height: 32px;
+}
+
+.mobileContextLabel {
+  font-family: var(--auth-font);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--auth-accent);
 }
 
 @media (max-width: 900px) {
@@ -47,7 +66,7 @@
     grid-template-columns: 1fr;
   }
 
-  .mobileMark {
-    display: block;
+  .mobileHeader {
+    display: flex;
   }
 }

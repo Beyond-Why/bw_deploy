@@ -23,7 +23,7 @@ export default async function SignUpPage({
   }
 
   return (
-    <AuthShell tagline="Where curiosity goes deeper.">
+    <AuthShell contextLabel="CREATE ACCOUNT" tagline="Think deeper. Read better.">
       <SignUpForm redirectTo={redirectTo} />
     </AuthShell>
   );

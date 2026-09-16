@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function ForgotPasswordPage() {
   return (
-    <AuthShell tagline="Think deeper. Read better.">
+    <AuthShell contextLabel="FORGOT PASSWORD" tagline="Think deeper. Read better.">
       <ForgotPasswordForm />
     </AuthShell>
   );

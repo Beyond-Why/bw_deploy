@@ -23,7 +23,7 @@ export default async function SignInPage({
   }
 
   return (
-    <AuthShell tagline="Serialized deep dives and insight cards, for the parts of a subject the syllabus skips.">
+    <AuthShell contextLabel="SIGN IN" tagline="Think deeper. Read better.">
       <SignInForm redirectTo={redirectTo} initialErrored={params.error === "auth"} />
     </AuthShell>
   );

@@ -41,23 +41,53 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  max-width: 360px;
+  max-width: 380px;
   padding: 0 48px;
 }
 
+.brandHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  margin-bottom: 20px;
+  transition: opacity 150ms ease;
+}
+
+.brandHeader:hover {
+  opacity: 0.85;
+}
+
+.logoMark {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+}
+
 .wordmark {
-  margin: 0 0 14px;
+  margin: 0;
   font-family: var(--auth-heading-font);
-  font-size: 2rem;
+  font-size: 1.85rem;
   font-weight: 400;
   color: var(--auth-text-primary);
+  letter-spacing: -0.01em;
+}
+
+.contextLabel {
+  font-family: var(--auth-font);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--auth-accent);
+  margin-bottom: 8px;
 }
 
 .tagline {
   margin: 0;
   font-family: var(--auth-body-font);
   font-style: italic;
-  font-size: 1rem;
+  font-size: 1.05rem;
   line-height: 1.6;
   color: var(--auth-text-muted);
 }

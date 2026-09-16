@@ -270,7 +270,6 @@ export function SignUpForm({ redirectTo }: { redirectTo: string }) {
             className={styles.input}
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Your full name"
             autoComplete="name"
             disabled={busy}
             required
@@ -303,14 +302,15 @@ export function SignUpForm({ redirectTo }: { redirectTo: string }) {
             className={styles.input}
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            placeholder="yourname"
             autoComplete="off"
             autoCapitalize="off"
             spellCheck={false}
             disabled={busy}
             required
           />
-          {usernameStatus !== "idle" && (
+          {usernameStatus === "idle" ? (
+            <p className={styles.usernameHelper}>Choose a unique username</p>
+          ) : (
             <p className={`${styles.usernameStatus} ${styles[usernameStatus]}`}>
               {usernameStatus === "available" && (
                 <svg

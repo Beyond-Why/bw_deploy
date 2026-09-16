@@ -22,7 +22,7 @@ export default async function ResetPasswordPage() {
   }
 
   return (
-    <AuthShell tagline="Think deeper. Read better.">
+    <AuthShell contextLabel="RESET PASSWORD" tagline="Think deeper. Read better.">
       <ResetPasswordForm />
     </AuthShell>
   );
