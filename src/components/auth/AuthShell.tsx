@@ -20,10 +20,19 @@ export function AuthShell({
         <div className={styles.mobileHeader}>
           <Link href="/" className={styles.mobileLogoLink} aria-label="Beyond Why Home">
             <LogoMark className={styles.mobileLogoMark} />
+            <span className={styles.mobileWordmark}>Beyond Why</span>
           </Link>
-          {contextLabel && <span className={styles.mobileContextLabel}>{contextLabel}</span>}
         </div>
         {children}
+        <div className={styles.authLegalRow}>
+          <Link href="/terms" className={styles.authLegalLink}>
+            Terms
+          </Link>
+          <span className={styles.authLegalDot}>·</span>
+          <Link href="/privacy" className={styles.authLegalLink}>
+            Privacy
+          </Link>
+        </div>
       </div>
     </div>
   );

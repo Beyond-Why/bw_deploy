@@ -360,7 +360,15 @@ export function SignUpForm({ redirectTo }: { redirectTo: string }) {
         </button>
 
         <p className={styles.termsNote}>
-          By creating an account, you agree to our Terms and Privacy Policy.
+          By creating an account, you agree to our{" "}
+          <Link href="/terms" className={styles.link}>
+            Terms of Service
+          </Link>{" "}
+          and{" "}
+          <Link href="/privacy" className={styles.link}>
+            Privacy Policy
+          </Link>
+          .
         </p>
       </form>
     </div>

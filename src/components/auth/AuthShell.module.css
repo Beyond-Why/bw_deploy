@@ -29,9 +29,8 @@
 
 .mobileHeader {
   display: none;
-  flex-direction: column;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
   margin-bottom: 20px;
 }
 
@@ -39,6 +38,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 10px;
   text-decoration: none;
   transition: opacity 150ms ease;
 }
@@ -48,17 +48,44 @@
 }
 
 .mobileLogoMark {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
 }
 
-.mobileContextLabel {
-  font-family: var(--auth-font);
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--auth-accent);
+.mobileWordmark {
+  font-family: var(--auth-heading-font);
+  font-size: 1.45rem;
+  font-weight: 400;
+  color: var(--auth-text-primary);
+  letter-spacing: -0.01em;
+}
+
+.authLegalRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  font-size: 0.75rem;
+  color: var(--auth-text-muted);
+}
+
+.authLegalLink {
+  color: var(--auth-text-muted);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 2px;
+  transition: color 150ms ease, text-decoration-color 150ms ease;
+}
+
+.authLegalLink:hover {
+  color: var(--auth-text-primary);
+  text-decoration-color: currentColor;
+}
+
+.authLegalDot {
+  opacity: 0.5;
 }
 
 @media (max-width: 900px) {

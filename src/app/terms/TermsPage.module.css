@@ -1,0 +1,75 @@
+.container {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: var(--space-2xl) var(--space-md);
+  color: var(--text-primary);
+  line-height: var(--line-height-body);
+}
+
+.header {
+  margin-bottom: var(--space-xl);
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: var(--space-lg);
+}
+
+.title {
+  font-family: var(--font-heading), serif;
+  font-size: 2.5rem;
+  font-weight: 400;
+  margin: 0 0 12px;
+}
+
+.lastUpdated {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-small);
+  color: var(--text-muted);
+}
+
+.section {
+  margin-bottom: var(--space-xl);
+}
+
+.sectionTitle {
+  font-family: var(--font-heading), serif;
+  font-size: 1.4rem;
+  font-weight: 400;
+  margin: 0 0 14px;
+  color: var(--text-primary);
+}
+
+.paragraph {
+  font-family: var(--font-body), serif;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin: 0 0 16px;
+}
+
+.list {
+  font-family: var(--font-body), serif;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin: 0 0 16px;
+  padding-left: 24px;
+}
+
+.listItem {
+  margin-bottom: 10px;
+}
+
+.link {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.link:hover {
+  opacity: 0.85;
+}
+
+@media (max-width: 600px) {
+  .title {
+    font-size: 2rem;
+  }
+}
