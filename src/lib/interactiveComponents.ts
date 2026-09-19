@@ -25,4 +25,9 @@ export const interactiveComponents = {
       "@/content/deep-dives/the-field-that-powers-the-world/interactive/FieldSlider"
     )
   ),
+  LoopVideo: dynamic(() =>
+    import(
+      "@/content/deep-dives/the-field-that-powers-the-world/interactive/LoopVideo"
+    )
+  ),
 };
