@@ -258,6 +258,24 @@ function drawFieldLine(ctx: CanvasRenderingContext2D, line: FieldLine) {
   }
 }
 
+/**
+ * Top-most layer, never clipped by the slider: the three charges. They
+ * exist in space regardless of whether the field is revealed, so they
+ * render above both the empty-space and field-line layers.
+ */
+function drawChargesLayer(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  charges: Charges
+) {
+  ctx.clearRect(0, 0, width, height);
+  for (const pos of charges.positives) {
+    drawCharge(ctx, pos, true);
+  }
+  drawCharge(ctx, charges.negative, false);
+}
+
 function drawCharge(ctx: CanvasRenderingContext2D, point: Point, isPositive: boolean) {
   const glowRadius = isPositive ? CHARGE_GLOW_RADIUS_POSITIVE : CHARGE_GLOW_RADIUS_NEGATIVE;
   const gradient = ctx.createRadialGradient(point.x, point.y, 0, point.x, point.y, glowRadius);
@@ -303,11 +321,6 @@ function drawFieldLayer(
   for (const line of chargesAndLines.fieldLines) {
     drawFieldLine(ctx, line);
   }
-
-  for (const pos of chargesAndLines.charges.positives) {
-    drawCharge(ctx, pos, true);
-  }
-  drawCharge(ctx, chargesAndLines.charges.negative, false);
 
   if (showAnnotation) {
     const cx = chargesAndLines.charges.negative.x;
@@ -358,6 +371,7 @@ export default function FieldSlider({ embed = false }: FieldSliderProps = {}) {
   const frameRef = useRef<HTMLDivElement>(null);
   const bottomCanvasRef = useRef<HTMLCanvasElement>(null);
   const topCanvasRef = useRef<HTMLCanvasElement>(null);
+  const chargeCanvasRef = useRef<HTMLCanvasElement>(null);
   const dotsRef = useRef<VacuumDot[] | null>(null);
   const rafRef = useRef<number | null>(null);
   const startTimeRef = useRef(0);
@@ -426,14 +440,28 @@ export default function FieldSlider({ embed = false }: FieldSliderProps = {}) {
   useEffect(() => {
     const bottomCanvas = bottomCanvasRef.current;
     const topCanvas = topCanvasRef.current;
-    if (!bottomCanvas || !topCanvas || size.width === 0 || size.height === 0 || !chargesAndLines) return;
+    const chargeCanvas = chargeCanvasRef.current;
+    if (
+      !bottomCanvas ||
+      !topCanvas ||
+      !chargeCanvas ||
+      size.width === 0 ||
+      size.height === 0 ||
+      !chargesAndLines
+    )
+      return;
 
     const dpr = window.devicePixelRatio || 1;
     const bottomCtx = configureCanvas(bottomCanvas, size.width, size.height, dpr);
     const topCtx = configureCanvas(topCanvas, size.width, size.height, dpr);
-    if (!bottomCtx || !topCtx) return;
+    const chargeCtx = configureCanvas(chargeCanvas, size.width, size.height, dpr);
+    if (!bottomCtx || !topCtx || !chargeCtx) return;
 
     const { width, height } = size;
+
+    // Charges are static (fixed fractions of size) and are never clipped by
+    // the slider, so they only need to be drawn once per size change.
+    drawChargesLayer(chargeCtx, width, height, chargesAndLines.charges);
 
     startTimeRef.current = performance.now();
 
@@ -554,6 +582,7 @@ export default function FieldSlider({ embed = false }: FieldSliderProps = {}) {
           style={{ clipPath: `inset(0 0 0 ${position}%)` }}
           aria-hidden="true"
         />
+        <canvas ref={chargeCanvasRef} className={styles.canvasCharges} aria-hidden="true" />
 
         {!embed && (
           <>
