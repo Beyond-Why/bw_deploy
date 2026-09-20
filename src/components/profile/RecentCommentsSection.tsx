@@ -74,8 +74,15 @@ export async function getRecentCommentItems(
   return { items, nextCursor: page.nextCursor, hasMore: page.hasMore };
 }
 
-export async function RecentCommentsSection({ userId }: { userId: string }) {
-  const page = await getRecentCommentItems(userId, RECENT_COMMENTS_PAGE_SIZE);
+export async function RecentCommentsSection({
+  userId,
+  initialPage,
+}: {
+  userId: string;
+  initialPage?: RecentCommentsPageResult;
+}) {
+  const page = initialPage ?? (await getRecentCommentItems(userId, RECENT_COMMENTS_PAGE_SIZE));
+  if (page.items.length === 0) return null;
 
   return (
     <section className={styles.section} id="comments">

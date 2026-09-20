@@ -3,7 +3,13 @@ import { getProfileByUsername } from "@/lib/profile";
 import { getCurrentUser } from "@/lib/auth/getUser";
 import { ContinueReadingSection, getContinueReadingItems } from "@/components/profile/ContinueReadingSection";
 import { BookmarksSection, getBookmarkItems } from "@/components/profile/BookmarksSection";
-import { RecentCommentsSection } from "@/components/profile/RecentCommentsSection";
+import {
+  RecentCommentsSection,
+  getRecentCommentItems,
+  RECENT_COMMENTS_PAGE_SIZE,
+} from "@/components/profile/RecentCommentsSection";
+import { EmptyState } from "@/components/profile/EmptyState";
+import { OpenBookIcon } from "@/components/icons";
 
 export async function generateMetadata({
   params,
@@ -33,20 +39,29 @@ export default async function ProfileHomePage({
   // no public-profile activity concept yet, so a visitor sees nothing.
   if (!isOwner || !profile) return null;
 
-  const [continueReadingItems, bookmarkItems] = await Promise.all([
+  const [continueReadingItems, bookmarkItems, commentsPage] = await Promise.all([
     getContinueReadingItems(profile.id),
     getBookmarkItems(profile.id),
+    getRecentCommentItems(profile.id, RECENT_COMMENTS_PAGE_SIZE),
   ]);
 
-  // Recently Saved and Recent Comments always render their own heading —
-  // each shows its own empty state internally rather than being skipped,
-  // so the page is never left with a heading and blank space beneath it.
-  // Continue Reading has no such empty state and stays skip-if-empty.
+  const hasBookmarks = bookmarkItems.length > 0;
+  const hasComments = commentsPage.items.length > 0;
+
   return (
     <div>
       {continueReadingItems.length > 0 && <ContinueReadingSection items={continueReadingItems} />}
-      <BookmarksSection items={bookmarkItems} />
-      <RecentCommentsSection userId={profile.id} />
+      {hasBookmarks && <BookmarksSection items={bookmarkItems} />}
+      {hasComments && <RecentCommentsSection userId={profile.id} initialPage={commentsPage} />}
+      {!hasBookmarks && !hasComments && (
+        <EmptyState
+          icon={<OpenBookIcon size={32} />}
+          message="Nothing here yet."
+          subMessage="Start reading to see your progress and saves."
+          ctaLabel="Explore Deep Dives →"
+          ctaHref="/deep-dives"
+        />
+      )}
     </div>
   );
 }

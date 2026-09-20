@@ -77,6 +77,8 @@ export async function getBookmarkItems(userId: string): Promise<BookmarkItem[]> 
 }
 
 export async function BookmarksSection({ items }: { items: BookmarkItem[] }) {
+  if (items.length === 0) return null;
+
   const sorted = [...items].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
@@ -94,6 +96,8 @@ export async function BookmarksSection({ items }: { items: BookmarkItem[] }) {
   const episodeItems = sorted
     .filter((item) => item.contentType === "episode" || item.contentType === "series")
     .slice(0, episodeFetchCap);
+
+  if (collectionRows === 0 && episodeItems.length === 0) return null;
 
   return (
     <section className={styles.section} id="bookmarks">
