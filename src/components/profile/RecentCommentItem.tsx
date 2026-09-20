@@ -33,22 +33,30 @@ function Avatar({ name, url, size = 32 }: { name: string; url: string | null; si
   );
 }
 
-/** Which Deep Dive/hub this comment belongs to — a small link chip, same
- *  role as the discussion UI's own episode tag (CommentItem), just always
- *  shown here since the profile list mixes rows from many different
- *  threads. */
-function ContentBadge({ item }: { item: CommentActivityItem }) {
+/** Which Deep Dive/hub (and, when relevant, which episode) this comment
+ *  belongs to — two separate link chips rather than one combined tag, so
+ *  each piece of context is independently legible and can truncate/wrap
+ *  on its own. The Deep Dive tag always points at the series hub; the
+ *  episode tag (only present for episode-scoped comments) points at the
+ *  exact page the comment lives on. */
+function ContentTags({ item }: { item: CommentActivityItem }) {
+  const hasEpisode = item.contentType === "episode" && !!item.episodeTitle;
+
   return (
-    <Link href={item.contentHref} className={styles.contentBadge}>
-      <span className={styles.contentBadgeTitle}>{item.contentTitle}</span>
-      {item.contentType === "episode" && item.episodeNumber && (
-        <span className={styles.contentBadgeEpisode}>
-          {" "}
-          · Ep {item.episodeNumber}
-          {item.episodeTitle ? ` · ${item.episodeTitle}` : ""}
-        </span>
+    <span className={styles.tagRow}>
+      <Link href={`/deep-dives/${item.seriesId}`} className={styles.contentBadge} title={item.contentTitle}>
+        {item.contentTitle}
+      </Link>
+      {hasEpisode && (
+        <Link
+          href={item.contentHref}
+          className={cx(styles.contentBadge, styles.episodeBadge)}
+          title={item.episodeTitle ?? undefined}
+        >
+          {item.episodeTitle}
+        </Link>
       )}
-    </Link>
+    </span>
   );
 }
 
@@ -113,20 +121,20 @@ export function RecentCommentItem({ item, deleting, onDelete }: RecentCommentIte
 
   return (
     <div className={cx(styles.item, isReply && styles.itemReply, deleting && styles.itemDeleting)}>
-      <span className={styles.kicker}>{isReply ? "Your reply" : "Your comment"}</span>
-
       <div className={styles.itemRow}>
         <Avatar name={item.userDisplayName} url={item.userAvatarUrl} />
         <div className={styles.itemBody}>
           <div className={styles.metaRow}>
-            <span className={styles.author}>{item.userDisplayName}</span>
-            <span className={styles.dot}>·</span>
-            <time className={styles.time} dateTime={item.createdAt}>
-              {relativeTime(item.createdAt)}
-            </time>
-          </div>
+            <span className={styles.authorTime}>
+              <span className={styles.author}>{item.userDisplayName}</span>
+              <span className={styles.dot}>·</span>
+              <time className={styles.time} dateTime={item.createdAt}>
+                {relativeTime(item.createdAt)}
+              </time>
+            </span>
 
-          <ContentBadge item={item} />
+            <ContentTags item={item} />
+          </div>
 
           {isReply && item.parent && (
             <div className={styles.parentContext}>

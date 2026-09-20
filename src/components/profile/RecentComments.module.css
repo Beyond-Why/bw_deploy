@@ -25,21 +25,13 @@
 }
 
 /* A reply reads as a distinct, slightly quieter card than a top-level
-   comment — accent-left instead of a plain rule, so the eye can tell
-   "comment" vs "reply" apart before reading the kicker text. */
+   comment — accent-left instead of a plain rule, plus its own
+   "Replying to…" context block below, so the eye can tell "comment" vs
+   "reply" apart without a separate label. */
 .itemReply {
   border-left: 2px solid var(--border-subtle);
   padding-left: 14px;
   margin-left: -2px;
-}
-
-.kicker {
-  font-family: var(--font-ui), sans-serif;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--accent);
 }
 
 .itemRow {
@@ -81,11 +73,22 @@
   color: var(--text-secondary);
 }
 
+/* Author/timestamp and the content tags are two separate flex items so
+   they wrap as whole groups — on a narrow viewport the tags drop to their
+   own row under the author/timestamp instead of interleaving with them. */
 .metaRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  row-gap: 6px;
+  column-gap: 10px;
+}
+
+.authorTime {
   display: flex;
   align-items: baseline;
   gap: 6px;
-  flex-wrap: wrap;
+  flex-shrink: 0;
 }
 
 .author {
@@ -106,20 +109,30 @@
   color: var(--text-muted);
 }
 
-/* ── Content reference badge ── */
-.contentBadge {
-  display: inline-flex;
-  align-items: baseline;
+/* ── Content reference tags — Deep Dive + (optional) episode, as two
+   separate pills rather than one combined tag ── */
+.tagRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   flex-wrap: wrap;
-  gap: 2px;
-  align-self: flex-start;
+  min-width: 0;
+}
+
+.contentBadge {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
   font-family: var(--font-ui), sans-serif;
   font-size: 11px;
+  font-weight: 700;
   color: var(--accent);
   background: color-mix(in srgb, var(--accent) 12%, transparent);
   border-radius: 999px;
   padding: 3px 10px;
-  max-width: 100%;
   text-decoration: none;
   transition: background-color var(--transition-fast, 150ms ease);
 }
@@ -128,13 +141,14 @@
   background: color-mix(in srgb, var(--accent) 20%, transparent);
 }
 
-.contentBadgeTitle {
-  font-weight: 700;
-}
-
-.contentBadgeEpisode {
+/* The episode tag is the more granular, secondary piece of context —
+   lighter weight/fill than the Deep Dive tag, and capped narrower with
+   ellipsis truncation (full title still on the element via `title`) so a
+   long episode name can never stretch the row or overflow the viewport. */
+.episodeBadge {
   font-weight: 500;
-  opacity: 0.9;
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  max-width: 220px;
 }
 
 /* ── Reply's parent context ── */
@@ -340,5 +354,9 @@
 
   .repliesList {
     padding-left: 10px;
+  }
+
+  .episodeBadge {
+    max-width: 150px;
   }
 }
