@@ -212,25 +212,53 @@
   margin-top: 0;
   border-radius: 2px;
   overflow: hidden;
-  transition: margin-top 0.3s ease;
   opacity: 0;
+  pointer-events: none;
 }
 
 .progressBar {
   width: 0%;
   height: 100%;
   background: var(--accent);
-  transition: width 0s linear;
 }
 
-/* Deliberately no .cardExpanded override here — the bar stays at the
-   base rule's opacity: 0 / margin-top: 0 even while expanded, so it
-   never reserves or shows any space. It's decorative only (aria-hidden,
-   no real progress data — unrelated to actual reading-progress tracking
-   elsewhere in the app), kept in the DOM/CSS rather than removed in
-   case it's wanted again later. The episode strip's own 1.2s
-   reveal delay (below) is untouched — that timing was never driven by
-   this bar being visible, only by matching it. */
+@keyframes progressContainerLifecycle {
+  0% {
+    opacity: 1;
+    height: 2px;
+    margin-top: 10px;
+    visibility: visible;
+  }
+  99.9% {
+    opacity: 1;
+    height: 2px;
+    margin-top: 10px;
+    visibility: visible;
+  }
+  100% {
+    opacity: 0;
+    height: 0;
+    margin-top: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes progressBarFill {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+.cardExpanded .progressContainer {
+  animation: progressContainerLifecycle 1.2s linear forwards;
+}
+
+.cardExpanded .progressBar {
+  animation: progressBarFill 1.2s linear forwards;
+}
 
 /* ── Carousel wrapper — arrows live in dedicated gutter columns, never
    overlaid on the tiles. Mirrors InsightRow's carousel pattern exactly. ── */
@@ -342,12 +370,14 @@
   text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
 }
 
-/* ── Arrow buttons — in the gutter columns, disabled (not hidden) at each end ── */
+/* ── Arrow buttons — in the gutter columns, centered with episode thumbnails ── */
 .arrow {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  align-self: start;
+  margin-top: 10px;
+  height: 112.5px;
   width: 40px;
   background: transparent;
   border: none;
@@ -376,6 +406,11 @@
 
   .arrow {
     transition: none;
+  }
+
+  .cardExpanded .progressContainer,
+  .cardExpanded .progressBar {
+    animation: none;
   }
 }
 
