@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { InsightCollectionBlock, type InsightRowCardItem } from "@/components/library";
 import { relativeTime } from "@/utils/relativeTime";
 import { useBookmarkRemoval } from "@/hooks/useBookmarkRemoval";
@@ -50,15 +50,28 @@ function InsightSaveBlock({
   );
 }
 
+interface InsightSaveStackProps {
+  saves: RecentInsightSave[];
+  /** Recently Saved (Home tab) only — reports the live post-removal count
+   *  back up so the parent can swap in an empty state once every save
+   *  (collections + episodes) is gone. Omitted by the standalone Insight
+   *  Cards tab, which has no such combined empty state to manage. */
+  onCountChange?: (count: number) => void;
+}
+
 /** Bookmarked insight collections as full-width bar carousels, each
  *  resuming at the card the user was on when they saved it — the same
  *  form used by the Home tab's Recently Saved and the Insight Cards tab. */
-export function InsightSaveStack({ saves: initialSaves }: { saves: RecentInsightSave[] }) {
+export function InsightSaveStack({ saves: initialSaves, onCountChange }: InsightSaveStackProps) {
   const [saves, setSaves] = useState(initialSaves);
 
   const remove = (id: string) => {
     setSaves((prev) => prev.filter((s) => s.bookmark.id !== id));
   };
+
+  useEffect(() => {
+    onCountChange?.(saves.length);
+  }, [saves.length, onCountChange]);
 
   if (saves.length === 0) return null;
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useBookmarkRemoval } from "@/hooks/useBookmarkRemoval";
 import { BookmarkEpisodeCard } from "./BookmarkEpisodeCard";
 import type { BookmarkItem } from "./BookmarksList";
@@ -37,16 +37,25 @@ interface EpisodeGridProps {
    *  count. Omitted by the standalone Deep Dives tab, which renders every
    *  item uncapped. */
   collectionRows?: number;
+  /** Recently Saved (Home tab) only — reports the live post-removal count
+   *  back up so the parent can swap in an empty state once every save
+   *  (collections + episodes) is gone. Omitted by the standalone Deep
+   *  Dives tab, which has no such combined empty state to manage. */
+  onCountChange?: (count: number) => void;
 }
 
 /** Bookmarked episodes as a responsive portrait grid — the same form used
  *  by the Home tab's Recently Saved and the Deep Dives tab. */
-export function EpisodeGrid({ items: initialItems, collectionRows }: EpisodeGridProps) {
+export function EpisodeGrid({ items: initialItems, collectionRows, onCountChange }: EpisodeGridProps) {
   const [items, setItems] = useState(initialItems);
 
   const remove = (id: string) => {
     setItems((prev) => prev.filter((i) => i.id !== id));
   };
+
+  useEffect(() => {
+    onCountChange?.(items.length);
+  }, [items.length, onCountChange]);
 
   if (items.length === 0) return null;
 

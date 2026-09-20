@@ -3,9 +3,7 @@ import { getProfileByUsername } from "@/lib/profile";
 import { getCurrentUser } from "@/lib/auth/getUser";
 import { ContinueReadingSection, getContinueReadingItems } from "@/components/profile/ContinueReadingSection";
 import { BookmarksSection, getBookmarkItems } from "@/components/profile/BookmarksSection";
-import { CommentsSection } from "@/components/profile/CommentsSection";
-import { EmptyState } from "@/components/profile/EmptyState";
-import { OpenBookIcon } from "@/components/icons";
+import { RecentCommentsSection } from "@/components/profile/RecentCommentsSection";
 
 export async function generateMetadata({
   params,
@@ -40,24 +38,15 @@ export default async function ProfileHomePage({
     getBookmarkItems(profile.id),
   ]);
 
-  // Comments has no real data source yet (see CommentsSection) — always empty.
-  if (continueReadingItems.length === 0 && bookmarkItems.length === 0) {
-    return (
-      <EmptyState
-        icon={<OpenBookIcon size={32} />}
-        message="Nothing here yet."
-        subMessage="Start reading to see your progress and saves."
-        ctaLabel="Explore Deep Dives →"
-        ctaHref="/deep-dives"
-      />
-    );
-  }
-
+  // Recently Saved and Recent Comments always render their own heading —
+  // each shows its own empty state internally rather than being skipped,
+  // so the page is never left with a heading and blank space beneath it.
+  // Continue Reading has no such empty state and stays skip-if-empty.
   return (
     <div>
       {continueReadingItems.length > 0 && <ContinueReadingSection items={continueReadingItems} />}
-      {bookmarkItems.length > 0 && <BookmarksSection items={bookmarkItems} />}
-      <CommentsSection />
+      <BookmarksSection items={bookmarkItems} />
+      <RecentCommentsSection userId={profile.id} />
     </div>
   );
 }

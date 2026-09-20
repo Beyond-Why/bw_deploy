@@ -77,8 +77,6 @@ export async function getBookmarkItems(userId: string): Promise<BookmarkItem[]> 
 }
 
 export async function BookmarksSection({ items }: { items: BookmarkItem[] }) {
-  if (items.length === 0) return null;
-
   const sorted = [...items].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );

@@ -19,6 +19,11 @@
   gap: 12px;
 }
 
+.section {
+  margin: 8px 0 4px;
+  gap: 16px;
+}
+
 .icon {
   display: inline-flex;
   color: var(--text-muted);
