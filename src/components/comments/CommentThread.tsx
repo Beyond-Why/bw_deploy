@@ -44,18 +44,27 @@ export function CommentThread({
     setRepliesOpen(true);
   };
 
+  // A deleted top-level comment only reaches this component at all when it
+  // still has replies worth keeping (see useComments' deleteComment) — so
+  // instead of rendering it as a normal, owner-less "[deleted]" comment
+  // card, it's replaced with a minimal notice and the replies stay put
+  // underneath, still reachable via the toggle below.
   return (
     <div className={styles.thread}>
-      <CommentItem
-        comment={comment}
-        showEpisodeTag={showEpisodeTags}
-        seriesTitle={seriesTitle}
-        isOwner={!!user && user.id === comment.userId}
-        isAuthenticated={!!user}
-        onRequestAuth={onRequestAuth}
-        onReplyClick={handleReplyClick}
-        onDelete={() => onDelete(comment.id)}
-      />
+      {comment.isDeleted ? (
+        <p className={styles.deletedParentNotice}>Original comment deleted</p>
+      ) : (
+        <CommentItem
+          comment={comment}
+          showEpisodeTag={showEpisodeTags}
+          seriesTitle={seriesTitle}
+          isOwner={!!user && user.id === comment.userId}
+          isAuthenticated={!!user}
+          onRequestAuth={onRequestAuth}
+          onReplyClick={handleReplyClick}
+          onDelete={() => onDelete(comment.id)}
+        />
+      )}
 
       <div className={styles.repliesWrap}>
         {replyBoxOpen && (

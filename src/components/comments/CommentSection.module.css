@@ -221,26 +221,13 @@
 .threadList {
   display: flex;
   flex-direction: column;
+  gap: 24px;
 }
 
 .thread {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding-top: 20px;
-}
-
-.threadList > .thread:first-child {
-  padding-top: 0;
-}
-
-/* Horizontal separator between top-level comments — a full-width rule,
-   kept visually distinct from the (vertical, indented) replies connector
-   below by orientation and by being 1px instead of 2px. Both use
-   --border-medium rather than --border-subtle: a small, in-palette step
-   up in visibility, not a new color. */
-.threadList > .thread + .thread {
-  border-top: 1px solid var(--border-medium);
 }
 
 /* ── Comment item ── */
@@ -360,6 +347,17 @@
 .commentTextDeleted {
   color: var(--text-muted);
   font-style: italic;
+}
+
+/* Stands in for a deleted top-level comment's own row (avatar, author,
+   actions) when it still has replies to preserve — no card, no avatar,
+   just enough to tell the replies below it apart from a fresh thread. */
+.deletedParentNotice {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 12px;
+  font-style: italic;
+  color: var(--text-muted);
+  margin: 0;
 }
 
 .commentActions {

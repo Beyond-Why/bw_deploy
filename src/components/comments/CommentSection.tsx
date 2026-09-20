@@ -138,9 +138,16 @@ export function CommentSection({
     document.getElementById(composerId)?.focus();
   };
 
+  // A soft-deleted top-level comment with no replies has nothing left
+  // worth showing — filtered out here (render-only; the fetch/pagination
+  // above is untouched) rather than left as a stray placeholder. One with
+  // replies still renders (CommentThread swaps in a minimal notice for
+  // it — see there), since its replies are worth keeping visible.
+  const renderableComments = comments.filter((c) => !c.isDeleted || c.replies.length > 0);
+
   const capped = typeof initialVisibleCount === "number" && !expanded;
-  const visibleComments = capped ? comments.slice(0, initialVisibleCount) : comments;
-  const hiddenCount = capped ? comments.length - visibleComments.length : 0;
+  const visibleComments = capped ? renderableComments.slice(0, initialVisibleCount) : renderableComments;
+  const hiddenCount = capped ? renderableComments.length - visibleComments.length : 0;
 
   return (
     <div className={cx(styles.section, className)}>
@@ -188,7 +195,7 @@ export function CommentSection({
         </div>
       ) : error ? (
         <p className={styles.emptyState}>{error}</p>
-      ) : comments.length === 0 ? (
+      ) : renderableComments.length === 0 ? (
         <div className={styles.emptyState}>
           <span className={styles.emptyIcon}>
             <SpeechBubbleIcon />

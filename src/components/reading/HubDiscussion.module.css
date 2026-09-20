@@ -30,9 +30,13 @@
 
 /* Subtle container scoped to Discussion only — groups the heading, sort
    controls, comment input, and comment list as one visual unit without
-   introducing a background or divider elsewhere on the page. */
+   introducing a background or divider elsewhere on the page. Now the only
+   border in the discussion (there's no longer a rule between individual
+   comments — see CommentSection.module.css), so it carries a bit more
+   weight than before: --border-medium (an existing token, not a new
+   color) at 2px instead of the previous ad-hoc 1px translucent white. */
 .discussionContainer {
-  border: 1px solid rgba(255, 255, 255, 0.10);
+  border: 2px solid var(--border-medium);
   border-radius: var(--radius-md);
   padding: 20px;
 }
