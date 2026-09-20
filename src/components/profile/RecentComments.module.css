@@ -2,6 +2,10 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  /* Breathing room below the "Recent Comments" heading — the heading's
+     own margin-bottom (SectionHeading, shared with every profile section)
+     otherwise reads as crowded against the first comment specifically. */
+  margin-top: 10px;
 }
 
 /* ── Card ── */

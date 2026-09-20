@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { relativeTime } from "@/utils/relativeTime";
+import { formatHandle } from "@/utils/formatHandle";
 import type { CommentActivityItem } from "@/hooks/useRecentComments";
 import styles from "./RecentComments.module.css";
 
@@ -12,11 +13,19 @@ function cx(...classes: Array<string | false | undefined>): string {
 
 interface ExpandedReply {
   id: string;
+  userHandle: string;
   userDisplayName: string;
   userAvatarUrl: string | null;
   body: string;
   isDeleted: boolean;
   createdAt: string;
+}
+
+/** "Deleted" for a redacted comment, otherwise the @handle (falling back
+ *  to the display name only if a handle is somehow missing). */
+function authorLabel(isDeleted: boolean, userHandle: string, userDisplayName: string): string {
+  if (isDeleted) return "Deleted";
+  return formatHandle(userHandle) ?? userDisplayName;
 }
 
 function Avatar({ name, url, size = 32 }: { name: string; url: string | null; size?: number }) {
@@ -68,7 +77,9 @@ function RepliesList({ replies }: { replies: ExpandedReply[] }) {
           <Avatar name={reply.userDisplayName} url={reply.userAvatarUrl} size={24} />
           <div className={styles.nestedReplyBody}>
             <div className={styles.metaRow}>
-              <span className={styles.author}>{reply.isDeleted ? "Deleted" : reply.userDisplayName}</span>
+              <span className={styles.author}>
+                {authorLabel(reply.isDeleted, reply.userHandle, reply.userDisplayName)}
+              </span>
               <span className={styles.dot}>·</span>
               <time className={styles.time} dateTime={reply.createdAt}>
                 {relativeTime(reply.createdAt)}
@@ -126,7 +137,9 @@ export function RecentCommentItem({ item, deleting, onDelete }: RecentCommentIte
         <div className={styles.itemBody}>
           <div className={styles.metaRow}>
             <span className={styles.authorTime}>
-              <span className={styles.author}>{item.userDisplayName}</span>
+              <span className={styles.author}>
+                {authorLabel(false, item.userHandle, item.userDisplayName)}
+              </span>
               <span className={styles.dot}>·</span>
               <time className={styles.time} dateTime={item.createdAt}>
                 {relativeTime(item.createdAt)}
@@ -139,7 +152,7 @@ export function RecentCommentItem({ item, deleting, onDelete }: RecentCommentIte
           {isReply && item.parent && (
             <div className={styles.parentContext}>
               <span className={styles.parentContextLabel}>
-                Replying to {item.parent.isDeleted ? "Deleted" : item.parent.userDisplayName}
+                Replying to {authorLabel(item.parent.isDeleted, item.parent.userHandle, item.parent.userDisplayName)}
               </span>
               <p className={cx(styles.parentContextBody, item.parent.isDeleted && styles.bodyTextDeleted)}>
                 {item.parent.body}

@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { relativeTime } from "@/utils/relativeTime";
+import { formatHandle } from "@/utils/formatHandle";
 import type { CommentData } from "@/hooks/useComments";
 import { useCommentLike } from "@/hooks/useCommentLike";
 import styles from "./CommentSection.module.css";
@@ -13,6 +15,8 @@ interface CommentItemProps {
   comment: CommentData;
   isReply?: boolean;
   showEpisodeTag?: boolean;
+  /** Hub page only — the series' own title, for the Deep Dive tag. */
+  seriesTitle?: string;
   isOwner?: boolean;
   isAuthenticated?: boolean;
   onRequestAuth?: () => void;
@@ -42,6 +46,7 @@ export function CommentItem({
   comment,
   isReply = false,
   showEpisodeTag = false,
+  seriesTitle,
   isOwner = false,
   isAuthenticated = false,
   onRequestAuth,
@@ -51,7 +56,15 @@ export function CommentItem({
   const avatarSize = isReply ? 26 : 32;
   const initial = (comment.userDisplayName || "?").charAt(0).toUpperCase();
   const absoluteDate = new Date(comment.createdAt).toLocaleString();
-  const hasEpisodeTag = showEpisodeTag && !!comment.episodeNumber;
+  const authorLabel = comment.isDeleted
+    ? "Deleted"
+    : formatHandle(comment.userHandle) ?? comment.userDisplayName;
+  // Every comment in the hub's aggregated view gets a Deep Dive tag (the
+  // series it belongs to); an episode-origin one also gets a second,
+  // separate episode tag. Not shown at all on the episode page's own
+  // discussion (showEpisodeTag is false there).
+  const showContentTags = showEpisodeTag && !!seriesTitle;
+  const hasEpisodeTag = showContentTags && !!comment.episodeNumber && !!comment.episodeTitle;
 
   const { count: likeCount, liked, toggle: toggleLike } = useCommentLike({
     commentId: comment.id,
@@ -86,21 +99,35 @@ export function CommentItem({
 
       <div className={styles.commentBody}>
         <div className={styles.commentMeta}>
-          <span className={styles.commentAuthor}>{comment.userDisplayName}</span>
-          <span className={styles.commentDot}>·</span>
-          <time className={styles.commentTime} dateTime={comment.createdAt} title={absoluteDate}>
-            {relativeTime(comment.createdAt)}
-          </time>
-        </div>
-
-        {hasEpisodeTag && (
-          <span className={styles.episodeTag}>
-            <span className={styles.episodeTagNum}>Ep {comment.episodeNumber}</span>
-            {comment.episodeTitle && (
-              <span className={styles.episodeTagTitle}> · {comment.episodeTitle}</span>
-            )}
+          <span className={styles.commentAuthorTime}>
+            <span className={styles.commentAuthor}>{authorLabel}</span>
+            <span className={styles.commentDot}>·</span>
+            <time className={styles.commentTime} dateTime={comment.createdAt} title={absoluteDate}>
+              {relativeTime(comment.createdAt)}
+            </time>
           </span>
-        )}
+
+          {showContentTags && (
+            <span className={styles.contentTagRow}>
+              <Link
+                href={`/deep-dives/${comment.seriesId}`}
+                className={styles.contentTag}
+                title={seriesTitle}
+              >
+                {seriesTitle}
+              </Link>
+              {hasEpisodeTag && (
+                <Link
+                  href={`/${comment.contentId}`}
+                  className={cx(styles.contentTag, styles.contentTagEpisode)}
+                  title={comment.episodeTitle ?? undefined}
+                >
+                  {comment.episodeTitle}
+                </Link>
+              )}
+            </span>
+          )}
+        </div>
 
         <p
           className={cx(styles.commentText, comment.isDeleted && styles.commentTextDeleted)}

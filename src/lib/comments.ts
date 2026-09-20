@@ -200,6 +200,7 @@ export async function softDeleteComment(id: string, userId: string): Promise<boo
 
 export interface RecentCommentParent {
   id: string;
+  userHandle: string;
   userDisplayName: string;
   body: string;
   isDeleted: boolean;
@@ -211,6 +212,7 @@ export interface RecentCommentParent {
  *  the comment they replied to, replyCount is always 0). */
 export interface RecentComment {
   id: string;
+  userHandle: string;
   userDisplayName: string;
   userAvatarUrl: string | null;
   contentId: string;
@@ -292,6 +294,7 @@ export async function getRecentCommentsForUser(
     const parentRow = row.parentId ? parentsById.get(row.parentId) ?? null : null;
     return {
       id: row.id,
+      userHandle: row.userHandle,
       userDisplayName: row.userDisplayName,
       userAvatarUrl: row.userAvatarUrl,
       contentId: row.contentId,
@@ -305,6 +308,7 @@ export async function getRecentCommentsForUser(
       parent: parentRow
         ? {
             id: parentRow.id,
+            userHandle: parentRow.isDeleted ? "" : parentRow.userHandle,
             userDisplayName: parentRow.isDeleted ? "Deleted" : parentRow.userDisplayName,
             body: parentRow.isDeleted ? "[deleted]" : parentRow.body,
             isDeleted: parentRow.isDeleted,

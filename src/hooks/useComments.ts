@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export interface CommentData {
   id: string;
@@ -111,38 +111,56 @@ export function useComments({ contentId, seriesId }: UseCommentsOptions) {
     []
   );
 
-  const snapshotRef = useRef<CommentWithReplies[]>([]);
-
+  /** Not optimistic — the comment only leaves the UI once the DELETE call
+   *  actually succeeds, so a failure just leaves everything exactly as it
+   *  was (no snapshot/revert needed) and the caller can show an error.
+   *
+   *  A reply is always removed outright — replies never have children of
+   *  their own, so there's nothing left to orphan. A top-level comment is
+   *  removed outright too, UNLESS it has replies: deleting it there would
+   *  either drop its replies from view (they're nested under it) or leave
+   *  them looking like unrelated top-level comments, so it's instead
+   *  collapsed to the same "[deleted]" placeholder the backend's own
+   *  soft-delete already produces for exactly this reason — thread
+   *  structure survives, only the deleted author's identity/actions do. */
   const deleteComment = useCallback(async (id: string): Promise<boolean> => {
-    const redact = <T extends CommentData>(c: T): T => ({
-      ...c,
-      isDeleted: true,
-      body: "[deleted]",
-      userDisplayName: "Deleted",
-      userAvatarUrl: null,
-    });
-
-    setComments((prev) => {
-      snapshotRef.current = prev;
-      return prev.map((c) => {
-        if (c.id === id) return redact(c);
-        if (c.replies.some((r) => r.id === id)) {
-          return { ...c, replies: c.replies.map((r) => (r.id === id ? redact(r) : r)) };
-        }
-        return c;
-      });
-    });
-
+    let res: Response;
     try {
-      const res = await fetch(`/api/comments/${id}`, { method: "DELETE" });
-      if (res.status === 401) throw new Error(AUTH_ERROR_MESSAGE);
-      if (!res.ok) throw new Error("Failed to delete comment");
-      return true;
-    } catch (err) {
-      setComments(snapshotRef.current);
-      if (err instanceof Error && err.message === AUTH_ERROR_MESSAGE) throw err;
+      res = await fetch(`/api/comments/${id}`, { method: "DELETE" });
+    } catch {
       return false;
     }
+    if (res.status === 401) throw new Error(AUTH_ERROR_MESSAGE);
+    if (!res.ok) return false;
+
+    setComments((prev) => {
+      const isReply = prev.some((c) => c.replies.some((r) => r.id === id));
+      if (isReply) {
+        return prev.map((c) =>
+          c.replies.some((r) => r.id === id)
+            ? { ...c, replies: c.replies.filter((r) => r.id !== id) }
+            : c
+        );
+      }
+      return prev.reduce<CommentWithReplies[]>((acc, c) => {
+        if (c.id !== id) {
+          acc.push(c);
+          return acc;
+        }
+        if (c.replies.length === 0) return acc;
+        acc.push({
+          ...c,
+          isDeleted: true,
+          body: "[deleted]",
+          userHandle: "",
+          userDisplayName: "Deleted",
+          userAvatarUrl: null,
+        });
+        return acc;
+      }, []);
+    });
+
+    return true;
   }, []);
 
   const totalCount = comments.reduce((acc, c) => {

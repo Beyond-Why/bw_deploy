@@ -4,6 +4,7 @@ import { useCallback, useRef, useState } from "react";
 
 export interface RecentCommentParent {
   id: string;
+  userHandle: string;
   userDisplayName: string;
   body: string;
   isDeleted: boolean;
@@ -11,6 +12,7 @@ export interface RecentCommentParent {
 
 export interface CommentActivityItem {
   id: string;
+  userHandle: string;
   userDisplayName: string;
   userAvatarUrl: string | null;
   contentId: string;

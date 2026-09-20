@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react";
 import { useComments, type CommentWithReplies } from "@/hooks/useComments";
+import { useToastContext } from "@/components/ui/Toast";
 import { CommentInput } from "./CommentInput";
 import { CommentThread } from "./CommentThread";
 import styles from "./CommentSection.module.css";
@@ -22,8 +23,12 @@ interface CommentSectionProps {
   episodeTitle?: string;
   user: CurrentUser | null;
   onRequestAuth: () => void;
-  /** Hub page only — shows "Ep N · Title" tags on episode-origin comments. */
+  /** Hub page only — shows Deep Dive/episode tags on every comment. */
   showEpisodeTags?: boolean;
+  /** Hub page only — the series' own title, for the Deep Dive tag (every
+   *  comment in this view belongs to the same series, so it's one prop
+   *  rather than something each comment needs to carry itself). */
+  seriesTitle?: string;
   /** Caps the initial number of visible top-level threads, revealed via a
    *  "Show more" button — the hub page uses this to keep its aggregated
    *  view from running long; the episode sidebar omits it (shows all). */
@@ -64,11 +69,13 @@ export function CommentSection({
   user,
   onRequestAuth,
   showEpisodeTags = false,
+  seriesTitle,
   initialVisibleCount,
   className,
 }: CommentSectionProps) {
   const composerId = useId();
   const [expanded, setExpanded] = useState(false);
+  const toast = useToastContext();
 
   // New hub-level comments are filed one level up from any episode
   // ('deep-dives/{seriesId}') — only relevant when there's no explicit
@@ -116,7 +123,8 @@ export function CommentSection({
 
   const handleDelete = async (id: string) => {
     try {
-      await deleteComment(id);
+      const ok = await deleteComment(id);
+      if (!ok) toast.show({ message: "Couldn't delete comment. Try again.", type: "error" });
     } catch (err) {
       if (err instanceof Error && err.message === AUTH_ERROR_MESSAGE) onRequestAuth();
     }
@@ -198,6 +206,7 @@ export function CommentSection({
                 key={comment.id}
                 comment={comment}
                 showEpisodeTags={showEpisodeTags}
+                seriesTitle={seriesTitle}
                 user={user}
                 onRequestAuth={onRequestAuth}
                 onReply={handleReply}

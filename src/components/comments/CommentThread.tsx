@@ -10,6 +10,7 @@ import styles from "./CommentSection.module.css";
 interface CommentThreadProps {
   comment: CommentWithReplies;
   showEpisodeTags: boolean;
+  seriesTitle?: string;
   user: CurrentUser | null;
   onRequestAuth: () => void;
   onReply: (parent: CommentWithReplies, body: string) => Promise<unknown>;
@@ -19,6 +20,7 @@ interface CommentThreadProps {
 export function CommentThread({
   comment,
   showEpisodeTags,
+  seriesTitle,
   user,
   onRequestAuth,
   onReply,
@@ -47,6 +49,7 @@ export function CommentThread({
       <CommentItem
         comment={comment}
         showEpisodeTag={showEpisodeTags}
+        seriesTitle={seriesTitle}
         isOwner={!!user && user.id === comment.userId}
         isAuthenticated={!!user}
         onRequestAuth={onRequestAuth}
@@ -88,6 +91,7 @@ export function CommentThread({
                 comment={reply}
                 isReply
                 showEpisodeTag={showEpisodeTags}
+                seriesTitle={seriesTitle}
                 isOwner={!!user && user.id === reply.userId}
                 isAuthenticated={!!user}
                 onRequestAuth={onRequestAuth}

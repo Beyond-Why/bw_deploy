@@ -221,13 +221,26 @@
 .threadList {
   display: flex;
   flex-direction: column;
-  gap: 24px;
 }
 
 .thread {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  padding-top: 20px;
+}
+
+.threadList > .thread:first-child {
+  padding-top: 0;
+}
+
+/* Horizontal separator between top-level comments — a full-width rule,
+   kept visually distinct from the (vertical, indented) replies connector
+   below by orientation and by being 1px instead of 2px. Both use
+   --border-medium rather than --border-subtle: a small, in-palette step
+   up in visibility, not a new color. */
+.threadList > .thread + .thread {
+  border-top: 1px solid var(--border-medium);
 }
 
 /* ── Comment item ── */
@@ -242,11 +255,23 @@
   min-width: 0;
 }
 
+/* Author/timestamp and the content tags are two separate flex items so
+   they wrap as whole groups — on a narrow viewport (or the hub's
+   aggregated view, where tags show on every row) the tags drop to their
+   own row under the author/timestamp instead of interleaving with them. */
 .commentMeta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  row-gap: 6px;
+  column-gap: 10px;
+}
+
+.commentAuthorTime {
   display: flex;
   align-items: baseline;
   gap: 6px;
-  flex-wrap: wrap;
+  flex-shrink: 0;
 }
 
 .commentAuthor {
@@ -267,35 +292,53 @@
   color: var(--text-muted);
 }
 
-/* Episode-origin tag — a quiet accent chip, not a shouty uppercase label.
-   Paired with the left accent bar on .commentItemTagged so a tagged
-   comment reads as distinct at a glance, before you even read the tag. */
-.episodeTag {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 2px;
+/* ── Content reference tags — Deep Dive + (optional) episode, as two
+   separate pills, same visual language as the profile page's Recent
+   Comments tags (RecentComments.module.css) ── */
+.contentTagRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.contentTag {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
   font-family: var(--font-ui), sans-serif;
   font-size: 11px;
+  font-weight: 700;
   color: var(--accent);
   background: color-mix(in srgb, var(--accent) 12%, transparent);
   border-radius: 999px;
   padding: 3px 10px;
-  margin-top: 6px;
-  max-width: 100%;
+  text-decoration: none;
+  transition: background-color var(--transition-fast, 150ms ease);
 }
 
-.episodeTagNum {
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  flex-shrink: 0;
+.contentTag:hover {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
 }
 
-.episodeTagTitle {
+/* The episode tag is the more granular, secondary piece of context —
+   lighter weight/fill than the Deep Dive tag, and capped narrower with
+   ellipsis truncation (full title still available via `title`) so a long
+   episode name can never stretch the row or overflow the viewport. */
+.contentTagEpisode {
   font-weight: 500;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  max-width: 220px;
+}
+
+@media (max-width: 480px) {
+  .contentTagEpisode {
+    max-width: 150px;
+  }
 }
 
 .commentItemTagged {
@@ -409,7 +452,7 @@
   flex-direction: column;
   gap: 16px;
   padding-left: 14px;
-  border-left: 2px solid var(--border-subtle);
+  border-left: 2px solid var(--border-medium);
 }
 
 .commentItemReply .avatar {
@@ -518,7 +561,8 @@
   .textAction,
   .likeAction,
   .showMoreBtn,
-  .emptyNudge {
+  .emptyNudge,
+  .contentTag {
     transition: none;
   }
 }
