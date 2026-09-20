@@ -87,6 +87,7 @@ export function CommentSection({
     postComment,
     postReply,
     deleteComment,
+    deleteThread,
   } = useComments(contentId ? { contentId } : { seriesId });
 
   const handlePostTopLevel = (body: string) => {
@@ -122,6 +123,21 @@ export function CommentSection({
       if (!ok) toast.show({ message: "Couldn't delete comment. Try again.", type: "error" });
     } catch (err) {
       if (err instanceof Error && err.message === AUTH_ERROR_MESSAGE) onRequestAuth();
+    }
+  };
+
+  // Confirmed "delete this comment and its replies" path — see
+  // ConfirmDeleteThreadModal/CommentThread. Returns success/failure so
+  // the modal knows whether to close (unmounts along with the thread) or
+  // stay open and re-enable its buttons.
+  const handleDeleteThread = async (id: string): Promise<boolean> => {
+    try {
+      const ok = await deleteThread(id);
+      if (!ok) toast.show({ message: "Couldn't delete this thread. Try again.", type: "error" });
+      return ok;
+    } catch (err) {
+      if (err instanceof Error && err.message === AUTH_ERROR_MESSAGE) onRequestAuth();
+      return false;
     }
   };
 
@@ -212,6 +228,7 @@ export function CommentSection({
                 onRequestAuth={onRequestAuth}
                 onReply={handleReply}
                 onDelete={handleDelete}
+                onDeleteThread={handleDeleteThread}
               />
             ))}
           </div>

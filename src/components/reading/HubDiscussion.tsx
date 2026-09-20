@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import type { InsightCollection } from "@/lib/content";
 import { CommentSection, type CurrentUser } from "@/components/comments/CommentSection";
@@ -66,10 +66,27 @@ export function HubDiscussion({
 }: HubDiscussionProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const discussionRef = useRef<HTMLDivElement>(null);
 
   const handleRequestAuth = () => {
     router.push(`/signin?next=${encodeURIComponent(pathname)}`);
   };
+
+  // Belt-and-suspenders for #discussion links (see RecentCommentItem's
+  // "View discussion"): Next's own Link already scroll-into-views a
+  // matching id on navigation, but this container is inside a client
+  // component tree, so on a slow/streamed load the browser's native
+  // same-document hash jump can fire before it's mounted. Runs once on
+  // mount — by then this container (unlike CommentSection's own
+  // internal comment list) is always present, even while comments are
+  // still loading, since only the *comments themselves* are fetched
+  // client-side, not this wrapper. scroll-margin-top (see .discussionContainer)
+  // makes both this and the native jump land below the sticky navbar.
+  useEffect(() => {
+    if (window.location.hash === "#discussion") {
+      discussionRef.current?.scrollIntoView({ block: "start" });
+    }
+  }, []);
 
   // One flat pool, continue-reading first — no subsection labels. Each
   // card carries its own visual treatment (the progress bar is content on
@@ -83,7 +100,7 @@ export function HubDiscussion({
   return (
     <section className={styles.section}>
       <div className={styles.block}>
-        <div className={styles.discussionContainer}>
+        <div id="discussion" ref={discussionRef} className={styles.discussionContainer}>
           <SectionHeading label="Discussion" className={styles.blockHeading} />
           <CommentSection
             seriesId={seriesSlug}

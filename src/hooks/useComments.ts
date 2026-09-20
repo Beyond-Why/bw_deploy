@@ -163,6 +163,28 @@ export function useComments({ contentId, seriesId }: UseCommentsOptions) {
     return true;
   }, []);
 
+  /** Deletes a top-level comment AND every reply to it — the confirmed
+   *  path for a parent that has replies from other people (see
+   *  ConfirmDeleteThreadModal), hitting the dedicated thread-delete
+   *  endpoint (one atomic server-side operation, not a loop of per-reply
+   *  DELETE calls). Not optimistic, same as deleteComment. Since every
+   *  reply only exists nested inside its parent's own `replies` array —
+   *  never as a separate entry in `comments` — dropping the parent row
+   *  here removes the whole thread from the UI in one step. */
+  const deleteThread = useCallback(async (id: string): Promise<boolean> => {
+    let res: Response;
+    try {
+      res = await fetch(`/api/comments/${id}/thread`, { method: "DELETE" });
+    } catch {
+      return false;
+    }
+    if (res.status === 401) throw new Error(AUTH_ERROR_MESSAGE);
+    if (!res.ok) return false;
+
+    setComments((prev) => prev.filter((c) => c.id !== id));
+    return true;
+  }, []);
+
   const totalCount = comments.reduce((acc, c) => {
     const top = c.isDeleted ? 0 : 1;
     const replyCount = c.replies.filter((r) => !r.isDeleted).length;
@@ -179,6 +201,7 @@ export function useComments({ contentId, seriesId }: UseCommentsOptions) {
     postComment,
     postReply,
     deleteComment,
+    deleteThread,
     refresh: fetchComments,
   };
 }

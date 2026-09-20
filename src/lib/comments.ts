@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, count, desc, eq, inArray, lt, or } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray, isNull, lt, or } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { comments } from "@/lib/db/schema";
 import { getCommentLikeData } from "@/lib/commentLikes";
@@ -196,6 +196,37 @@ export async function softDeleteComment(id: string, userId: string): Promise<boo
     .where(and(eq(comments.id, id), eq(comments.userId, userId)))
     .returning({ id: comments.id });
   return !!row;
+}
+
+/** Soft-deletes a top-level comment AND every reply to it, atomically, in
+ *  one DB transaction — distinct from softDeleteComment's single-row
+ *  delete, used only for the "delete this comment and its replies"
+ *  confirmation flow (a parent whose replies include ones from other
+ *  people). Ownership is checked only against the parent — the caller
+ *  must own `parentId` and it must actually be a top-level comment
+ *  (parentId IS NULL); the replies being removed can belong to anyone,
+ *  since deleting the parent intentionally takes the whole thread with
+ *  it. If the ownership/shape check fails, the first update matches zero
+ *  rows and nothing else runs — no partial state, nothing to roll back.
+ *  If the reply update throws, the transaction rolls back automatically,
+ *  including the parent's own flip — never a partially-deleted thread. */
+export async function softDeleteThread(parentId: string, userId: string): Promise<boolean> {
+  return db.transaction(async (tx) => {
+    const [parent] = await tx
+      .update(comments)
+      .set({ isDeleted: true, updatedAt: new Date() })
+      .where(and(eq(comments.id, parentId), eq(comments.userId, userId), isNull(comments.parentId)))
+      .returning({ id: comments.id });
+
+    if (!parent) return false;
+
+    await tx
+      .update(comments)
+      .set({ isDeleted: true, updatedAt: new Date() })
+      .where(eq(comments.parentId, parentId));
+
+    return true;
+  });
 }
 
 export interface RecentCommentParent {

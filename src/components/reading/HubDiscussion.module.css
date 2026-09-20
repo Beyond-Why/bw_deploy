@@ -36,6 +36,12 @@
    weight than before: --border-medium (an existing token, not a new
    color) at 2px instead of the previous ad-hoc 1px translucent white. */
 .discussionContainer {
+  /* So a #discussion anchor jump (see RecentCommentItem's "View
+     discussion" link and this file's mount-effect fallback) lands with
+     the heading clear of the sticky navbar instead of tucked under it —
+     same --nav-height token EditProfileClient.module.css already uses
+     for this exact purpose. */
+  scroll-margin-top: calc(var(--nav-height) + 20px);
   border: 2px solid var(--border-medium);
   border-radius: var(--radius-md);
   padding: 20px;

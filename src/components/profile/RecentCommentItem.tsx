@@ -28,6 +28,19 @@ function authorLabel(isDeleted: boolean, userHandle: string, userDisplayName: st
   return formatHandle(userHandle) ?? userDisplayName;
 }
 
+/** Where "View discussion" actually lands. A hub-level ("series")
+ *  comment's Discussion section lives directly on that hub page, so the
+ *  link jumps straight to it (#discussion — see HubDiscussion.tsx and
+ *  its scroll-margin-top). An episode comment's discussion is a sidebar
+ *  *tab* on the episode reader, not a scrollable page section — there's
+ *  nothing on that page for a hash to scroll to, so its href is left
+ *  exactly as before rather than appending an anchor that would do
+ *  nothing (or land on an unrelated element if `discussion` ever meant
+ *  something else there). */
+function viewDiscussionHref(item: CommentActivityItem): string {
+  return item.contentType === "series" ? `${item.contentHref}#discussion` : item.contentHref;
+}
+
 function Avatar({ name, url, size = 32 }: { name: string; url: string | null; size?: number }) {
   const initial = (name || "?").charAt(0).toUpperCase();
   return (
@@ -205,7 +218,7 @@ export function RecentCommentItem({
                   : `${otherReplyCount} more ${otherReplyCount === 1 ? "reply" : "replies"} ▾`}
               </button>
             )}
-            <Link href={item.contentHref} className={styles.textAction}>
+            <Link href={viewDiscussionHref(item)} className={styles.textAction}>
               View discussion
             </Link>
             <button
