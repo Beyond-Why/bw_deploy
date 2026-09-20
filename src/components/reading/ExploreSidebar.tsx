@@ -18,6 +18,10 @@ interface ExploreSidebarProps {
   seriesTitle: string;
   episodes: EpisodeInfo[];
   currentEpisodeSlug: string;
+  /** "?mode=explore" (or "" for Focus) — appended to the episode queue's
+   *  own links below so picking another episode from here doesn't reset
+   *  back to the Focus default (see EpisodeReader.tsx). */
+  modeQuery: string;
   relatedSeries: {
     slug: string;
     frontmatter: SeriesFrontmatter;
@@ -36,6 +40,7 @@ export function ExploreSidebar({
   seriesTitle,
   episodes,
   currentEpisodeSlug,
+  modeQuery,
   relatedSeries,
   builderLogs,
   insightCards,
@@ -61,7 +66,7 @@ export function ExploreSidebar({
         <div className={styles.episodeList}>
           {episodes.map((ep) => {
             const isActive = ep.slug === currentEpisodeSlug;
-            const href = `/deep-dives/${series}/${ep.slug}`;
+            const href = `/deep-dives/${series}/${ep.slug}${modeQuery}`;
             return (
               <Link
                 key={ep.slug}

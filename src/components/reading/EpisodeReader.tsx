@@ -688,6 +688,7 @@ export function EpisodeReader({
                 seriesTitle={seriesTitle}
                 episodes={episodes}
                 currentEpisodeSlug={currentEpisodeSlug}
+                modeQuery={modeQuery}
                 relatedSeries={relatedSeries}
                 builderLogs={builderLogs}
                 insightCards={insightCards}
