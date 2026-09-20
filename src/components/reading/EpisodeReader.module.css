@@ -42,32 +42,37 @@
   overflow: hidden;
   position: sticky;
   top: 64px;
-  /* Equal left/right outer margins — the site's own shared horizontal
-     gutter token (same one behind .container etc. elsewhere), not the
-     15px/24px ad-hoc split this used to have. Below max-width (next
-     rule), padding alone is the margin, same on both sides — nothing
-     else pushes the grid off-center, so there's nothing left to
-     rebalance here. */
+  /* Right stays the site's shared horizontal gutter token (same one
+     behind .container etc. elsewhere). Left is the same value below
+     1100px — where the Table of Contents (TableOfContents.module.css)
+     is hidden entirely, so there's nothing to clear yet — and jumps to a
+     dedicated, larger inset once it's visible (see the 1100px query
+     below); that's a deliberately asymmetric pair, not a mistake. */
   padding: 0 var(--space-md);
-  /* Caps the WHOLE grid (article column + gap + sidebar), then centers
-     that fixed-width block with the browser's own auto-margin centering
-     — not a breakpoint-keyed offset, so it stays correct at any width in
-     between, including viewports this file's breakpoints don't name. A
-     narrower article on its own can't balance the outer margins (the
-     sidebar's fixed width plus this shell's already-equal padding leaves
-     nothing asymmetric to correct) — it only reads as "more space on the
-     left" if that narrowing is also pushed to one side, which is exactly
-     what capping+centering avoids: below max-width this is a no-op (the
-     grid already fills the available width, same as before), and only
-     past it does real left/right margin appear, equally on both sides,
-     which is also where the fluid article column naturally ends up
-     narrower — a side effect of the cap, not a separate width rule on
-     .articleFrame (still a plain 100% of its column, unchanged). */
-  max-width: 1760px;
-  margin: 0 auto;
+  /* Caps the WHOLE grid (article column + gap + sidebar) WITHOUT
+     centering it (no margin: auto — that was the previous approach,
+     specifically reversed here): left stays anchored at the padding
+     above, and once the viewport exceeds this cap, every extra pixel of
+     width becomes right-side whitespace only. The sidebar's fixed width
+     can't itself supply that whitespace, so it's the article column
+     (the other, fluid half of this same capped total) that ends up
+     narrower — not a separate width rule on .articleFrame, which stays
+     a plain 100% of whatever this leaves its column. */
+  max-width: 1600px;
   --header-reserve: 420px;
   /* image height — tune ceiling here (last term of the clamp, currently 50vh) */
   --hero-h: clamp(280px, calc(100vh - 64px - 48px - var(--header-reserve)), 50vh);
+}
+
+/* The TOC (position: fixed; left: 20px) becomes visible at exactly this
+   width — its collapsed rail is ~28px wide, so it occupies roughly
+   x = 20–48px. A left inset this size (vs. the shared --space-md the
+   right side keeps) leaves a clear, consistent gap past it instead of
+   the article frame's border landing inside that range. */
+@media (min-width: 1100px) {
+  .shellExplore {
+    padding-left: 100px;
+  }
 }
 
 @media (min-width: 1280px) {
