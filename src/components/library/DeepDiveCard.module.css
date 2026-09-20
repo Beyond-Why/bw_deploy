@@ -192,11 +192,15 @@
 }
 
 /* Reveal once expanded — stays open while the mouse is anywhere over the
-   card (including this strip), closes only on .card's onMouseLeave. */
+   card (including this strip), closes only on .card's onMouseLeave.
+   margin-top tightened from --space-xs (8px) now that the progress bar
+   above no longer occupies any space of its own — title/description and
+   the episode list read as one component instead of two with a gap
+   between them, while staying non-zero so it doesn't feel cramped. */
 .cardExpanded .episodeStrip {
   max-height: 240px;
   opacity: 1;
-  margin-top: var(--space-xs);
+  margin-top: 4px;
   transition-delay: 1.2s;
 }
 
@@ -219,15 +223,14 @@
   transition: width 0s linear;
 }
 
-.cardExpanded .progressContainer {
-  margin-top: 12px;
-  opacity: 1;
-}
-
-.cardExpanded .progressBar {
-  width: 100%;
-  transition: width 1.2s linear;
-}
+/* Deliberately no .cardExpanded override here — the bar stays at the
+   base rule's opacity: 0 / margin-top: 0 even while expanded, so it
+   never reserves or shows any space. It's decorative only (aria-hidden,
+   no real progress data — unrelated to actual reading-progress tracking
+   elsewhere in the app), kept in the DOM/CSS rather than removed in
+   case it's wanted again later. The episode strip's own 1.2s
+   reveal delay (below) is untouched — that timing was never driven by
+   this bar being visible, only by matching it. */
 
 /* ── Carousel wrapper — arrows live in dedicated gutter columns, never
    overlaid on the tiles. Mirrors InsightRow's carousel pattern exactly. ── */
@@ -270,7 +273,6 @@
 
 .episodeTile:hover {
   transform: translateY(-2px);
-  background: rgba(91, 156, 246, 0.08);
 }
 
 /* Tile thumbnail — 16:9 */
