@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { Webhook } from "standardwebhooks";
+import { createHmac, timingSafeEqual } from "crypto";
 import { sendAuthEmail } from "@/lib/email/send-auth-email";
 import type { AuthEmailType } from "@/lib/email/templates/auth-email";
 import { normalizeRedirectTo } from "@/lib/auth/redirect";
@@ -30,26 +30,63 @@ const ACTION_TYPE_MAP: Record<string, AuthEmailType> = {
  *
  * Supabase signs these requests per the Standard Webhooks spec (the
  * `webhook-id` / `webhook-signature` / `webhook-timestamp` headers, not
- * `authorization`), verified here via the `standardwebhooks` package.
+ * `authorization`) — verified manually below (HMAC-SHA256 over
+ * `{id}.{timestamp}.{body}`, constant-time compared, with the same
+ * +/-5min timestamp tolerance the spec requires) rather than via the
+ * `standardwebhooks` package.
  */
+
+// Standard Webhooks' own default replay-protection window.
+const WEBHOOK_TOLERANCE_SECONDS = 5 * 60;
+
 export async function POST(request: Request) {
   const rawBody = await request.text();
 
   // The dashboard-generated secret is `v1,whsec_<base64>` — strip
   // both prefixes to get the raw base64 secret.
   const secret = (process.env.SUPABASE_HOOK_SECRET ?? "").replace(/^v1,whsec_/, "");
+  const keyBytes = Buffer.from(secret, "base64");
 
-  try {
-    const wh = new Webhook(secret);
-    wh.verify(rawBody, {
-      "webhook-id": request.headers.get("webhook-id") ?? "",
-      "webhook-signature": request.headers.get("webhook-signature") ?? "",
-      "webhook-timestamp": request.headers.get("webhook-timestamp") ?? "",
+  const webhookId = request.headers.get("webhook-id") ?? "";
+  const webhookTimestamp = request.headers.get("webhook-timestamp") ?? "";
+  const webhookSignature = request.headers.get("webhook-signature") ?? "";
+
+  const verificationError = (() => {
+    // Reject a missing/malformed/stale-or-future timestamp before even
+    // computing the HMAC — this is what actually stops a captured
+    // request from being replayed later; the signature alone doesn't,
+    // since it covers the timestamp's *value*, not its age.
+    const tsSeconds = Number(webhookTimestamp);
+    if (!Number.isFinite(tsSeconds)) return "missing or invalid webhook-timestamp";
+    if (Math.abs(Date.now() / 1000 - tsSeconds) > WEBHOOK_TOLERANCE_SECONDS) {
+      return "webhook-timestamp outside tolerance";
+    }
+
+    const signedContent = `${webhookId}.${webhookTimestamp}.${rawBody}`;
+    const computedSig = createHmac("sha256", keyBytes).update(signedContent).digest();
+
+    // webhook-signature can carry multiple space-separated "v1,<sig>"
+    // values (key rotation) — valid if any one matches. Buffer.compare
+    // via timingSafeEqual (not string/array .includes) so a mismatch
+    // can't be distinguished by how quickly it fails.
+    const expectedSigs = webhookSignature.split(" ").map((s) => s.replace(/^v1,/, ""));
+    const matches = expectedSigs.some((sig) => {
+      let sigBytes: Buffer;
+      try {
+        sigBytes = Buffer.from(sig, "base64");
+      } catch {
+        return false;
+      }
+      return sigBytes.length === computedSig.length && timingSafeEqual(sigBytes, computedSig);
     });
-  } catch (err) {
+
+    return matches ? null : "signature mismatch";
+  })();
+
+  if (verificationError) {
     // TEMPORARY DEBUG — remove once the signup 500 is root-caused.
     console.error("verify failed:", {
-      error: err instanceof Error ? err.message : String(err),
+      error: verificationError,
       secretLength: secret.length,
       bodyLength: rawBody.length,
       webhookId: request.headers.get("webhook-id"),
