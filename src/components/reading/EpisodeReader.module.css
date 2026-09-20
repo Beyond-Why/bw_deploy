@@ -44,11 +44,27 @@
   top: 64px;
   /* Equal left/right outer margins — the site's own shared horizontal
      gutter token (same one behind .container etc. elsewhere), not the
-     15px/24px ad-hoc split this used to have. The column-to-sidebar gap
-     stays the separate 15px above; .articleFrame's own position within
-     the column (see below) is what keeps it from reading as dead-centered
-     between that gap and this padding. */
+     15px/24px ad-hoc split this used to have. Below max-width (next
+     rule), padding alone is the margin, same on both sides — nothing
+     else pushes the grid off-center, so there's nothing left to
+     rebalance here. */
   padding: 0 var(--space-md);
+  /* Caps the WHOLE grid (article column + gap + sidebar), then centers
+     that fixed-width block with the browser's own auto-margin centering
+     — not a breakpoint-keyed offset, so it stays correct at any width in
+     between, including viewports this file's breakpoints don't name. A
+     narrower article on its own can't balance the outer margins (the
+     sidebar's fixed width plus this shell's already-equal padding leaves
+     nothing asymmetric to correct) — it only reads as "more space on the
+     left" if that narrowing is also pushed to one side, which is exactly
+     what capping+centering avoids: below max-width this is a no-op (the
+     grid already fills the available width, same as before), and only
+     past it does real left/right margin appear, equally on both sides,
+     which is also where the fluid article column naturally ends up
+     narrower — a side effect of the cap, not a separate width rule on
+     .articleFrame (still a plain 100% of its column, unchanged). */
+  max-width: 1760px;
+  margin: 0 auto;
   --header-reserve: 420px;
   /* image height — tune ceiling here (last term of the clamp, currently 50vh) */
   --hero-h: clamp(280px, calc(100vh - 64px - 48px - var(--header-reserve)), 50vh);
@@ -58,31 +74,17 @@
   .shellExplore {
     --sidebar-w: 380px;
   }
-
-  /* See .articleFrame's own comment — narrows a little further at each
-     step up, alongside the sidebar's own width. */
-  .articleFrame {
-    width: 93%;
-  }
 }
 
 @media (min-width: 1536px) {
   .shellExplore {
     --sidebar-w: 440px;
   }
-
-  .articleFrame {
-    width: 90%;
-  }
 }
 
 @media (min-width: 1792px) {
   .shellExplore {
     --sidebar-w: 500px;
-  }
-
-  .articleFrame {
-    width: 88%;
   }
 }
 
@@ -317,25 +319,14 @@
    same element fixes that: the scrollbar now renders inside this
    border, and border-radius clips it to match the rounded corners. ── */
 .articleFrame {
-  /* Narrower than its fluid grid column (was 100%, edge to edge — read as
-     stretched across the screen on a wide viewport) and pushed toward the
-     column's right edge rather than centered in it: margin-left: auto
-     hands ALL the freed-up width to the frame's left side and none to its
-     right, so the gap to the sidebar stays exactly .shellExplore's own
-     15px grid gap (unchanged, "the existing two-column relationship")
-     instead of growing along with the extra space. .contentWrapper's own
-     justify-content: center never gets a say here — an auto margin on a
-     flex item overrides it for that item, which is the whole point:
-     flush-right, not independently centered.
-
-     The percentage itself steps up at the same breakpoints --sidebar-w
-     already uses below, instead of one flat value — at the 768px floor
-     the column is already tight (sidebar + gap + this shell's own
-     padding eat most of a tablet-width viewport), so only a small trim
-     applies there; a wide desktop, where the column has real width to
-     spare, gets a more noticeable one. */
-  width: 96%;
-  margin-left: auto;
+  /* Fills the fluid grid column edge to edge — it IS the column, not a
+     shrink-to-fit box floating inside it. A narrower article at wide
+     viewports comes from .shellExplore's own max-width capping the
+     whole grid (article column + gap + sidebar) instead: this fills
+     whatever width that leaves it, so it stays flush with the sidebar
+     (the existing 15px gap, unchanged) with no separate positioning
+     rule needed here. */
+  width: 100%;
   border: 0.5px solid var(--border-medium);
   border-radius: var(--radius-md);
   overflow-y: auto;
@@ -1127,11 +1118,6 @@
   }
 
   .articleFrame {
-    /* Explore mode's own width/position narrowing (see the base rule)
-       doesn't apply on mobile — this block is a defensive reset for the
-       brief window before the resize handler above forces `mode` back to
-       "focus" (explore never actually renders below 768px otherwise). */
-    width: 100%;
     margin: 0;
     border: none;
     border-radius: 0;
