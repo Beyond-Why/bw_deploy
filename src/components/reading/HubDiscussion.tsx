@@ -16,7 +16,6 @@ const COLLECTION_VISIBLE_COUNT = 3;
 
 interface HubDiscussionProps {
   seriesSlug: string;
-  seriesTitle: string;
   user: CurrentUser | null;
   collections: InsightCollection[];
   recommendations: HubRecommendations;
@@ -61,7 +60,6 @@ function CardsSection({ collections }: { collections: InsightCollection[] }) {
  *  DeepDiveContent tree above it can't call directly. */
 export function HubDiscussion({
   seriesSlug,
-  seriesTitle,
   user,
   collections,
   recommendations,
@@ -91,7 +89,6 @@ export function HubDiscussion({
             seriesId={seriesSlug}
             contentType="series"
             showEpisodeTags
-            seriesTitle={seriesTitle}
             user={user}
             onRequestAuth={handleRequestAuth}
             initialVisibleCount={DISCUSSION_VISIBLE_COUNT}

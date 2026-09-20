@@ -1,11 +1,13 @@
 "use client";
 
+import { Fragment, useMemo } from "react";
 import { useToastContext } from "@/components/ui/Toast";
 import { ChatBubbleIcon } from "@/components/icons";
 import { EmptyState } from "./EmptyState";
 import { RecentCommentItem } from "./RecentCommentItem";
 import {
   useRecentComments,
+  groupCommentActivity,
   type CommentActivityItem,
   type RecentCommentsCursor,
 } from "@/hooks/useRecentComments";
@@ -29,6 +31,12 @@ export function RecentCommentsList({
     initialCursor,
   });
 
+  // Re-grouped on every items change (delete, load more) — cheap (no
+  // fetch, just a pass over whatever's already loaded) and means a newly
+  // loaded page can retroactively pair up with an already-visible parent
+  // or reply from an earlier page.
+  const groups = useMemo(() => groupCommentActivity(items), [items]);
+
   const handleDelete = async (id: string) => {
     const result = await deleteComment(id);
     if (!result.ok) {
@@ -51,13 +59,24 @@ export function RecentCommentsList({
 
   return (
     <div className={styles.list}>
-      {items.map((item) => (
-        <RecentCommentItem
-          key={item.id}
-          item={item}
-          deleting={deletingIds.has(item.id)}
-          onDelete={handleDelete}
-        />
+      {groups.map((group) => (
+        <Fragment key={group.item.id}>
+          <RecentCommentItem
+            item={group.item}
+            deletingIds={deletingIds}
+            onDelete={handleDelete}
+            ownReplies={group.ownReplies}
+          />
+          {group.ownReplies.map((reply) => (
+            <RecentCommentItem
+              key={reply.id}
+              item={reply}
+              deletingIds={deletingIds}
+              onDelete={handleDelete}
+              suppressParentContext
+            />
+          ))}
+        </Fragment>
       ))}
 
       {hasMore && (

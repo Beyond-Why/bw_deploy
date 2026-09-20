@@ -225,7 +225,6 @@ export function DeepDiveContent({
       {!compact && (
         <HubDiscussion
           seriesSlug={series}
-          seriesTitle={frontmatter.title}
           user={user}
           collections={collections}
           recommendations={recommendations}

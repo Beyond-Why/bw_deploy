@@ -279,24 +279,24 @@
   color: var(--text-muted);
 }
 
-/* ── Content reference tags — Deep Dive + (optional) episode, as two
-   separate pills, same visual language as the profile page's Recent
-   Comments tags (RecentComments.module.css) ── */
-.contentTagRow {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-  min-width: 0;
+/* ── Episode tag — a compact "EP N" pill, nothing more. No separate
+   Deep Dive/series tag here: every comment on this page already belongs
+   to the one series the hub page itself is for, so repeating its name on
+   every row was pure noise. The full episode title is still one hover/
+   focus away via a tooltip — same accessible-tooltip mechanism as the
+   episode reader's own chapter nav (EpisodeReader.module.css's
+   .tooltip): real text sitting in the DOM the whole time, just visually
+   hidden until hovered/focused, so it isn't hover-only for anyone using
+   a screen reader — the wrapping link's aria-label carries the same text
+   regardless of hover/focus state. */
+.episodeTagWrap {
+  position: relative;
+  display: inline-flex;
+  align-self: flex-start;
 }
 
-.contentTag {
+.episodeTag {
   display: inline-block;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  vertical-align: middle;
   font-family: var(--font-ui), sans-serif;
   font-size: 11px;
   font-weight: 700;
@@ -308,24 +308,35 @@
   transition: background-color var(--transition-fast, 150ms ease);
 }
 
-.contentTag:hover {
+.episodeTag:hover {
   background: color-mix(in srgb, var(--accent) 20%, transparent);
 }
 
-/* The episode tag is the more granular, secondary piece of context —
-   lighter weight/fill than the Deep Dive tag, and capped narrower with
-   ellipsis truncation (full title still available via `title`) so a long
-   episode name can never stretch the row or overflow the viewport. */
-.contentTagEpisode {
-  font-weight: 500;
-  background: color-mix(in srgb, var(--accent) 8%, transparent);
-  max-width: 220px;
+.episodeTooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  z-index: 2;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 12px;
+  white-space: nowrap;
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: var(--bg-elevated);
+  border: 0.5px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  box-shadow: var(--shadow-md);
+  color: var(--text-primary);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-fast, 150ms ease);
 }
 
-@media (max-width: 480px) {
-  .contentTagEpisode {
-    max-width: 150px;
-  }
+.episodeTagWrap:hover .episodeTooltip,
+.episodeTagWrap:focus-within .episodeTooltip {
+  opacity: 1;
 }
 
 .commentItemTagged {
@@ -560,7 +571,8 @@
   .likeAction,
   .showMoreBtn,
   .emptyNudge,
-  .contentTag {
+  .episodeTag,
+  .episodeTooltip {
     transition: none;
   }
 }

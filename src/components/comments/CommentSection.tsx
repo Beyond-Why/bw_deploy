@@ -23,12 +23,8 @@ interface CommentSectionProps {
   episodeTitle?: string;
   user: CurrentUser | null;
   onRequestAuth: () => void;
-  /** Hub page only — shows Deep Dive/episode tags on every comment. */
+  /** Hub page only — shows a compact "EP N" tag on episode-origin comments. */
   showEpisodeTags?: boolean;
-  /** Hub page only — the series' own title, for the Deep Dive tag (every
-   *  comment in this view belongs to the same series, so it's one prop
-   *  rather than something each comment needs to carry itself). */
-  seriesTitle?: string;
   /** Caps the initial number of visible top-level threads, revealed via a
    *  "Show more" button — the hub page uses this to keep its aggregated
    *  view from running long; the episode sidebar omits it (shows all). */
@@ -69,7 +65,6 @@ export function CommentSection({
   user,
   onRequestAuth,
   showEpisodeTags = false,
-  seriesTitle,
   initialVisibleCount,
   className,
 }: CommentSectionProps) {
@@ -213,7 +208,6 @@ export function CommentSection({
                 key={comment.id}
                 comment={comment}
                 showEpisodeTags={showEpisodeTags}
-                seriesTitle={seriesTitle}
                 user={user}
                 onRequestAuth={onRequestAuth}
                 onReply={handleReply}

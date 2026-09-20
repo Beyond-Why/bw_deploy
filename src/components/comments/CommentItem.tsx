@@ -15,8 +15,6 @@ interface CommentItemProps {
   comment: CommentData;
   isReply?: boolean;
   showEpisodeTag?: boolean;
-  /** Hub page only — the series' own title, for the Deep Dive tag. */
-  seriesTitle?: string;
   isOwner?: boolean;
   isAuthenticated?: boolean;
   onRequestAuth?: () => void;
@@ -46,7 +44,6 @@ export function CommentItem({
   comment,
   isReply = false,
   showEpisodeTag = false,
-  seriesTitle,
   isOwner = false,
   isAuthenticated = false,
   onRequestAuth,
@@ -59,12 +56,17 @@ export function CommentItem({
   const authorLabel = comment.isDeleted
     ? "Deleted"
     : formatHandle(comment.userHandle) ?? comment.userDisplayName;
-  // Every comment in the hub's aggregated view gets a Deep Dive tag (the
-  // series it belongs to); an episode-origin one also gets a second,
-  // separate episode tag. Not shown at all on the episode page's own
-  // discussion (showEpisodeTag is false there).
-  const showContentTags = showEpisodeTag && !!seriesTitle;
-  const hasEpisodeTag = showContentTags && !!comment.episodeNumber && !!comment.episodeTitle;
+  // Hub aggregated view only (showEpisodeTag is false on the episode
+  // page's own discussion) — a compact "EP N" tag for an episode-origin
+  // comment, nothing for a hub-level one. No separate series/Deep Dive
+  // tag: every comment on this page already belongs to the one series
+  // the hub page itself is for.
+  const hasEpisodeTag = showEpisodeTag && !!comment.episodeNumber;
+  const episodeTooltip = hasEpisodeTag
+    ? comment.episodeTitle
+      ? `EP ${comment.episodeNumber}: ${comment.episodeTitle}`
+      : `EP ${comment.episodeNumber}`
+    : "";
 
   const { count: likeCount, liked, toggle: toggleLike } = useCommentLike({
     commentId: comment.id,
@@ -107,24 +109,14 @@ export function CommentItem({
             </time>
           </span>
 
-          {showContentTags && (
-            <span className={styles.contentTagRow}>
-              <Link
-                href={`/deep-dives/${comment.seriesId}`}
-                className={styles.contentTag}
-                title={seriesTitle}
-              >
-                {seriesTitle}
+          {hasEpisodeTag && (
+            <span className={styles.episodeTagWrap}>
+              <Link href={`/${comment.contentId}`} className={styles.episodeTag} aria-label={episodeTooltip}>
+                EP {comment.episodeNumber}
               </Link>
-              {hasEpisodeTag && (
-                <Link
-                  href={`/${comment.contentId}`}
-                  className={cx(styles.contentTag, styles.contentTagEpisode)}
-                  title={comment.episodeTitle ?? undefined}
-                >
-                  {comment.episodeTitle}
-                </Link>
-              )}
+              <span className={styles.episodeTooltip} aria-hidden="true">
+                {episodeTooltip}
+              </span>
             </span>
           )}
         </div>

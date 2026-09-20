@@ -146,13 +146,50 @@
 }
 
 /* The episode tag is the more granular, secondary piece of context —
-   lighter weight/fill than the Deep Dive tag, and capped narrower with
-   ellipsis truncation (full title still on the element via `title`) so a
-   long episode name can never stretch the row or overflow the viewport. */
+   lighter weight/fill than the Deep Dive tag, and a compact "EP N" label
+   rather than the full episode title (see .episodeTooltip below for
+   where the title goes instead), so it can never stretch the row. */
 .episodeBadge {
   font-weight: 500;
   background: color-mix(in srgb, var(--accent) 8%, transparent);
-  max-width: 220px;
+}
+
+/* Full episode title, one hover/focus away — same accessible-tooltip
+   mechanism as the hub discussion's own episode tag
+   (CommentSection.module.css): real text in the DOM the whole time, only
+   visually hidden until hovered/focused, so it isn't hover-only for
+   screen reader users — the link's own aria-label carries the same text
+   regardless of hover/focus state. */
+.episodeTagWrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.episodeTooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  z-index: 2;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 12px;
+  white-space: nowrap;
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: var(--bg-elevated);
+  border: 0.5px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  box-shadow: var(--shadow-md);
+  color: var(--text-primary);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-fast, 150ms ease);
+}
+
+.episodeTagWrap:hover .episodeTooltip,
+.episodeTagWrap:focus-within .episodeTooltip {
+  opacity: 1;
 }
 
 /* ── Reply's parent context ── */
@@ -346,7 +383,8 @@
   .textAction,
   .repliesToggle,
   .retryBtn,
-  .contentBadge {
+  .contentBadge,
+  .episodeTooltip {
     transition: none;
   }
 }
@@ -358,9 +396,5 @@
 
   .repliesList {
     padding-left: 10px;
-  }
-
-  .episodeBadge {
-    max-width: 150px;
   }
 }

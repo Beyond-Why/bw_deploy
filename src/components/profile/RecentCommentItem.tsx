@@ -43,13 +43,20 @@ function Avatar({ name, url, size = 32 }: { name: string; url: string | null; si
 }
 
 /** Which Deep Dive/hub (and, when relevant, which episode) this comment
- *  belongs to — two separate link chips rather than one combined tag, so
- *  each piece of context is independently legible and can truncate/wrap
- *  on its own. The Deep Dive tag always points at the series hub; the
- *  episode tag (only present for episode-scoped comments) points at the
- *  exact page the comment lives on. */
+ *  belongs to. The Deep Dive tag always points at the series hub — unlike
+ *  the hub discussion's own comments (which dropped this tag, since
+ *  they're already all on that one series' page), Recent Comments spans
+ *  every series the user's ever commented on, so it's still needed here.
+ *  The episode tag (only for episode-scoped comments) is compact — "EP N"
+ *  — with the full title one hover/focus away via a tooltip, same
+ *  treatment as the hub discussion's own episode tag. */
 function ContentTags({ item }: { item: CommentActivityItem }) {
-  const hasEpisode = item.contentType === "episode" && !!item.episodeTitle;
+  const hasEpisode = item.contentType === "episode" && !!item.episodeNumber;
+  const episodeTooltip = hasEpisode
+    ? item.episodeTitle
+      ? `EP ${item.episodeNumber}: ${item.episodeTitle}`
+      : `EP ${item.episodeNumber}`
+    : "";
 
   return (
     <span className={styles.tagRow}>
@@ -57,13 +64,18 @@ function ContentTags({ item }: { item: CommentActivityItem }) {
         {item.contentTitle}
       </Link>
       {hasEpisode && (
-        <Link
-          href={item.contentHref}
-          className={cx(styles.contentBadge, styles.episodeBadge)}
-          title={item.episodeTitle ?? undefined}
-        >
-          {item.episodeTitle}
-        </Link>
+        <span className={styles.episodeTagWrap}>
+          <Link
+            href={item.contentHref}
+            className={cx(styles.contentBadge, styles.episodeBadge)}
+            aria-label={episodeTooltip}
+          >
+            EP {item.episodeNumber}
+          </Link>
+          <span className={styles.episodeTooltip} aria-hidden="true">
+            {episodeTooltip}
+          </span>
+        </span>
       )}
     </span>
   );
@@ -97,16 +109,39 @@ function RepliesList({ replies }: { replies: ExpandedReply[] }) {
 
 interface RecentCommentItemProps {
   item: CommentActivityItem;
-  deleting: boolean;
+  deletingIds: Set<string>;
   onDelete: (id: string) => void;
+  /** The profile owner's own replies to `item`, already grouped and
+   *  rendered as their own entries right after this one (see
+   *  RecentCommentsList) — used only to keep the "N replies" expansion
+   *  below from re-showing them and to adjust its count. Top-level only. */
+  ownReplies?: CommentActivityItem[];
+  /** True when `item`'s parent is already rendered directly above it as
+   *  part of the same grouped conversation — skips the "Replying to…"
+   *  block, which would otherwise just repeat what's already visible. */
+  suppressParentContext?: boolean;
 }
 
-export function RecentCommentItem({ item, deleting, onDelete }: RecentCommentItemProps) {
+export function RecentCommentItem({
+  item,
+  deletingIds,
+  onDelete,
+  ownReplies = [],
+  suppressParentContext = false,
+}: RecentCommentItemProps) {
   const isReply = item.parentId !== null;
+  const deleting = deletingIds.has(item.id);
   const [repliesOpen, setRepliesOpen] = useState(false);
   const [replies, setReplies] = useState<ExpandedReply[] | null>(null);
   const [repliesLoading, setRepliesLoading] = useState(false);
   const [repliesError, setRepliesError] = useState(false);
+
+  // Replies already shown via `ownReplies` shouldn't also turn up in the
+  // "N replies" expansion below (that fetches every reply from every
+  // author) — filtered out, and the count adjusted to match what's
+  // actually new there.
+  const ownReplyIds = new Set(ownReplies.map((r) => r.id));
+  const otherReplyCount = Math.max(0, item.replyCount - ownReplies.length);
 
   const toggleReplies = async () => {
     if (repliesOpen) {
@@ -122,7 +157,7 @@ export function RecentCommentItem({ item, deleting, onDelete }: RecentCommentIte
       const res = await fetch(`/api/comments/${item.id}/replies`);
       if (!res.ok) throw new Error("Failed to load replies");
       const data: { replies: ExpandedReply[] } = await res.json();
-      setReplies(data.replies);
+      setReplies(data.replies.filter((r) => !ownReplyIds.has(r.id)));
     } catch {
       setRepliesError(true);
     } finally {
@@ -149,7 +184,7 @@ export function RecentCommentItem({ item, deleting, onDelete }: RecentCommentIte
             <ContentTags item={item} />
           </div>
 
-          {isReply && item.parent && (
+          {isReply && item.parent && !suppressParentContext && (
             <div className={styles.parentContext}>
               <span className={styles.parentContextLabel}>
                 Replying to {authorLabel(item.parent.isDeleted, item.parent.userHandle, item.parent.userDisplayName)}
@@ -163,11 +198,11 @@ export function RecentCommentItem({ item, deleting, onDelete }: RecentCommentIte
           <p className={styles.bodyText}>{item.body}</p>
 
           <div className={styles.actions}>
-            {!isReply && item.replyCount > 0 && (
+            {!isReply && otherReplyCount > 0 && (
               <button type="button" className={styles.repliesToggle} onClick={toggleReplies}>
                 {repliesOpen
                   ? "Hide replies ▴"
-                  : `${item.replyCount} ${item.replyCount === 1 ? "reply" : "replies"} ▾`}
+                  : `${otherReplyCount} more ${otherReplyCount === 1 ? "reply" : "replies"} ▾`}
               </button>
             )}
             <Link href={item.contentHref} className={styles.textAction}>

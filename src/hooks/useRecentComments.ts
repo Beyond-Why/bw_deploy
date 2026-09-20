@@ -40,6 +40,61 @@ interface UseRecentCommentsOptions {
   initialCursor: RecentCommentsCursor | null;
 }
 
+export interface CommentActivityGroup {
+  /** The row to render as the conversation's headline — a top-level
+   *  comment, or a reply left standing alone because its parent isn't
+   *  anywhere in `items` (parent authored by someone else, or just not on
+   *  a loaded page yet). */
+  item: CommentActivityItem;
+  /** The profile owner's own replies to `item`, when `item` is top-level
+   *  and one or more of them are also present in `items` — nested under
+   *  it instead of appearing as their own separate entries. Oldest first,
+   *  same order replies render in elsewhere. Always empty for a reply. */
+  ownReplies: CommentActivityItem[];
+}
+
+/** Groups a flat activity list into conversations — a reply is folded
+ *  under its parent instead of rendered as a second top-level entry
+ *  whenever both are present in `items` (which spans every page loaded so
+ *  far, not just the latest one, so "Load more" can surface a pairing
+ *  that a single page didn't have). A reply whose parent isn't present
+ *  (different author, or not loaded yet) stays as its own entry — nothing
+ *  is dropped. A group sorts by whichever of its rows is most recent,
+ *  since a reply is always newer than its own parent, so a group's
+ *  position tracks its latest activity, not the parent's original one.
+ *  Pure/no fetch — reuses whatever `items` already holds. */
+export function groupCommentActivity(items: CommentActivityItem[]): CommentActivityGroup[] {
+  const byId = new Map(items.map((item) => [item.id, item]));
+  const ownRepliesByParentId = new Map<string, CommentActivityItem[]>();
+  const groupedReplyIds = new Set<string>();
+
+  for (const item of items) {
+    if (!item.parentId || !byId.has(item.parentId)) continue;
+    const list = ownRepliesByParentId.get(item.parentId) ?? [];
+    list.push(item);
+    ownRepliesByParentId.set(item.parentId, list);
+    groupedReplyIds.add(item.id);
+  }
+
+  for (const list of ownRepliesByParentId.values()) {
+    list.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+  }
+
+  const groups = items
+    .filter((item) => !groupedReplyIds.has(item.id))
+    .map((item) => {
+      const ownReplies = item.parentId ? [] : ownRepliesByParentId.get(item.id) ?? [];
+      const sortTime = Math.max(
+        new Date(item.createdAt).getTime(),
+        ...ownReplies.map((r) => new Date(r.createdAt).getTime())
+      );
+      return { item, ownReplies, sortTime };
+    });
+
+  groups.sort((a, b) => b.sortTime - a.sortTime);
+  return groups.map(({ item, ownReplies }) => ({ item, ownReplies }));
+}
+
 /** Client-side state for the profile's Recent Comments section — "Load
  *  more" pagination plus per-item delete, both against a list the server
  *  already rendered once. Mirrors useComments' shape (own state + fetch
