@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import type {
   EpisodeFrontmatter,
   EpisodeInfo,
@@ -33,6 +33,10 @@ interface ChapterSegmentsProps {
   episodes: EpisodeInfo[];
   currentIndex: number;
   scrollProgress: number;
+  /** "?mode=explore" (or "" for Focus) — appended to every episode link
+   *  here so clicking another episode while in Explore mode lands there
+   *  still in Explore mode instead of resetting to the Focus default. */
+  modeQuery: string;
 }
 
 /* ──────────────────────────────────────────────────────────────
@@ -45,6 +49,7 @@ function ChapterSegments({
   episodes,
   currentIndex,
   scrollProgress,
+  modeQuery,
 }: ChapterSegmentsProps) {
   const segmentRefs = useRef<(HTMLAnchorElement | null)[]>([]);
 
@@ -86,7 +91,7 @@ function ChapterSegments({
             // same state and both are part of the same target.
             <Link
               key={ep.slug}
-              href={`/deep-dives/${series}/${ep.slug}`}
+              href={`/deep-dives/${series}/${ep.slug}${modeQuery}`}
               ref={(el) => {
                 segmentRefs.current[index] = el;
               }}
@@ -309,7 +314,24 @@ export function EpisodeReader({
   user,
   children,
 }: EpisodeReaderProps) {
-  const [mode, setMode] = useState<"focus" | "explore">("focus");
+  const searchParams = useSearchParams();
+  // Fresh page load/refresh always defaults to Focus (the documented,
+  // required default) UNLESS this navigation came from one of this
+  // reader's own episode-to-episode links (chapter nav, prev/next — see
+  // where they're built below), which carry the mode the user was
+  // already in as a ?mode=explore query param specifically so a fresh
+  // mount of the *next* episode's page can pick it back up. Nothing
+  // else in the mount lifecycle remembers mode across episodes — this
+  // component fully remounts on every episode navigation (new page,
+  // new route params), so plain useState alone always resets to its
+  // initializer; the URL is what actually survives that remount.
+  const [mode, setMode] = useState<"focus" | "explore">(() => {
+    // Same guard as enterExplore/switchMode below — never start in
+    // Explore under the width it's unavailable at, even if a ?mode=
+    // link says otherwise (e.g. resized down between clicks).
+    if (typeof window !== "undefined" && window.innerWidth < 768) return "focus";
+    return searchParams.get("mode") === "explore" ? "explore" : "focus";
+  });
   // paneVisible drives the fade: false = transparent, true = opaque
   const [paneVisible, setPaneVisible] = useState(true);
   const [sidebarTab, setSidebarTab] = useState<"explore" | "comments">("explore");
@@ -319,6 +341,12 @@ export function EpisodeReader({
   const [scrollProgress, setScrollProgress] = useState(0);
   const router = useRouter();
   const pathname = usePathname();
+  // Appended to this reader's own episode-to-episode links only (never
+  // to the series/"Back to Series" link, which has no mode of its own)
+  // so the destination episode's fresh mount can restore it. Omitted
+  // entirely for Focus — that's the default anyway, and it keeps the
+  // URL clean for the common case.
+  const modeQuery = mode === "explore" ? "?mode=explore" : "";
 
   const handleRequestCommentAuth = useCallback(() => {
     router.push(`/signin?next=${encodeURIComponent(pathname)}`);
@@ -538,6 +566,7 @@ export function EpisodeReader({
         episodes={episodes}
         currentIndex={currentIndex}
         scrollProgress={scrollProgress}
+        modeQuery={modeQuery}
       />
 
       {/* ── MDX Content — rendered as children from server ── */}
@@ -547,7 +576,7 @@ export function EpisodeReader({
       <nav className={styles.navigation}>
         {prevEpisode ? (
           <Link
-            href={`/deep-dives/${series}/${prevEpisode.slug}`}
+            href={`/deep-dives/${series}/${prevEpisode.slug}${modeQuery}`}
             className={styles.navLink}
           >
             <span className={styles.navEpNumber}>
@@ -568,7 +597,7 @@ export function EpisodeReader({
 
         {nextEpisode ? (
           <Link
-            href={`/deep-dives/${series}/${nextEpisode.slug}`}
+            href={`/deep-dives/${series}/${nextEpisode.slug}${modeQuery}`}
             className={`${styles.navLink} ${styles.navLinkNext}`}
             onClick={markCompleted}
           >
