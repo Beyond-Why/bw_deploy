@@ -3,6 +3,7 @@ import { getEpisode, getSeriesIndex } from "@/lib/content";
 import { buildInsightSaves } from "./insightSaves";
 import { RecentSaved } from "./RecentSaved";
 import type { BookmarkItem } from "./BookmarksList";
+import type { RecentInsightSave } from "./InsightSaveStack";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import styles from "./ProfileHomeSection.module.css";
 
@@ -76,8 +77,20 @@ export async function getBookmarkItems(userId: string): Promise<BookmarkItem[]> 
   );
 }
 
-export async function BookmarksSection({ items }: { items: BookmarkItem[] }) {
-  if (items.length === 0) return null;
+export interface BookmarksDataResult {
+  insightSaves: RecentInsightSave[];
+  episodeItems: BookmarkItem[];
+  collectionRows: number;
+}
+
+export async function prepareBookmarksData(items: BookmarkItem[]): Promise<BookmarksDataResult> {
+  if (items.length === 0) {
+    return {
+      insightSaves: [],
+      episodeItems: [],
+      collectionRows: 0,
+    };
+  }
 
   const sorted = [...items].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -97,6 +110,15 @@ export async function BookmarksSection({ items }: { items: BookmarkItem[] }) {
     .filter((item) => item.contentType === "episode" || item.contentType === "series")
     .slice(0, episodeFetchCap);
 
+  return {
+    insightSaves,
+    episodeItems,
+    collectionRows,
+  };
+}
+
+export async function BookmarksSection({ items }: { items: BookmarkItem[] }) {
+  const { insightSaves, episodeItems, collectionRows } = await prepareBookmarksData(items);
   if (collectionRows === 0 && episodeItems.length === 0) return null;
 
   return (

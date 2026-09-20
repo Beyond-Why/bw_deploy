@@ -1,10 +1,8 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import { OpenBookIcon } from "@/components/icons";
+import { useCallback, useEffect, useState } from "react";
 import { InsightSaveStack, type RecentInsightSave } from "./InsightSaveStack";
 import { EpisodeGrid } from "./EpisodeGrid";
-import { EmptyState } from "./EmptyState";
 import type { BookmarkItem } from "./BookmarksList";
 import styles from "./RecentSaved.module.css";
 
@@ -14,6 +12,9 @@ interface RecentSavedProps {
   /** Rows the insight carousels above the grid actually take up (0–3) —
    *  drives the grid's own row cap. See EpisodeGrid.module.css. */
   collectionRows: number;
+  /** Reports the live post-removal count back up to ProfileActivityFeed so it
+   *  can hide this section and coordinate the shared empty state. */
+  onCountChange?: (count: number) => void;
 }
 
 /** Home tab's Recently Saved — insight-collection bookmarks render as
@@ -21,32 +22,25 @@ interface RecentSavedProps {
  *  deep-dive bookmarks as a responsive portrait grid below. Same two
  *  forms the Insight Cards and Deep Dives tabs use for their own
  *  (uncapped) lists. No type labels, no "View all" link — the section
- *  just ends after the last card.
- *
- *  A client component (not just the two lists below it) because it has to
- *  know the *combined* remaining count after either list's own X-button
- *  removal — InsightSaveStack and EpisodeGrid each manage their own
- *  filtered-down list internally and simply render nothing once empty, so
- *  without this, removing the very last bookmark left a blank gap under
- *  the "Recently Saved" heading instead of the empty state. */
-export function RecentSaved({ insightSaves, episodeItems, collectionRows }: RecentSavedProps) {
+ *  just ends after the last card. */
+export function RecentSaved({
+  insightSaves,
+  episodeItems,
+  collectionRows,
+  onCountChange,
+}: RecentSavedProps) {
   const [saveCount, setSaveCount] = useState(insightSaves.length);
   const [episodeCount, setEpisodeCount] = useState(episodeItems.length);
 
   const handleSaveCountChange = useCallback((count: number) => setSaveCount(count), []);
   const handleEpisodeCountChange = useCallback((count: number) => setEpisodeCount(count), []);
 
+  useEffect(() => {
+    onCountChange?.(saveCount + episodeCount);
+  }, [saveCount, episodeCount, onCountChange]);
+
   if (saveCount === 0 && episodeCount === 0) {
-    return (
-      <EmptyState
-        icon={<OpenBookIcon size={32} />}
-        message="Nothing here yet."
-        subMessage="Start reading to see your progress and saves."
-        ctaLabel="Explore Deep Dives →"
-        ctaHref="/deep-dives"
-        variant="section"
-      />
-    );
+    return null;
   }
 
   return (

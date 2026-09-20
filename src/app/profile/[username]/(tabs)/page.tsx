@@ -2,14 +2,12 @@ import type { Metadata } from "next";
 import { getProfileByUsername } from "@/lib/profile";
 import { getCurrentUser } from "@/lib/auth/getUser";
 import { ContinueReadingSection, getContinueReadingItems } from "@/components/profile/ContinueReadingSection";
-import { BookmarksSection, getBookmarkItems } from "@/components/profile/BookmarksSection";
+import { getBookmarkItems, prepareBookmarksData } from "@/components/profile/BookmarksSection";
 import {
-  RecentCommentsSection,
   getRecentCommentItems,
   RECENT_COMMENTS_PAGE_SIZE,
 } from "@/components/profile/RecentCommentsSection";
-import { EmptyState } from "@/components/profile/EmptyState";
-import { OpenBookIcon } from "@/components/icons";
+import { ProfileActivityFeed } from "@/components/profile/ProfileActivityFeed";
 
 export async function generateMetadata({
   params,
@@ -45,23 +43,17 @@ export default async function ProfileHomePage({
     getRecentCommentItems(profile.id, RECENT_COMMENTS_PAGE_SIZE),
   ]);
 
-  const hasBookmarks = bookmarkItems.length > 0;
-  const hasComments = commentsPage.items.length > 0;
+  const { insightSaves, episodeItems, collectionRows } = await prepareBookmarksData(bookmarkItems);
 
   return (
     <div>
       {continueReadingItems.length > 0 && <ContinueReadingSection items={continueReadingItems} />}
-      {hasBookmarks && <BookmarksSection items={bookmarkItems} />}
-      {hasComments && <RecentCommentsSection userId={profile.id} initialPage={commentsPage} />}
-      {!hasBookmarks && !hasComments && (
-        <EmptyState
-          icon={<OpenBookIcon size={32} />}
-          message="Nothing here yet."
-          subMessage="Start reading to see your progress and saves."
-          ctaLabel="Explore Deep Dives →"
-          ctaHref="/deep-dives"
-        />
-      )}
+      <ProfileActivityFeed
+        insightSaves={insightSaves}
+        episodeItems={episodeItems}
+        collectionRows={collectionRows}
+        initialCommentsPage={commentsPage}
+      />
     </div>
   );
 }

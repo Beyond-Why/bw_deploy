@@ -1,9 +1,7 @@
 "use client";
 
-import { Fragment, useMemo } from "react";
+import { Fragment, useEffect, useMemo } from "react";
 import { useToastContext } from "@/components/ui/Toast";
-import { ChatBubbleIcon } from "@/components/icons";
-import { EmptyState } from "./EmptyState";
 import { RecentCommentItem } from "./RecentCommentItem";
 import {
   useRecentComments,
@@ -17,12 +15,16 @@ interface RecentCommentsListProps {
   initialItems: CommentActivityItem[];
   initialHasMore: boolean;
   initialCursor: RecentCommentsCursor | null;
+  /** Reports the live post-deletion count back up to ProfileActivityFeed so it
+   *  can hide this section and coordinate the shared empty state. */
+  onCountChange?: (count: number) => void;
 }
 
 export function RecentCommentsList({
   initialItems,
   initialHasMore,
   initialCursor,
+  onCountChange,
 }: RecentCommentsListProps) {
   const toast = useToastContext();
   const { items, hasMore, loadMoreState, loadMore, deleteComment, deletingIds } = useRecentComments({
@@ -30,6 +32,10 @@ export function RecentCommentsList({
     initialHasMore,
     initialCursor,
   });
+
+  useEffect(() => {
+    onCountChange?.(items.length);
+  }, [items.length, onCountChange]);
 
   // Re-grouped on every items change (delete, load more) — cheap (no
   // fetch, just a pass over whatever's already loaded) and means a newly
@@ -45,16 +51,7 @@ export function RecentCommentsList({
   };
 
   if (items.length === 0) {
-    return (
-      <EmptyState
-        icon={<ChatBubbleIcon size={32} />}
-        message="No comments yet."
-        subMessage="Join a discussion and your comments will appear here."
-        ctaLabel="Explore Deep Dives →"
-        ctaHref="/deep-dives"
-        variant="section"
-      />
-    );
+    return null;
   }
 
   return (
