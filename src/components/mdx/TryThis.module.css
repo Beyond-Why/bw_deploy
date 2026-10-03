@@ -1,0 +1,16 @@
+/* Body-sized and upright on purpose — the markdown blockquote (pull
+   line) is the larger italic one; this is an instruction, not a quote. */
+.tryThis {
+  margin: var(--space-md) 0 var(--space-md) var(--space-xs);
+  padding-left: 1.25rem;
+  border-left: 2px solid var(--accent);
+  font-family: var(--font-body), serif;
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+}
+
+/* Multi-line children arrive as MDX paragraphs, each carrying the
+   prose .p bottom margin — the block's own margin replaces the last. */
+.tryThis > :last-child {
+  margin-bottom: 0;
+}

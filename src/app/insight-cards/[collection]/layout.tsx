@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { notFound } from "next/navigation";
 import { getCollections, getInsightCard } from "@/lib/content";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { mdxComponents } from "@/components/mdx/MDXComponents";
@@ -27,22 +28,21 @@ interface LayoutProps {
  * zone 2): a zone-3 click still changes [collection] itself, so it remounts
  * this layout too and falls back to an instant swap — see InsightCardsPanel.
  */
-export default async function InsightCollectionLayout({ params }: LayoutProps) {
+export default async function InsightCollectionLayout({ params, children }: LayoutProps) {
   const { collection } = await params;
   const collections = await getCollections();
   const activeCollection = collections.find((c) => c.slug === collection);
+  if (!activeCollection) notFound();
 
   // Every card's MDX body for THIS collection only (1-4 cards, cheap) —
   // keyed by card slug. InsightCardsPanel derives which one is active from
   // the URL client-side, since this layout doesn't receive the [card] param.
   const cardContent: Record<string, ReactNode> = {};
-  if (activeCollection) {
-    for (const card of activeCollection.cards) {
-      const { content } = await getInsightCard(collection, card.slug);
-      cardContent[card.slug] = (
-        <MDXRemote source={content} components={mdxComponents} options={mdxOptions} />
-      );
-    }
+  for (const card of activeCollection.cards) {
+    const { content } = await getInsightCard(collection, card.slug);
+    cardContent[card.slug] = (
+      <MDXRemote source={content} components={mdxComponents} options={mdxOptions} />
+    );
   }
 
   const headingShuffleSeed = Math.floor(Math.random() * 2 ** 31);
@@ -63,19 +63,24 @@ export default async function InsightCollectionLayout({ params }: LayoutProps) {
     "insight-collection"
   );
 
+  // children is the [card] page — only the card's JSON-LD script, so it
+  // adds nothing visible next to the panel.
   return (
-    <div className={styles.page}>
-      <InsightCardsPanel
-        collections={collections}
-        activeCollectionSlug={collection}
-        cardContent={cardContent}
-        headingShuffleSeed={headingShuffleSeed}
-        isAuthenticated={isAuthenticated}
-        initialLikeCount={initialLikeCount}
-        initialLiked={initialLiked}
-        initialBookmarkCount={initialBookmarkCount}
-        initialBookmarked={initialBookmarked}
-      />
-    </div>
+    <>
+      <div className={styles.page}>
+        <InsightCardsPanel
+          collections={collections}
+          activeCollectionSlug={collection}
+          cardContent={cardContent}
+          headingShuffleSeed={headingShuffleSeed}
+          isAuthenticated={isAuthenticated}
+          initialLikeCount={initialLikeCount}
+          initialLiked={initialLiked}
+          initialBookmarkCount={initialBookmarkCount}
+          initialBookmarked={initialBookmarked}
+        />
+      </div>
+      {children}
+    </>
   );
 }

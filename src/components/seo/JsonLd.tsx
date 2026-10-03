@@ -1,0 +1,11 @@
+import { serializeJsonLd } from "@/lib/seo";
+
+/** Server-rendered structured data. Renders nothing visible. */
+export function JsonLd({ data }: { data: Record<string, unknown> | Record<string, unknown>[] }) {
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: serializeJsonLd(data) }}
+    />
+  );
+}

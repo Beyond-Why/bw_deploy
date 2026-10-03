@@ -75,7 +75,7 @@ export function DeepDiveContent({
                 <div className={styles.imageStage}>
                   <Image
                     src={frontmatter.thumbnail}
-                    alt={frontmatter.title}
+                    alt={frontmatter.thumbnailAlt ?? ""}
                     fill
                     className={styles.image}
                     priority
@@ -197,7 +197,7 @@ export function DeepDiveContent({
                       <div className={styles.thumbContainer}>
                         <Image
                           src={episodeThumb}
-                          alt={ep.frontmatter.title}
+                          alt=""
                           width={120}
                           height={120}
                           className={styles.thumbImage}

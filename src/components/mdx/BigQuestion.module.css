@@ -1,0 +1,9 @@
+/* Between body (--font-size-body) and h2 (--font-size-h2) in size. */
+.bigQuestion {
+  margin: var(--space-lg) 0;
+  font-family: var(--font-body), serif;
+  font-size: 1.5rem;
+  font-style: italic;
+  line-height: var(--line-height-tight);
+  color: var(--text-primary);
+}

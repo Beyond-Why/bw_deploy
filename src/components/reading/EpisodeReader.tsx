@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import type {
@@ -19,6 +20,11 @@ import type { BookmarkMetadata } from "@/hooks/useBookmark";
 import { useReadingProgress } from "@/hooks/useReadingProgress";
 import { CommentSection, type CurrentUser } from "@/components/comments/CommentSection";
 import { ShareModal } from "@/components/ShareModal";
+import {
+  EpisodeNavLink,
+  isEpisodeFadeInPending,
+  clearEpisodeFadeIn,
+} from "./EpisodeNavLink";
 
 // Must match TOC's TOP_ID (see TableOfContents.tsx) — no shared
 // constants module between the two files, so it's duplicated deliberately.
@@ -334,6 +340,13 @@ export function EpisodeReader({
   });
   // paneVisible drives the fade: false = transparent, true = opaque
   const [paneVisible, setPaneVisible] = useState(true);
+  // Episode-to-episode fade: "leaving" dims this episode once a prev/next
+  // link is clicked; "entering" starts the next one at opacity 0 (only
+  // when it was reached that way — see EpisodeNavLink) until the mount
+  // effect below flips it to "idle" and the CSS transition fades it in.
+  const [navFade, setNavFade] = useState<"idle" | "leaving" | "entering">(() =>
+    isEpisodeFadeInPending() ? "entering" : "idle"
+  );
   const [sidebarTab, setSidebarTab] = useState<"explore" | "comments">("explore");
   const switchingRef = useRef(false);
   const leftPaneRef = useRef<HTMLDivElement>(null);
@@ -351,6 +364,23 @@ export function EpisodeReader({
   const handleRequestCommentAuth = useCallback(() => {
     router.push(`/signin?next=${encodeURIComponent(pathname)}`);
   }, [router, pathname]);
+
+  // ── Episode fade-in after a prev/next navigation ──────────────────────
+  // Two frames so the opacity-0 "entering" state is painted before
+  // "idle" is applied — otherwise there's no starting value to
+  // transition from and the content just pops in.
+  useEffect(() => {
+    clearEpisodeFadeIn();
+    if (navFade !== "entering") return;
+    let raf = requestAnimationFrame(() => {
+      raf = requestAnimationFrame(() => setNavFade("idle"));
+    });
+    return () => cancelAnimationFrame(raf);
+    // Mount-only: navFade's initial value is all this cares about.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleEpisodeNavigate = useCallback(() => setNavFade("leaving"), []);
 
   // ── Guard: never enter explore below 768px ──────────────────────────────
   const enterExplore = useCallback(() => {
@@ -520,9 +550,16 @@ export function EpisodeReader({
              .shellExplore). Absent when the episode has no thumbnail. ── */}
         {frontmatter.thumbnail && (
           <div className={styles.imageLayer}>
-            <img
+            {/* fill: absolutely positioned inside .imageLayer (sticky, so
+                 already a containing block) — same box as the old 100%×100%
+                 <img>. sizes tracks .article's max-width per breakpoint
+                 (Explore's fluid column tops out narrower than Focus's). */}
+            <Image
               src={frontmatter.thumbnail}
-              alt={frontmatter.title}
+              alt={frontmatter.thumbnailAlt ?? ""}
+              fill
+              priority
+              sizes="(min-width: 1792px) 1000px, (min-width: 1536px) 945px, (min-width: 1280px) 840px, (min-width: 800px) 760px, 100vw"
               className={styles.heroImage}
             />
           </div>
@@ -575,16 +612,17 @@ export function EpisodeReader({
       {/* ── Episode navigation ── */}
       <nav className={styles.navigation}>
         {prevEpisode ? (
-          <Link
+          <EpisodeNavLink
             href={`/deep-dives/${series}/${prevEpisode.slug}${modeQuery}`}
             className={styles.navLink}
+            onNavigate={handleEpisodeNavigate}
           >
             <span className={styles.navEpNumber}>
               EP {String(prevEpisode.episode).padStart(2, "0")}
             </span>
             <span className={styles.navDirection}>← Previous</span>
             <span className={styles.navTitle}>{prevEpisode.frontmatter.title}</span>
-          </Link>
+          </EpisodeNavLink>
         ) : (
           <Link
             href={`/deep-dives/${series}`}
@@ -596,17 +634,20 @@ export function EpisodeReader({
         )}
 
         {nextEpisode ? (
-          <Link
+          <EpisodeNavLink
             href={`/deep-dives/${series}/${nextEpisode.slug}${modeQuery}`}
             className={`${styles.navLink} ${styles.navLinkNext}`}
-            onClick={markCompleted}
+            onNavigate={() => {
+              markCompleted();
+              handleEpisodeNavigate();
+            }}
           >
             <span className={styles.navEpNumber}>
               EP {String(nextEpisode.episode).padStart(2, "0")}
             </span>
             <span className={styles.navDirection}>Next →</span>
             <span className={styles.navTitle}>{nextEpisode.frontmatter.title}</span>
-          </Link>
+          </EpisodeNavLink>
         ) : (
           <div
             className={`${styles.navLink} ${styles.navLinkNext} ${styles.navLinkMuted} ${styles.navLinkDisabled}`}
@@ -624,6 +665,12 @@ export function EpisodeReader({
 
   // CSS classes for fade state
   const paneClass = paneVisible ? styles.leftPaneVisible : styles.leftPaneFading;
+  const navFadeClass =
+    navFade === "leaving"
+      ? styles.navLeaving
+      : navFade === "entering"
+        ? styles.navEntering
+        : "";
 
   return (
     <>
@@ -638,7 +685,7 @@ export function EpisodeReader({
       <div className={mode === "explore" ? styles.shellExplore : styles.shellFocus}>
         {/* ── LEFT PANE — article content ── */}
         <div className={`${styles.leftPane} ${paneClass}`}>
-          <div className={styles.contentWrapper}>
+          <div className={cx(styles.contentWrapper, navFadeClass)}>
             {mode === "explore" ? (
               // .articleFrame is the actual scroll container in Explore mode
               // (see EpisodeReader.module.css) — the ref that drives scroll

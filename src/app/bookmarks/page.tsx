@@ -1,6 +1,10 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/getUser";
 import { getProfileById } from "@/lib/profile";
+import { NOINDEX } from "@/lib/seo";
+
+export const metadata: Metadata = { robots: NOINDEX };
 
 /**
  * The real Bookmarks UI now lives on the profile Home tab

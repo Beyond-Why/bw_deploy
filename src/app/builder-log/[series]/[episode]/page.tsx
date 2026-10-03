@@ -9,6 +9,17 @@ import { mdxComponents } from "@/components/mdx/MDXComponents";
 import { mdxOptions } from "@/components/mdx/mdxOptions";
 import styles from "./page.module.css";
 import Link from "next/link";
+import { JsonLd } from "@/components/seo/JsonLd";
+import {
+  articleJsonLd,
+  breadcrumbJsonLd,
+  isPlaceholder,
+  isUnreleased,
+  metaDescription,
+  modifiedDate,
+  pageMetadata,
+  publishedDate,
+} from "@/lib/seo";
 
 interface PageProps {
   params: Promise<{ series: string; episode: string }>;
@@ -16,16 +27,26 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps) {
   const { series, episode } = await params;
+  let episodeData: Awaited<ReturnType<typeof getEpisode>>;
+  let seriesData: Awaited<ReturnType<typeof getSeriesIndex>>;
   try {
-    const { frontmatter } = await getEpisode("builder-log", series, episode);
-    const seriesData = await getSeriesIndex("builder-log", series);
-    return {
-      title: `${frontmatter.title} — ${seriesData.frontmatter.title} — Beyond Why`,
-      description: frontmatter.description,
-    };
+    episodeData = await getEpisode("builder-log", series, episode);
+    seriesData = await getSeriesIndex("builder-log", series);
   } catch {
-    return {};
+    notFound();
   }
+  const { frontmatter, content } = episodeData;
+  if (isPlaceholder(frontmatter) || isPlaceholder(seriesData.frontmatter)) notFound();
+  return pageMetadata({
+    title: `${frontmatter.title} — ${seriesData.frontmatter.title}`,
+    description: metaDescription(frontmatter, content),
+    path: `/builder-log/${series}/${episode}`,
+    type: "article",
+    publishedTime: publishedDate(frontmatter),
+    modifiedTime: modifiedDate(frontmatter),
+    section: seriesData.frontmatter.title,
+    noindex: isUnreleased(seriesData.frontmatter, frontmatter),
+  });
 }
 
 export default async function BuilderLogEpisodePage({ params }: PageProps) {
@@ -41,80 +62,104 @@ export default async function BuilderLogEpisodePage({ params }: PageProps) {
   } catch {
     notFound();
   }
+  if (isPlaceholder(frontmatter) || isPlaceholder(seriesData.frontmatter)) notFound();
 
   const currentIndex = episodes.findIndex((ep) => ep.slug === episode);
   const prevEpisode = currentIndex > 0 ? episodes[currentIndex - 1] : null;
   const nextEpisode =
     currentIndex < episodes.length - 1 ? episodes[currentIndex + 1] : null;
 
+  const episodePath = `/builder-log/${series}/${episode}`;
+  const seriesPath = `/builder-log/${series}`;
+  const structuredData = [
+    articleJsonLd({
+      headline: frontmatter.title,
+      description: metaDescription(frontmatter, content),
+      path: episodePath,
+      images: [`${episodePath}/opengraph-image`, frontmatter.thumbnail || seriesData.frontmatter.thumbnail],
+      datePublished: publishedDate(frontmatter),
+      dateModified: modifiedDate(frontmatter),
+      position: frontmatter.episode,
+      partOf: { name: seriesData.frontmatter.title, path: seriesPath },
+    }),
+    breadcrumbJsonLd([
+      { name: "Home", path: "/" },
+      { name: seriesData.frontmatter.title, path: seriesPath },
+      { name: frontmatter.title, path: episodePath },
+    ]),
+  ];
+
   return (
-    <article className={styles.episodePage}>
-      {/* Header */}
-      <header className={styles.header}>
-        <Link href={`/builder-log/${series}`} className={styles.seriesLink}>
-          ← {seriesData.frontmatter.title}
-        </Link>
-        <div className={styles.meta}>
-          <span className={styles.label}>Builder Log</span>
-          <span className={styles.episodeNum}>
-            Episode {frontmatter.episode}
-          </span>
-          {frontmatter.date && (
-            <span className={styles.date}>{frontmatter.date}</span>
-          )}
-        </div>
-        <h1 className={styles.title}>{frontmatter.title}</h1>
-        {frontmatter.description && (
-          <p className={styles.description}>{frontmatter.description}</p>
-        )}
-      </header>
-
-      {/* Content */}
-      <div className="prose">
-        <MDXRemote source={content} components={mdxComponents} options={mdxOptions} />
-      </div>
-
-      {/* Episode Navigation */}
-      <nav className={styles.navigation}>
-        {prevEpisode ? (
-          <Link
-            href={`/builder-log/${series}/${prevEpisode.slug}`}
-            className={styles.navLink}
-          >
-            <span className={styles.navDirection}>← Previous</span>
-            <span className={styles.navTitle}>
-              {prevEpisode.frontmatter.title}
+    <>
+      <JsonLd data={structuredData} />
+      <article className={styles.episodePage}>
+        {/* Header */}
+        <header className={styles.header}>
+          <Link href={`/builder-log/${series}`} className={styles.seriesLink}>
+            ← {seriesData.frontmatter.title}
+          </Link>
+          <div className={styles.meta}>
+            <span className={styles.label}>Builder Log</span>
+            <span className={styles.episodeNum}>
+              Episode {frontmatter.episode}
             </span>
-          </Link>
-        ) : (
-          <Link
-            href={`/builder-log/${series}`}
-            className={styles.navLink}
-          >
-            <span className={styles.navDirection}>← Back</span>
-            <span className={styles.navTitle}>Project Overview</span>
-          </Link>
-        )}
-
-        {nextEpisode ? (
-          <Link
-            href={`/builder-log/${series}/${nextEpisode.slug}`}
-            className={`${styles.navLink} ${styles.navLinkNext}`}
-          >
-            <span className={styles.navDirection}>Next →</span>
-            <span className={styles.navTitle}>
-              {nextEpisode.frontmatter.title}
-            </span>
-          </Link>
-        ) : (
-          <div
-            className={`${styles.navLink} ${styles.navLinkNext} ${styles.navLinkDisabled}`}
-          >
-            <span className={styles.navDirection}>Latest</span>
-            <span className={styles.navTitle}>You&apos;re caught up</span>
+            {frontmatter.date && (
+              <span className={styles.date}>{frontmatter.date}</span>
+            )}
           </div>
-        )}
-      </nav>
-    </article>
+          <h1 className={styles.title}>{frontmatter.title}</h1>
+          {frontmatter.description && (
+            <p className={styles.description}>{frontmatter.description}</p>
+          )}
+        </header>
+
+        {/* Content */}
+        <div className="prose">
+          <MDXRemote source={content} components={mdxComponents} options={mdxOptions} />
+        </div>
+
+        {/* Episode Navigation */}
+        <nav className={styles.navigation}>
+          {prevEpisode ? (
+            <Link
+              href={`/builder-log/${series}/${prevEpisode.slug}`}
+              className={styles.navLink}
+            >
+              <span className={styles.navDirection}>← Previous</span>
+              <span className={styles.navTitle}>
+                {prevEpisode.frontmatter.title}
+              </span>
+            </Link>
+          ) : (
+            <Link
+              href={`/builder-log/${series}`}
+              className={styles.navLink}
+            >
+              <span className={styles.navDirection}>← Back</span>
+              <span className={styles.navTitle}>Project Overview</span>
+            </Link>
+          )}
+
+          {nextEpisode ? (
+            <Link
+              href={`/builder-log/${series}/${nextEpisode.slug}`}
+              className={`${styles.navLink} ${styles.navLinkNext}`}
+            >
+              <span className={styles.navDirection}>Next →</span>
+              <span className={styles.navTitle}>
+                {nextEpisode.frontmatter.title}
+              </span>
+            </Link>
+          ) : (
+            <div
+              className={`${styles.navLink} ${styles.navLinkNext} ${styles.navLinkDisabled}`}
+            >
+              <span className={styles.navDirection}>Latest</span>
+              <span className={styles.navTitle}>You&apos;re caught up</span>
+            </div>
+          )}
+        </nav>
+      </article>
+    </>
   );
 }

@@ -36,6 +36,13 @@ export interface SeriesFrontmatter {
   comingSoon?: boolean;
   /** Freeform ETA shown on the coming-soon placeholder, e.g. "~1 week". */
   eta?: string;
+  /** Overrides description/excerpt/body for the meta description only. */
+  seoDescription?: string;
+  /** Last meaningful revision — sitemap lastModified and JSON-LD dateModified. */
+  updated?: string;
+  /** Describes the thumbnail/hero image for screen readers and search.
+   *  Leave unset when the image is purely decorative. */
+  thumbnailAlt?: string;
   [key: string]: unknown;
 }
 
@@ -63,6 +70,13 @@ export interface EpisodeFrontmatter {
   eta?: string;
   /** Coming-soon episodes only — the category label shown on the placeholder. */
   category?: string;
+  /** Overrides description/excerpt/body for the meta description only. */
+  seoDescription?: string;
+  /** Last meaningful revision — sitemap lastModified and JSON-LD dateModified. */
+  updated?: string;
+  /** Describes the thumbnail/hero image for screen readers and search.
+   *  Leave unset when the image is purely decorative. */
+  thumbnailAlt?: string;
   [key: string]: unknown;
 }
 
@@ -84,6 +98,10 @@ export interface InsightCardFrontmatter {
   comingSoon?: boolean;
   /** Freeform ETA shown on the coming-soon placeholder, e.g. "~1 week". */
   eta?: string;
+  /** Overrides description/excerpt/body for the meta description only. */
+  seoDescription?: string;
+  /** Last meaningful revision — sitemap lastModified and JSON-LD dateModified. */
+  updated?: string;
   [key: string]: unknown;
 }
 
@@ -104,6 +122,8 @@ export interface InsightCollectionFrontmatter {
   comingSoon?: boolean;
   /** Freeform ETA shown on the coming-soon placeholder, e.g. "~1 week". */
   eta?: string;
+  /** Overrides description/excerpt/body for the meta description only. */
+  seoDescription?: string;
   [key: string]: unknown;
 }
 
@@ -363,6 +383,7 @@ export interface NormalizedFeaturedContent {
   title: string;
   description: string;
   thumbnail: string;
+  thumbnailAlt?: string;
   thumbnailTone?: "dark" | "light";
   tags?: string[];
   href: string;
@@ -410,6 +431,9 @@ export async function resolveReference(ref: string): Promise<NormalizedFeaturedC
         title: ep.frontmatter.title,
         description: ep.frontmatter.description || series.frontmatter.description,
         thumbnail: ep.frontmatter.thumbnail || series.frontmatter.thumbnail || "",
+        thumbnailAlt: ep.frontmatter.thumbnail
+          ? ep.frontmatter.thumbnailAlt
+          : series.frontmatter.thumbnailAlt,
         thumbnailTone: ep.frontmatter.thumbnailTone ?? series.frontmatter.thumbnailTone,
         tags: series.frontmatter.tags as string[] | undefined,
         href: `/${type}/${slug}/${episodeSlug}`,
@@ -429,6 +453,7 @@ export async function resolveReference(ref: string): Promise<NormalizedFeaturedC
       title: series.frontmatter.title,
       description: series.frontmatter.description,
       thumbnail: series.frontmatter.thumbnail || "",
+      thumbnailAlt: series.frontmatter.thumbnailAlt,
       thumbnailTone: series.frontmatter.thumbnailTone,
       tags: series.frontmatter.tags as string[] | undefined,
       href: `/${type}/${slug}`,

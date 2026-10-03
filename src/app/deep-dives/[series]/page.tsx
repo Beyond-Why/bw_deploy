@@ -7,6 +7,8 @@ import { getHubRecommendations } from "@/lib/hubRecommendations";
 import { getLikeCountsByContentIds } from "@/lib/likes";
 import { getCommentCountsByContentIds } from "@/lib/comments";
 import type { CurrentUser } from "@/components/comments/CommentSection";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { isPlaceholder, isUnreleased, metaDescription, pageMetadata, seriesJsonLd } from "@/lib/seo";
 
 interface PageProps {
   params: Promise<{ series: string }>;
@@ -14,15 +16,20 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps) {
   const { series } = await params;
+  let seriesData: Awaited<ReturnType<typeof getSeriesIndex>>;
   try {
-    const { frontmatter } = await getSeriesIndex("deep-dives", series);
-    return {
-      title: `${frontmatter.title} — Beyond Why`,
-      description: frontmatter.description,
-    };
+    seriesData = await getSeriesIndex("deep-dives", series);
   } catch {
-    return {};
+    notFound();
   }
+  const { frontmatter, content } = seriesData;
+  if (isPlaceholder(frontmatter)) notFound();
+  return pageMetadata({
+    title: frontmatter.title,
+    description: metaDescription(frontmatter, content),
+    path: `/deep-dives/${series}`,
+    noindex: isUnreleased(frontmatter),
+  });
 }
 
 export default async function DeepDiveSeriesPage({ params }: PageProps) {
@@ -36,6 +43,7 @@ export default async function DeepDiveSeriesPage({ params }: PageProps) {
   } catch {
     notFound();
   }
+  if (isPlaceholder(frontmatter)) notFound();
 
   const user = await getCurrentUser();
   const profile = user ? await getProfileById(user.id) : null;
@@ -73,16 +81,33 @@ export default async function DeepDiveSeriesPage({ params }: PageProps) {
     };
   }
 
+  const structuredData = seriesJsonLd({
+    name: frontmatter.title,
+    description: metaDescription(frontmatter, content),
+    path: `/deep-dives/${series}`,
+    image: frontmatter.thumbnail,
+    parts: episodes
+      .filter((ep) => !isUnreleased(frontmatter, ep.frontmatter))
+      .map((ep) => ({
+        headline: ep.frontmatter.title,
+        path: `/deep-dives/${series}/${ep.slug}`,
+        position: ep.episode,
+      })),
+  });
+
   return (
-    <DeepDiveContent
-      series={series}
-      frontmatter={frontmatter}
-      content={content}
-      episodes={episodes}
-      user={currentUser}
-      collections={collections}
-      recommendations={recommendations}
-      episodeStats={episodeStats}
-    />
+    <>
+      <JsonLd data={structuredData} />
+      <DeepDiveContent
+        series={series}
+        frontmatter={frontmatter}
+        content={content}
+        episodes={episodes}
+        user={currentUser}
+        collections={collections}
+        recommendations={recommendations}
+        episodeStats={episodeStats}
+      />
+    </>
   );
 }
