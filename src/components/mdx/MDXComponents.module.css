@@ -72,7 +72,7 @@
 
 .blockquote p {
   font-style: italic;
-  color: var(--text-secondary);
+  /* color: var(--text-secondary); */
   margin-bottom: 0;
 }
 

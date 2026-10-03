@@ -367,11 +367,15 @@ a:hover {
 /* ── KATEX (math rendering) — recolor to the site's warm palette ── */
 .katex {
   color: var(--text-primary);
-  font-size: 1em;
+  font-size: 1.1em;
 }
 
+/* overflow-y: hidden clips glyphs that overshoot KaTeX's strut box (e.g. a
+   superscript's top), so part of the outer spacing moves into padding to
+   give them room inside the clip. Bottom spacing stays 1em overall. */
 .katex-display {
-  margin: 0.4em 0 1em 0;
+  margin: 0.15em 0 0.75em 0;
+  padding: 0.25em 0;
   overflow-x: auto;
   overflow-y: hidden;
 }
