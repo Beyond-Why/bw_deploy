@@ -3,6 +3,8 @@ import type { ComponentProps } from "react";
 
 import React from "react";
 import { interactiveComponents } from "@/lib/interactiveComponents";
+import TryThis from "./TryThis";
+import BigQuestion from "./BigQuestion";
 
 /* ──────────────────────────────────────────────────────────────
    Custom MDX component map.
@@ -89,5 +91,7 @@ export const mdxComponents = {
   em: (props: ComponentProps<"em">) => (
     <em className={styles.em} {...props} />
   ),
+  TryThis,
+  BigQuestion,
   ...interactiveComponents,
 };

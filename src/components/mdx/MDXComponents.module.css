@@ -63,16 +63,20 @@
   text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
 }
 
-/* ── BLOCKQUOTE ── */
+/* ── BLOCKQUOTE — a pull line: serif italic, a step above body size.
+   Kept visibly larger than <TryThis> (body-sized, upright), which
+   shares the accent rule. ── */
 .blockquote {
-  border-left: 2.5px solid var(--accent);
-  padding: 8px 0 8px 18px;
-  margin: 4px 0;
+  border-left: 2px solid var(--accent);
+  padding: 4px 0 4px 1.25rem;
+  margin: var(--space-md) 0;
 }
 
 .blockquote p {
+  font-family: var(--font-body), serif;
+  font-size: 1.3rem;
   font-style: italic;
-  /* color: var(--text-secondary); */
+  line-height: 1.6;
   margin-bottom: 0;
 }
 
