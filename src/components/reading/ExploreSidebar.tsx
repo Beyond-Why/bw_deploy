@@ -82,7 +82,7 @@ export function ExploreSidebar({
                   {ep.frontmatter.thumbnail ? (
                     <img
                       src={ep.frontmatter.thumbnail}
-                      alt={ep.frontmatter.title}
+                      alt=""
                       className={styles.epThumbImg}
                     />
                   ) : (

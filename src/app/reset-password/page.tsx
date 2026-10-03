@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
+import { NOINDEX } from "@/lib/seo";
 import { redirect } from "next/navigation";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { ResetPasswordForm } from "./ResetPasswordForm";
 import { getCurrentUser } from "@/lib/auth/getUser";
 
 export const metadata: Metadata = {
-  title: "Choose a new password — Beyond Why",
+  title: "Choose a new password",
+  robots: NOINDEX,
 };
 
 /**

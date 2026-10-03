@@ -73,7 +73,7 @@ export function PopularSection({ content }: PopularSectionProps) {
                   {item.thumbnail ? (
                     <Image
                       src={item.thumbnail}
-                      alt={item.title}
+                      alt=""
                       fill
                       className={styles.image}
                     />

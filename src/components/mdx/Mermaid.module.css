@@ -1,0 +1,66 @@
+/* ── MERMAID DIAGRAM — spaced like .figure / .pre in MDXComponents ── */
+.figure {
+  margin: var(--space-lg) 0;
+  font-family: var(--font-ui), sans-serif;
+  /* Never push a narrow pane (.rightPane clips overflow-x) sideways */
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Reserve space before mermaid draws, so content below (and a Deep Dive
+   resume position) shifts less once the real height is known. */
+.pending {
+  min-height: 240px;
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+}
+
+.svg {
+  animation: diagramFadeIn var(--transition-slow) both;
+}
+
+/* mermaid sets width="100%" plus an inline max-width on the svg; height
+   follows the viewBox, so the diagram scales down to the column width. */
+.svg svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+
+@keyframes diagramFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .svg {
+    animation: none;
+  }
+}
+
+/* ── Error fallback — message plus source, in place ── */
+.error {
+  padding: var(--space-sm);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.errorMessage {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  margin-bottom: var(--space-xs);
+}
+
+.errorSource {
+  font-family: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

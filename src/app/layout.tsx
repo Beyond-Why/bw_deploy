@@ -6,6 +6,7 @@ import { ProfileProvider } from "@/contexts/ProfileContext";
 import { Navigation } from "@/components/Navigation";
 import { getCurrentUser } from "@/lib/auth/getUser";
 import { getProfileById } from "@/lib/profile";
+import { SITE_DESCRIPTION, SITE_LOCALE, SITE_NAME, SITE_URL } from "@/lib/seo";
 import "katex/dist/katex.min.css";
 import "./globals.css";
 
@@ -32,10 +33,27 @@ const inter = Inter({
 });
 
 /* ── METADATA ── */
+// Pages set a bare title; the template adds the site name. Nested objects
+// (openGraph, twitter) are replaced, not merged, by a page that sets its
+// own — see pageMetadata() in lib/seo.ts. The homepage's canonical and
+// og:url live on app/page.tsx, not here: anything set here is inherited
+// by every route (sign-in, 404s, …) that doesn't override it.
 export const metadata: Metadata = {
-  title: "Beyond Why",
-  description:
-    "Serialized intellectual journeys, insight cards, and builder logs. Exploring ideas beyond the surface.",
+  metadataBase: new URL(SITE_URL),
+  title: { default: SITE_NAME, template: `%s — ${SITE_NAME}` },
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    locale: SITE_LOCALE,
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+  },
   icons: {
     icon: [
       {

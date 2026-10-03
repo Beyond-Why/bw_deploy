@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { NOINDEX } from "@/lib/seo";
 import { notFound, redirect } from "next/navigation";
 import { getProfileByUsername } from "@/lib/profile";
 import { getCurrentUser } from "@/lib/auth/getUser";
@@ -8,7 +9,8 @@ import { ProfileShell } from "@/components/profile/ProfileShell";
 import { EditProfileClient } from "./EditProfileClient";
 
 export const metadata: Metadata = {
-  title: "Edit profile — Beyond Why",
+  title: "Edit profile",
+  robots: NOINDEX,
 };
 
 export default async function ProfileEditPage({

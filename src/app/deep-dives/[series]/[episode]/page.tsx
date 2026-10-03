@@ -16,6 +16,17 @@ import { getBookmarkState } from "@/lib/bookmarks";
 import { getReadingProgress } from "@/lib/readingProgress";
 import { getProfileById } from "@/lib/profile";
 import type { CurrentUser } from "@/components/comments/CommentSection";
+import { JsonLd } from "@/components/seo/JsonLd";
+import {
+  articleJsonLd,
+  breadcrumbJsonLd,
+  isPlaceholder,
+  isUnreleased,
+  metaDescription,
+  modifiedDate,
+  pageMetadata,
+  publishedDate,
+} from "@/lib/seo";
 
 interface PageProps {
   params: Promise<{ series: string; episode: string }>;
@@ -24,16 +35,26 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps) {
   const { series, episode } = await params;
+  let episodeData: Awaited<ReturnType<typeof getEpisode>>;
+  let seriesData: Awaited<ReturnType<typeof getSeriesIndex>>;
   try {
-    const { frontmatter } = await getEpisode("deep-dives", series, episode);
-    const seriesData = await getSeriesIndex("deep-dives", series);
-    return {
-      title: `${frontmatter.title} — ${seriesData.frontmatter.title} — Beyond Why`,
-      description: frontmatter.description,
-    };
+    episodeData = await getEpisode("deep-dives", series, episode);
+    seriesData = await getSeriesIndex("deep-dives", series);
   } catch {
-    return {};
+    notFound();
   }
+  const { frontmatter, content } = episodeData;
+  if (isPlaceholder(frontmatter) || isPlaceholder(seriesData.frontmatter)) notFound();
+  return pageMetadata({
+    title: `${frontmatter.title} — ${seriesData.frontmatter.title}`,
+    description: metaDescription(frontmatter, content),
+    path: `/deep-dives/${series}/${episode}`,
+    type: "article",
+    publishedTime: publishedDate(frontmatter),
+    modifiedTime: modifiedDate(frontmatter),
+    section: seriesData.frontmatter.title,
+    noindex: isUnreleased(seriesData.frontmatter, frontmatter),
+  });
 }
 
 export default async function DeepDiveEpisodePage({ params, searchParams }: PageProps) {
@@ -52,6 +73,7 @@ export default async function DeepDiveEpisodePage({ params, searchParams }: Page
   } catch {
     notFound();
   }
+  if (isPlaceholder(frontmatter) || isPlaceholder(seriesData.frontmatter)) notFound();
 
   // Likes + reading progress — keyed by a compound id so slugs never
   // collide across series/collections.
@@ -124,32 +146,55 @@ export default async function DeepDiveEpisodePage({ params, searchParams }: Page
   const allInsightCards = await getAllInsightCards();
   const insightCards = allInsightCards.slice(0, 4);
 
+  const episodePath = `/deep-dives/${series}/${episode}`;
+  const seriesPath = `/deep-dives/${series}`;
+  const structuredData = [
+    articleJsonLd({
+      headline: frontmatter.title,
+      description: metaDescription(frontmatter, content),
+      path: episodePath,
+      images: [`${episodePath}/opengraph-image`, frontmatter.thumbnail || seriesData.frontmatter.thumbnail],
+      datePublished: publishedDate(frontmatter),
+      dateModified: modifiedDate(frontmatter),
+      position: frontmatter.episode,
+      partOf: { name: seriesData.frontmatter.title, path: seriesPath },
+    }),
+    breadcrumbJsonLd([
+      { name: "Home", path: "/" },
+      { name: seriesData.frontmatter.title, path: seriesPath },
+      { name: frontmatter.title, path: episodePath },
+    ]),
+  ];
+
   return (
-    <EpisodeReader
-      series={series}
-      seriesTitle={seriesData.frontmatter.title}
-      frontmatter={frontmatter}
-      episodes={episodes}
-      currentIndex={currentIndex}
-      currentEpisodeSlug={episode}
-      prevEpisode={prevEpisode}
-      nextEpisode={nextEpisode}
-      relatedSeries={relatedSeries}
-      builderLogs={builderLogs}
-      insightCards={insightCards}
-      contentId={contentId}
-      seriesId={seriesId}
-      initialLikeCount={initialLikeCount}
-      initialLiked={initialLiked}
-      initialBookmarkCount={initialBookmarkCount}
-      initialBookmarked={initialBookmarked}
-      bookmarkMetadata={bookmarkMetadata}
-      isAuthenticated={isAuthenticated}
-      resumeScrollPercent={resumeScrollPercent}
-      user={currentUser}
-    >
-      {/* MDXRemote renders server-side; output passed as children to client component */}
-      <MDXRemote source={content} components={mdxComponents} options={mdxOptions} />
-    </EpisodeReader>
+    <>
+      <JsonLd data={structuredData} />
+      <EpisodeReader
+        series={series}
+        seriesTitle={seriesData.frontmatter.title}
+        frontmatter={frontmatter}
+        episodes={episodes}
+        currentIndex={currentIndex}
+        currentEpisodeSlug={episode}
+        prevEpisode={prevEpisode}
+        nextEpisode={nextEpisode}
+        relatedSeries={relatedSeries}
+        builderLogs={builderLogs}
+        insightCards={insightCards}
+        contentId={contentId}
+        seriesId={seriesId}
+        initialLikeCount={initialLikeCount}
+        initialLiked={initialLiked}
+        initialBookmarkCount={initialBookmarkCount}
+        initialBookmarked={initialBookmarked}
+        bookmarkMetadata={bookmarkMetadata}
+        isAuthenticated={isAuthenticated}
+        resumeScrollPercent={resumeScrollPercent}
+        user={currentUser}
+      >
+        {/* MDXRemote renders server-side; output passed as children to client component */}
+        <MDXRemote source={content} components={mdxComponents} options={mdxOptions} />
+      </EpisodeReader>
+    </>
   );
 }

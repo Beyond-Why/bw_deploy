@@ -26,7 +26,7 @@ export function HeroSection({ content }: HeroSectionProps) {
           <div className={styles.imageStage}>
             <Image
               src={content.thumbnail}
-              alt={content.title}
+              alt={content.thumbnailAlt ?? ""}
               fill
               priority
               className={styles.image}

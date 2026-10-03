@@ -399,6 +399,34 @@
   transition: opacity 150ms ease;
 }
 
+/* ── Episode-to-episode fade (prev/next links, see EpisodeNavLink) ──
+   On .contentWrapper rather than .leftPane so it stays independent of
+   the 150ms mode-switch fade above — the two opacities just multiply.
+   The resting state carries the 300ms transition, so dropping
+   .navEntering fades the new episode in from 0; .navLeaving overrides
+   it with the faster 200ms dim while the next episode loads. */
+.contentWrapper {
+  transition: opacity 300ms ease;
+}
+
+.contentWrapper.navEntering {
+  opacity: 0;
+  transition: none;
+}
+
+.contentWrapper.navLeaving {
+  opacity: 0.3;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contentWrapper,
+  .contentWrapper.navLeaving {
+    transition: none;
+  }
+}
+
 .header {
   /* id={TOP_ID} anchor for #episode-top deep links — clears the 64px nav. */
   scroll-margin-top: 88px;

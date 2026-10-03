@@ -3,6 +3,7 @@ import type { ComponentProps } from "react";
 
 import React from "react";
 import { interactiveComponents } from "@/lib/interactiveComponents";
+import Mermaid from "./Mermaid";
 import TryThis from "./TryThis";
 import BigQuestion from "./BigQuestion";
 
@@ -11,6 +12,16 @@ import BigQuestion from "./BigQuestion";
    Maps standard HTML elements to styled versions that use
    the design system tokens. Keeps things semantic and simple.
    ────────────────────────────────────────────────────────────── */
+
+// Flattens a ReactNode to its text content (a fenced block's source)
+const textContent = (node: React.ReactNode): string => {
+  if (typeof node === "string" || typeof node === "number") return String(node);
+  if (Array.isArray(node)) return node.map(textContent).join("");
+  if (React.isValidElement(node)) {
+    return textContent((node.props as { children?: React.ReactNode }).children);
+  }
+  return "";
+};
 
 // Helper to extract text from ReactNode and create a slug for heading IDs
 const generateSlug = (children: React.ReactNode): string => {
@@ -72,9 +83,19 @@ export const mdxComponents = {
     }
     return <code className={styles.codeInline} {...props} />;
   },
-  pre: (props: ComponentProps<"pre">) => (
-    <pre className={styles.pre} {...props} />
-  ),
+  pre: (props: ComponentProps<"pre">) => {
+    // ```mermaid fences arrive as <pre><code className="language-mermaid">.
+    // The child is the (unrendered) `code` override element, so its props
+    // still carry the original className and source text.
+    const child = props.children;
+    if (React.isValidElement(child)) {
+      const { className } = child.props as { className?: string };
+      if (className?.split(" ").includes("language-mermaid")) {
+        return <Mermaid chart={textContent(child).trim()} />;
+      }
+    }
+    return <pre className={styles.pre} {...props} />;
+  },
   hr: () => <hr className={styles.hr} />,
   img: (props: ComponentProps<"img">) => (
     <figure className={styles.figure}>

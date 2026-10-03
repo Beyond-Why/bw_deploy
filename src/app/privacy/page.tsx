@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { pageMetadata } from "@/lib/seo";
 import styles from "./PrivacyPage.module.css";
 
-export const metadata: Metadata = {
-  title: "Privacy Policy — Beyond Why",
+export const metadata: Metadata = pageMetadata({
+  title: "Privacy Policy",
   description:
     "Beyond Why Privacy Policy describing information collection, authentication practices, Google user data handling, and privacy controls.",
-};
+  path: "/privacy",
+});
 
 export default function PrivacyPolicyPage() {
   return (

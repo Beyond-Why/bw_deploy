@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { NOINDEX } from "@/lib/seo";
 import { redirect } from "next/navigation";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { SignUpForm } from "./SignUpForm";
@@ -6,7 +7,8 @@ import { getCurrentUser } from "@/lib/auth/getUser";
 import { safeRedirectPath } from "@/lib/auth/redirect";
 
 export const metadata: Metadata = {
-  title: "Create account — Beyond Why",
+  title: "Create account",
+  robots: NOINDEX,
 };
 
 export default async function SignUpPage({

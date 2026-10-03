@@ -16,8 +16,8 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { username } = await params;
   const profile = await getProfileByUsername(username);
-  if (!profile) return { title: "Profile not found — Beyond Why" };
-  return { title: `${profile.displayName || profile.username} — Beyond Why` };
+  if (!profile) return { title: "Profile not found" };
+  return { title: profile.displayName || profile.username };
 }
 
 export default async function ProfileHomePage({

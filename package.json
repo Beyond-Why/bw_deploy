@@ -16,6 +16,7 @@
     "gray-matter": "^4.0.3",
     "katex": "^0.18.7",
     "lottie-react": "^3.1.2",
+    "mermaid": "^11.17.2",
     "next": "^15.3.2",
     "next-mdx-remote": "^6.0.0",
     "postgres": "^3.4.9",

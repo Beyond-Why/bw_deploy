@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { pageMetadata } from "@/lib/seo";
 import styles from "./TermsPage.module.css";
 
-export const metadata: Metadata = {
-  title: "Terms of Service — Beyond Why",
+export const metadata: Metadata = pageMetadata({
+  title: "Terms of Service",
   description:
     "Beyond Why Terms of Service governing platform usage, account creation, intellectual property, and user content.",
-};
+  path: "/terms",
+});
 
 export default function TermsOfServicePage() {
   return (

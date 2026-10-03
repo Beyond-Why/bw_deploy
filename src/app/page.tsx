@@ -1,8 +1,18 @@
+import type { Metadata } from "next";
 import { getAllSeries, getFeaturedContent, getPopularContent, getCollections, getEpisodes } from "@/lib/content";
 import { HeroSection } from "@/components/HeroSection";
 import { PopularSection } from "@/components/PopularSection";
 import { ContentFeed } from "@/components/ContentFeed";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { organizationJsonLd, pageMetadata, SITE_DESCRIPTION, SITE_NAME, websiteJsonLd } from "@/lib/seo";
 import styles from "./page.module.css";
+
+// Also served at /deep-dives, /insight-cards and /builder-log (rewrites in
+// next.config.ts), which therefore all canonicalise to "/".
+export const metadata: Metadata = {
+  ...pageMetadata({ title: SITE_NAME, description: SITE_DESCRIPTION, path: "/" }),
+  title: { absolute: SITE_NAME },
+};
 
 export default async function Home() {
   const deepDivesRaw = await getAllSeries("deep-dives");
@@ -32,21 +42,24 @@ export default async function Home() {
   const feedScheduleSeed = Math.floor(Math.random() * 2 ** 31);
 
   return (
-    <div className={styles.page}>
-      {/* Dark canvas hero — self-contained, sits inside the page container */}
-      {featuredContent && <HeroSection content={featuredContent} />}
+    <>
+      <JsonLd data={[websiteJsonLd(), organizationJsonLd(true)]} />
+      <div className={styles.page}>
+        {/* Dark canvas hero — self-contained, sits inside the page container */}
+        {featuredContent && <HeroSection content={featuredContent} />}
 
-      {/* Most Popular Section */}
-      <PopularSection content={popularContent} />
+        {/* Most Popular Section */}
+        <PopularSection content={popularContent} />
 
-      {/* Unified Content Feed */}
-      <ContentFeed
-        deepDives={deepDives}
-        builderLogs={builderLogs}
-        collections={collections}
-        headingShuffleSeed={headingShuffleSeed}
-        feedScheduleSeed={feedScheduleSeed}
-      />
-    </div>
+        {/* Unified Content Feed */}
+        <ContentFeed
+          deepDives={deepDives}
+          builderLogs={builderLogs}
+          collections={collections}
+          headingShuffleSeed={headingShuffleSeed}
+          feedScheduleSeed={feedScheduleSeed}
+        />
+      </div>
+    </>
   );
 }

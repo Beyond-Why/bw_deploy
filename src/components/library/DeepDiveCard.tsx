@@ -217,7 +217,7 @@ export function DeepDiveCard({ slug, frontmatter, href, episodes = [], compact =
                         {ep.frontmatter.thumbnail ? (
                           <img
                             src={ep.frontmatter.thumbnail}
-                            alt={ep.frontmatter.title}
+                            alt=""
                             className={styles.tileThumbnailImg}
                           />
                         ) : (
