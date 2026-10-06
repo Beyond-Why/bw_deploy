@@ -1059,6 +1059,23 @@
   }
 }
 
+/* Display equations ($$…$$ via remark-math + rehype-katex) sit like a
+   figure: 2em of body size above and below, centred, a touch larger
+   than body, and scrolling sideways rather than overflowing on narrow
+   screens. Overflow makes a new formatting context for its contents
+   only, so the outer margins still collapse with neighbours. */
+.prose > :global(.katex-display) {
+  font-size: var(--prose-body);
+  margin: 2em 0;
+  text-align: center;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.prose > :global(.katex-display) > :global(.katex) {
+  font-size: 1.15em;
+}
+
 /* MDX figures/images must never exceed the article column width. */
 .prose figure {
   max-width: 100%;
