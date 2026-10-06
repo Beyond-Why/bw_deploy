@@ -1059,6 +1059,25 @@
   }
 }
 
+/* Lists read like paragraphs: same face, size and line-height, a 1.5em
+   block margin, and 0.85em between items. */
+.prose > :is(ul, ol) {
+  font-family: var(--font-body), serif;
+  font-size: var(--prose-body);
+  line-height: var(--prose-lh);
+  color: var(--text-primary);
+  margin: 1.5em 0;
+}
+
+.prose > :is(ul, ol) > li {
+  line-height: inherit;
+  margin: 0;
+}
+
+.prose > :is(ul, ol) > li + li {
+  margin-top: 0.85em;
+}
+
 /* Display equations ($$…$$ via remark-math + rehype-katex) sit like a
    figure: 2em of body size above and below, centred, a touch larger
    than body, and scrolling sideways rather than overflowing on narrow
