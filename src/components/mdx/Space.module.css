@@ -1,0 +1,8 @@
+/* Zero-height on purpose: its margin collapses with the neighbours'
+   (the larger wins), so it never stacks on a Beat, Step or PullQuote.
+   Between two paragraphs the gap is exactly 2em. */
+.space {
+  height: 0;
+  margin-top: 2em;
+  font-size: var(--prose-body, var(--font-size-body));
+}

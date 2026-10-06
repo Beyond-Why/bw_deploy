@@ -1011,6 +1011,54 @@
   padding: 0 36px;
 }
 
+/* ── BASE PROSE — episode reader only. Text fills the column's content
+   width, sharing both edges with the title, action bar and chapter
+   navigator. The emphasis components (Lede, Step, …) read the body
+   size / line-height from these two properties. ── */
+.prose {
+  --prose-body: 18px;
+  --prose-lh: 1.75;
+  counter-reset: prose-h2;
+}
+
+.prose > p {
+  font-family: var(--font-body), serif;
+  font-weight: 400;
+  font-size: var(--prose-body);
+  line-height: var(--prose-lh);
+  color: var(--text-primary);
+  margin: 0 0 0.85em;
+}
+
+.prose > h2 {
+  margin: 2.75em 0 0.5em;
+  counter-increment: prose-h2;
+}
+
+.prose > h2:first-child {
+  margin-top: 1.25em;
+}
+
+/* Section number above each h2 — CSS only, so it never reaches the TOC
+   (which reads textContent) or the heading's anchor id. */
+.prose > h2::before {
+  content: counter(prose-h2, decimal-leading-zero);
+  display: block;
+  margin-bottom: 6px;
+  font-family: var(--font-ui), sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  color: var(--accent);
+}
+
+@media (max-width: 600px) {
+  .prose {
+    --prose-body: 17px;
+  }
+}
+
 /* MDX figures/images must never exceed the article column width. */
 .prose figure {
   max-width: 100%;
