@@ -281,6 +281,10 @@
   max-width: 760px;
   width: 100%;
   margin: 0 auto;
+  /* Safety net against sideways page scroll from anything that pokes
+     past the column. clip, not hidden: it creates no scroll container,
+     so the sticky hero image keeps working. */
+  overflow-x: clip;
   /* No width transition — avoid text-reflow jank */
   /* No padding here — the image layer bleeds full-width to the column/
      frame edges. Horizontal + bottom padding lives on .articleBlock and
@@ -887,6 +891,7 @@
 
 /* ── SEGMENTED CHAPTER NAVIGATOR ── */
 .chapterNav {
+  container: chapter-nav / inline-size;
   padding: 0 var(--space-md);
   margin-bottom: var(--space-xl);
 }
@@ -992,6 +997,39 @@
 .episodeItem:hover .chapterLabel:not(.chapterLabelCurrent),
 .episodeItem:focus-visible .chapterLabel:not(.chapterLabelCurrent) {
   color: var(--text-primary);
+}
+
+/* Narrow navigator (phones, and Explore's column on mid-size screens):
+   a tooltip anchored to its own segment and kept on one line runs past
+   the column (EP 02/03 to the right, EP 04 to the left) — and even at
+   opacity 0 it still widens the page, so the reader scrolled sideways.
+   Anchor every tooltip to the whole navigator instead, and let it wrap
+   within it. The segment stops being the containing block, so the
+   progress fill sizes in flow rather than by inset (same box: full
+   height, inline-style width). Keyed to the navigator's own width, not
+   the viewport; wide columns keep the per-segment tooltips. */
+@container chapter-nav (max-width: 640px) {
+  .segments {
+    position: relative;
+  }
+
+  .segment {
+    position: static;
+  }
+
+  .segmentFill {
+    position: static;
+    height: 100%;
+  }
+
+  .tooltip,
+  .tooltipRight {
+    left: 0;
+    right: auto;
+    width: max-content;
+    max-width: 100%;
+    white-space: normal;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
