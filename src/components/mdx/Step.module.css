@@ -1,0 +1,33 @@
+.step {
+  margin: 2em 0;
+  padding: 14px 0;
+  border-top: 1px solid var(--border-medium);
+  border-bottom: 1px solid var(--border-medium);
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.label {
+  font-family: var(--font-ui), sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.body {
+  font-family: var(--font-body), serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: var(--prose-body, var(--font-size-body));
+  line-height: var(--prose-lh, var(--line-height-body));
+  color: var(--text-primary);
+}
+
+.body > p {
+  margin: 0;
+  font: inherit;
+}

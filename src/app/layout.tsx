@@ -25,6 +25,27 @@ const lora = Lora({
   display: "swap",
 });
 
+/* True italic cuts for the episode emphasis components (PullQuote,
+   Closer), so they never fall back to synthesized italics. Separate
+   instances keep the download to the one weight each actually needs.
+   They register under the same family names, so any other italic in
+   those families (e.g. Lora <em>) also picks up the real cut. */
+const dmSerifDisplayItalic = DM_Serif_Display({
+  weight: "400",
+  style: "italic",
+  subsets: ["latin"],
+  variable: "--font-dm-serif-italic",
+  display: "swap",
+});
+
+const loraItalic = Lora({
+  weight: "400",
+  style: "italic",
+  subsets: ["latin"],
+  variable: "--font-lora-italic",
+  display: "swap",
+});
+
 const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
@@ -83,7 +104,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${dmSerifDisplay.variable} ${lora.variable} ${inter.variable}`}
+      className={`${dmSerifDisplay.variable} ${lora.variable} ${inter.variable} ${dmSerifDisplayItalic.variable} ${loraItalic.variable}`}
       // ThemeProvider applies data-theme to document.documentElement (this
       // <html> tag, not <body>) after mount — setting it here too means
       // the correct value is already present in the server-rendered

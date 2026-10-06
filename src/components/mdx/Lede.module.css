@@ -1,0 +1,21 @@
+/* Body-size tokens (--prose-body / --prose-lh) come from the episode
+   reader's .prose container; the fallbacks cover any other host. */
+.lede {
+  margin: 0 0 1em;
+  font-family: var(--font-body), serif;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.lede > p {
+  margin: 0;
+  font: inherit;
+}
+
+@media (max-width: 600px) {
+  .lede {
+    font-size: 18px;
+  }
+}

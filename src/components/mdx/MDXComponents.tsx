@@ -6,6 +6,12 @@ import { interactiveComponents } from "@/lib/interactiveComponents";
 import Mermaid from "./Mermaid";
 import TryThis from "./TryThis";
 import BigQuestion from "./BigQuestion";
+import Lede from "./Lede";
+import Step from "./Step";
+import Beat from "./Beat";
+import PullQuote from "./PullQuote";
+import Closer from "./Closer";
+import Space from "./Space";
 
 /* ──────────────────────────────────────────────────────────────
    Custom MDX component map.
@@ -114,5 +120,11 @@ export const mdxComponents = {
   ),
   TryThis,
   BigQuestion,
+  Lede,
+  Step,
+  Beat,
+  PullQuote,
+  Closer,
+  Space,
   ...interactiveComponents,
 };

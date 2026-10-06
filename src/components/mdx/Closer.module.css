@@ -1,0 +1,26 @@
+.closer {
+  font-size: var(--prose-body, var(--font-size-body));
+}
+
+.rule {
+  width: 40px;
+  height: 0;
+  border: none;
+  border-top: 1px solid var(--border-medium);
+  margin: 30px auto 16px;
+}
+
+.text {
+  margin: 0;
+  font-family: var(--font-lora-italic), serif;
+  font-style: italic;
+  font-weight: 400;
+  line-height: var(--prose-lh, var(--line-height-body));
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.text > p {
+  margin: 0;
+  font: inherit;
+}

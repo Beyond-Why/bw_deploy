@@ -1,0 +1,14 @@
+.beat {
+  margin: 1.3em 0;
+  font-family: var(--font-body), serif;
+  font-weight: 500;
+  font-style: normal;
+  font-size: var(--prose-body, var(--font-size-body));
+  line-height: var(--prose-lh, var(--line-height-body));
+  color: var(--text-primary);
+}
+
+.beat > p {
+  margin: 0;
+  font: inherit;
+}

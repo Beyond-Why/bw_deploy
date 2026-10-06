@@ -1011,11 +1011,102 @@
   padding: 0 36px;
 }
 
+/* ── BASE PROSE — episode reader only. Text fills the column's content
+   width, sharing both edges with the title, action bar and chapter
+   navigator. The emphasis components (Lede, Step, …) read the body
+   size / line-height from these two properties. ── */
+.prose {
+  --prose-body: 18px;
+  --prose-lh: 1.75;
+  counter-reset: prose-h2;
+}
+
+.prose > p {
+  font-family: var(--font-body), serif;
+  font-weight: 400;
+  font-size: var(--prose-body);
+  line-height: var(--prose-lh);
+  color: var(--text-primary);
+  margin: 0 0 0.85em;
+}
+
+.prose > h2 {
+  margin: 2.75em 0 0.5em;
+  counter-increment: prose-h2;
+}
+
+.prose > h2:first-child {
+  margin-top: 1.25em;
+}
+
+/* Section number above each h2 — CSS only, so it never reaches the TOC
+   (which reads textContent) or the heading's anchor id. */
+.prose > h2::before {
+  content: counter(prose-h2, decimal-leading-zero);
+  display: block;
+  margin-bottom: 6px;
+  font-family: var(--font-ui), sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  color: var(--accent);
+}
+
+@media (max-width: 600px) {
+  .prose {
+    --prose-body: 17px;
+  }
+}
+
+/* Lists read like paragraphs: same face, size and line-height, a 1.5em
+   block margin, and 0.85em between items. */
+.prose > :is(ul, ol) {
+  font-family: var(--font-body), serif;
+  font-size: var(--prose-body);
+  line-height: var(--prose-lh);
+  color: var(--text-primary);
+  margin: 1.5em 0;
+}
+
+.prose > :is(ul, ol) > li {
+  line-height: inherit;
+  margin: 0;
+}
+
+.prose > :is(ul, ol) > li + li {
+  margin-top: 0.85em;
+}
+
+/* Display equations ($$…$$ via remark-math + rehype-katex) sit like a
+   figure: 2em of body size above and below, centred, a touch larger
+   than body, and scrolling sideways rather than overflowing on narrow
+   screens. Overflow makes a new formatting context for its contents
+   only, so the outer margins still collapse with neighbours. */
+.prose > :global(.katex-display) {
+  font-size: var(--prose-body);
+  margin: 2em 0;
+  text-align: center;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.prose > :global(.katex-display) > :global(.katex) {
+  font-size: 1.15em;
+}
+
 /* MDX figures/images must never exceed the article column width. */
 .prose figure {
   max-width: 100%;
   width: 100%;
-  margin: 2rem 0;
+}
+
+/* Figures, images and interactive blocks share one rhythm: 2em of body
+   size. An interactive is any top-level block holding a canvas, video or
+   iframe (the text components never do). Plain block margins, so they
+   collapse with a neighbouring Beat/PullQuote rather than stacking. */
+.prose > :is(figure, img, div:has(canvas, video, iframe)) {
+  margin: calc(2 * var(--prose-body)) 0;
 }
 
 .prose figure img {
@@ -1026,12 +1117,25 @@
   border-radius: 8px;
 }
 
-.prose figcaption {
+/* Image captions and interactive captions (role="caption", e.g.
+   FieldSlider's, which is italic in its own module) read identically. */
+.prose figcaption,
+.prose [role="caption"] {
+  font-family: var(--font-body), serif;
   font-size: 13px;
+  font-style: normal;
   color: rgba(255, 255, 255, 0.4);
-  margin-top: 10px;
+  margin: 10px 0 0;
   text-align: center;
   line-height: 1.5;
+}
+
+/* A caption written on its own lines in MDX arrives wrapped in a <p>,
+   whose paragraph margin would leak out through the figure and whose
+   line-height would differ from a single-line caption. */
+.prose figcaption > p {
+  margin: 0;
+  line-height: inherit;
 }
 
 /* ── EPISODE NAVIGATION — chapter-end moment, the one intentional
