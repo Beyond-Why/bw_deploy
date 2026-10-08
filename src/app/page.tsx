@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
-import { getAllSeries, getFeaturedContent, getPopularContent, getCollections, getEpisodes } from "@/lib/content";
+import { getAllSeries, getFeaturedContent, getPopularContent, getCollections, getEpisodes, type EpisodeStats } from "@/lib/content";
 import { HeroSection } from "@/components/HeroSection";
 import { PopularSection } from "@/components/PopularSection";
 import { ContentFeed } from "@/components/ContentFeed";
+import { getLikeCountsByContentIds } from "@/lib/likes";
+import { getCommentCountsByContentIds } from "@/lib/comments";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { organizationJsonLd, pageMetadata, SITE_DESCRIPTION, SITE_NAME, websiteJsonLd } from "@/lib/seo";
 import styles from "./page.module.css";
@@ -22,6 +24,28 @@ export default async function Home() {
       return { ...d, episodes };
     })
   );
+  // Episode-tile engagement counts for every deep dive's hover strip — two
+  // grouped queries across ALL series (one per table), not one per series.
+  // Keyed by full contentId. A DB failure degrades to dates-only tiles
+  // rather than taking the homepage down with it.
+  const episodeContentIds = deepDives.flatMap((d) =>
+    d.episodes.map((ep) => `deep-dives/${d.slug}/${ep.slug}`)
+  );
+  const episodeStats: EpisodeStats = {};
+  try {
+    const [likeCounts, commentCounts] = await Promise.all([
+      getLikeCountsByContentIds(episodeContentIds, "episode"),
+      getCommentCountsByContentIds(episodeContentIds, "episode"),
+    ]);
+    for (const contentId of episodeContentIds) {
+      episodeStats[contentId] = {
+        likeCount: likeCounts.get(contentId) ?? 0,
+        commentCount: commentCounts.get(contentId) ?? 0,
+      };
+    }
+  } catch (err) {
+    console.error("Homepage episode stats failed; rendering tiles without counts", err);
+  }
   const builderLogsRaw = await getAllSeries("builder-log");
   const builderLogs = await Promise.all(
     builderLogsRaw.map(async (b) => {
@@ -56,6 +80,7 @@ export default async function Home() {
           deepDives={deepDives}
           builderLogs={builderLogs}
           collections={collections}
+          episodeStats={episodeStats}
           headingShuffleSeed={headingShuffleSeed}
           feedScheduleSeed={feedScheduleSeed}
         />

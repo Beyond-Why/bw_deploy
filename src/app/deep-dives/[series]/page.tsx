@@ -1,6 +1,6 @@
-import { getSeriesIndex, getEpisodes, getCollections } from "@/lib/content";
+import { getSeriesIndex, getEpisodes, getCollections, type EpisodeStats } from "@/lib/content";
 import { notFound } from "next/navigation";
-import { DeepDiveContent, type EpisodeStats } from "@/components/DeepDiveContent";
+import { DeepDiveContent } from "@/components/DeepDiveContent";
 import { getCurrentUser } from "@/lib/auth/getUser";
 import { getProfileById } from "@/lib/profile";
 import { getHubRecommendations } from "@/lib/hubRecommendations";

@@ -305,6 +305,7 @@
 
 /* Tile thumbnail — 16:9 */
 .tileThumbnail {
+  position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
   border-radius: 5px;
@@ -313,16 +314,21 @@
   border: 1px solid var(--border-subtle);
 }
 
+/* Quieted at rest so four photos side by side don't compete; full colour
+   returns on hover/focus. */
 .tileThumbnailImg {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 200ms ease;
+  filter: saturate(0.5) brightness(0.92);
+  transition: transform 200ms ease, filter 250ms ease;
 }
 
-.episodeTile:hover .tileThumbnailImg {
+.episodeTile:hover .tileThumbnailImg,
+.episodeTile:focus-visible .tileThumbnailImg {
   transform: scale(1.04);
+  filter: none;
 }
 
 .tileThumbnailPlaceholder {
@@ -333,21 +339,85 @@
       var(--bg-elevated) 100%);
 }
 
+/* Episode-number overlay. Scrim and label colours are fixed, not theme
+   tokens: they sit on a photo and must read identically in both themes.
+   The flat rest scrim and the hover gradient are stacked as two layers
+   (gradients don't interpolate), cross-fading on opacity. */
+.tileScrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tileScrim::before,
+.tileScrim::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transition: opacity 250ms ease;
+}
+
+.tileScrim::before {
+  background: rgba(10, 10, 12, 0.52);
+}
+
+.tileScrim::after {
+  background: linear-gradient(to top,
+      rgba(10, 10, 12, 0.72) 0%,
+      rgba(10, 10, 12, 0.12) 62%,
+      transparent 100%);
+  opacity: 0;
+}
+
+.tileEpCentre,
+.tileEpCorner {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-ui), sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #FFF8F0;
+  line-height: 1;
+  transition: opacity 250ms ease;
+}
+
+.tileEpCentre {
+  font-size: 0.95rem;
+  letter-spacing: 0.16em;
+}
+
+.tileEpCorner {
+  position: absolute;
+  left: 10px;
+  bottom: 8px;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  opacity: 0;
+}
+
+.episodeTile:hover .tileScrim::before,
+.episodeTile:focus-visible .tileScrim::before,
+.episodeTile:hover .tileEpCentre,
+.episodeTile:focus-visible .tileEpCentre {
+  opacity: 0;
+}
+
+.episodeTile:hover .tileScrim::after,
+.episodeTile:focus-visible .tileScrim::after,
+.episodeTile:hover .tileEpCorner,
+.episodeTile:focus-visible .tileEpCorner {
+  opacity: 1;
+}
+
 /* Tile text label */
 .tileLabel {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
   padding: 0 2px;
-}
-
-.tileEpNum {
-  font-family: var(--font-ui), sans-serif;
-  font-size: 0.65rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--ink-quiet);
 }
 
 .tileTitle {
@@ -368,6 +438,38 @@
 
 .episodeTile:hover .tileTitle {
   text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+}
+
+/* Meta row — date left, stats pushed right */
+.tileMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+  color: var(--ink-quiet);
+  font-variant-numeric: tabular-nums;
+}
+
+.tileStats {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.tileStat {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.tileStat svg {
+  flex-shrink: 0;
 }
 
 /* ── Arrow buttons — in the gutter columns, centered with episode thumbnails ── */
@@ -405,6 +507,14 @@
   }
 
   .arrow {
+    transition: none;
+  }
+
+  .tileThumbnailImg,
+  .tileScrim::before,
+  .tileScrim::after,
+  .tileEpCentre,
+  .tileEpCorner {
     transition: none;
   }
 
