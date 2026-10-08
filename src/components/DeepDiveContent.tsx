@@ -1,7 +1,7 @@
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { mdxComponents } from "@/components/mdx/MDXComponents";
 import { mdxOptions } from "@/components/mdx/mdxOptions";
-import type { SeriesFrontmatter, EpisodeInfo, InsightCollection } from "@/lib/content";
+import type { SeriesFrontmatter, EpisodeInfo, InsightCollection, EpisodeStats } from "@/lib/content";
 import { StatusPill } from "@/components/library/StatusPill";
 import { ComingSoonCard } from "@/components/library/ComingSoonCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -23,9 +23,6 @@ const EMPTY_RECOMMENDATIONS: HubRecommendations = {
   relatedEpisodes: [],
 };
 
-/** Keyed by episode slug — see the hub page's grouped-query fetch. */
-export type EpisodeStats = Record<string, { likeCount: number; commentCount: number }>;
-
 interface DeepDiveContentProps {
   series: string;
   frontmatter: SeriesFrontmatter;
@@ -37,6 +34,7 @@ interface DeepDiveContentProps {
   user?: CurrentUser | null;
   collections?: InsightCollection[];
   recommendations?: HubRecommendations;
+  /** Keyed by episode slug — see the hub page's grouped-query fetch. */
   episodeStats?: EpisodeStats;
 }
 

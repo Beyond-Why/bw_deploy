@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import styles from "./ContentFeed.module.css";
 import { DeepDiveCard, BuilderLogCard, InsightRow, InsightRowHeadingProvider, InsightCollectionBlock, ComingSoonBar } from "./library";
-import type { SeriesFrontmatter, EpisodeInfo, InsightCollection } from "@/lib/content";
+import type { SeriesFrontmatter, EpisodeInfo, InsightCollection, EpisodeStats } from "@/lib/content";
 import type { InsightRowCardItem } from "./library";
 import { buildHomeFeed } from "@/lib/feedScheduler";
 
@@ -13,6 +13,9 @@ interface ContentFeedProps {
   deepDives: { slug: string; frontmatter: SeriesFrontmatter; episodes?: EpisodeInfo[] }[];
   builderLogs: { slug: string; frontmatter: SeriesFrontmatter; episodes?: EpisodeInfo[] }[];
   collections: InsightCollection[];
+  /** Deep Dive episode like/comment counts, keyed by contentId — see
+   *  app/page.tsx. Optional: tiles fall back to dates only. */
+  episodeStats?: EpisodeStats;
   /** Server-generated once per request — see app/page.tsx — so the mixed
    *  row's heading shuffle matches between SSR and client hydration. */
   headingShuffleSeed: number;
@@ -76,6 +79,7 @@ export function ContentFeed({
   deepDives,
   builderLogs,
   collections,
+  episodeStats,
   headingShuffleSeed,
   feedScheduleSeed,
 }: ContentFeedProps) {
@@ -181,6 +185,7 @@ export function ContentFeed({
                           frontmatter={shelf.item.frontmatter}
                           href={`/deep-dives/${shelf.item.slug}`}
                           episodes={shelf.item.episodes}
+                          episodeStats={episodeStats}
                         />
                       )}
                     </div>
@@ -229,6 +234,7 @@ export function ContentFeed({
                 frontmatter={item.frontmatter}
                 href={`/deep-dives/${item.slug}`}
                 episodes={item.episodes}
+                episodeStats={episodeStats}
               />
             )
           )}

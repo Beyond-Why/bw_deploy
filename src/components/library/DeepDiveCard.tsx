@@ -2,7 +2,7 @@
 
 import { useRef, useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import type { SeriesFrontmatter, EpisodeInfo } from "@/lib/content";
+import type { SeriesFrontmatter, EpisodeInfo, EpisodeStats } from "@/lib/content";
 import { StatusPill } from "./StatusPill";
 import { NewTag } from "@/components/ui/NewTag";
 import styles from "./DeepDiveCard.module.css";
@@ -12,6 +12,9 @@ interface DeepDiveCardProps {
   frontmatter: SeriesFrontmatter;
   href: string;
   episodes?: EpisodeInfo[];
+  /** Episode like/comment counts keyed by contentId
+   *  (`deep-dives/<slug>/<episode>`). Missing entries render date only. */
+  episodeStats?: EpisodeStats;
   /** When true: column layout, no hover strip, no hover animations (used in sidebar) */
   compact?: boolean;
 }
@@ -24,7 +27,7 @@ function formatDate(dateStr?: string): string {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
-export function DeepDiveCard({ slug, frontmatter, href, episodes = [], compact = false }: DeepDiveCardProps) {
+export function DeepDiveCard({ slug, frontmatter, href, episodes = [], episodeStats, compact = false }: DeepDiveCardProps) {
   const date = formatDate(frontmatter.date);
 
   // Sort episodes ascending by episode number
@@ -203,16 +206,22 @@ export function DeepDiveCard({ slug, frontmatter, href, episodes = [], compact =
               >
                 {sortedEpisodes.map((ep, i) => {
                   const epHref = `/deep-dives/${slug}/${ep.slug}`;
+                  const epLabel = `EP ${String(ep.episode).padStart(2, "0")}`;
+                  const epDate = formatDate(ep.frontmatter.date);
+                  const stats = episodeStats?.[`deep-dives/${slug}/${ep.slug}`];
+                  const likeCount = stats?.likeCount ?? 0;
+                  const commentCount = stats?.commentCount ?? 0;
                   return (
                     <Link
                       key={ep.slug}
                       href={epHref}
                       className={styles.episodeTile}
+                      aria-label={`Episode ${ep.episode}: ${ep.frontmatter.title}`}
                       ref={(el) => {
                         tileRefs.current[i] = el;
                       }}
                     >
-                      {/* Thumbnail */}
+                      {/* Thumbnail + episode-number overlay */}
                       <div className={styles.tileThumbnail}>
                         {ep.frontmatter.thumbnail ? (
                           <img
@@ -223,13 +232,42 @@ export function DeepDiveCard({ slug, frontmatter, href, episodes = [], compact =
                         ) : (
                           <div className={styles.tileThumbnailPlaceholder} />
                         )}
+                        {/* Centred label at rest, cross-fades to the corner
+                            one on hover/focus — two spans on opacity rather
+                            than animating flex alignment. */}
+                        <div className={styles.tileScrim}>
+                          <span className={styles.tileEpCentre}>{epLabel}</span>
+                          <span className={styles.tileEpCorner} aria-hidden="true">
+                            {epLabel}
+                          </span>
+                        </div>
                       </div>
                       {/* Label */}
                       <div className={styles.tileLabel}>
-                        <span className={styles.tileEpNum}>
-                          EP {String(ep.episode).padStart(2, "0")}
-                        </span>
                         <span className={styles.tileTitle}>{ep.frontmatter.title}</span>
+                        <div className={styles.tileMeta}>
+                          {epDate && <span>{epDate}</span>}
+                          {(likeCount > 0 || commentCount > 0) && (
+                            <span className={styles.tileStats}>
+                              {likeCount > 0 && (
+                                <span className={styles.tileStat}>
+                                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                                  </svg>
+                                  {likeCount}
+                                </span>
+                              )}
+                              {commentCount > 0 && (
+                                <span className={styles.tileStat}>
+                                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                                  </svg>
+                                  {commentCount}
+                                </span>
+                              )}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </Link>
                   );

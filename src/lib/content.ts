@@ -156,6 +156,12 @@ export interface EpisodeInfo {
   frontmatter: EpisodeFrontmatter;
 }
 
+/** Episode engagement counts, as served by the grouped like/comment
+ *  queries. The hub page keys this by episode slug; the homepage keys it
+ *  by full contentId (`deep-dives/<series>/<episode>`) since it spans
+ *  every series. */
+export type EpisodeStats = Record<string, { likeCount: number; commentCount: number }>;
+
 /* ── HELPERS ── */
 
 async function readMDXFile<T>(filePath: string): Promise<ParsedMDX<T>> {
