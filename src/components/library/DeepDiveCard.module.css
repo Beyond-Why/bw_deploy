@@ -525,15 +525,30 @@
 }
 
 /* ── RESPONSIVE ── */
+/* Phones: stacked "video card" — full-width 16:9 thumbnail on top, text
+   below. A viewport query, not a container query, and scoped away from
+   .cardCompact: the Explore-sidebar card is just as narrow on desktop and
+   keeps its row layout (see COMPACT MODE below). */
 @media (max-width: 640px) {
-  .card {
-    flex-direction: row;
-    align-items: flex-start;
-    gap: 12px;
+  .card:not(.cardCompact) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-xs);
   }
 
-  .thumbnailWrapper {
-    width: 120px;
+  .card:not(.cardCompact) .thumbnailWrapper {
+    width: 100%;
+  }
+
+  .card:not(.cardCompact) .textBlock {
+    max-width: none;
+  }
+
+  /* Full title, no 2-line clamp — there's room to wrap when stacked. */
+  .card:not(.cardCompact) .title {
+    display: block;
+    -webkit-line-clamp: unset;
+    overflow: visible;
   }
 
   .body {
