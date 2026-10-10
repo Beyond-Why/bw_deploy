@@ -375,11 +375,11 @@ export default function FieldSlider({ embed = false }: FieldSliderProps = {}) {
   const dotsRef = useRef<VacuumDot[] | null>(null);
   const rafRef = useRef<number | null>(null);
   const startTimeRef = useRef(0);
-  const positionRef = useRef(80);
+  const positionRef = useRef(60);
   const draggingRef = useRef(false);
 
   const [size, setSize] = useState({ width: 0, height: 0 });
-  const [position, setPosition] = useState(embed ? EMBED_POSITION : 80);
+  const [position, setPosition] = useState(embed ? EMBED_POSITION : 60);
   const [isDragging, setIsDragging] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
