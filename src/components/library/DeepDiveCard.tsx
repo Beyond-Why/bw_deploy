@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { SeriesFrontmatter, EpisodeInfo, EpisodeStats } from "@/lib/content";
 import { StatusPill } from "./StatusPill";
 import { NewTag } from "@/components/ui/NewTag";
+import { formatDate } from "@/lib/formatDate";
 import styles from "./DeepDiveCard.module.css";
 
 interface DeepDiveCardProps {
@@ -20,12 +21,6 @@ interface DeepDiveCardProps {
 }
 
 const GAP = 12; // px — must match .episodeScroll's `gap` in DeepDiveCard.module.css
-
-function formatDate(dateStr?: string): string {
-  if (!dateStr) return "";
-  const d = new Date(dateStr);
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-}
 
 export function DeepDiveCard({ slug, frontmatter, href, episodes = [], episodeStats, compact = false }: DeepDiveCardProps) {
   const date = formatDate(frontmatter.date);

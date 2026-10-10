@@ -496,6 +496,40 @@
   padding: 2rem 36px 0;
 }
 
+/* ── Meta line — "← Series · May 10, 2026" ──
+   The row is pulled left by one separator width and the outer line clips
+   that overhang, so the date's leading middot only shows when the date
+   sits beside the link; once it wraps to its own line the middot falls
+   into the clipped strip. Horizontal clip only — underlines and the line
+   box's height are untouched. */
+.metaLine {
+  --meta-sep: 1.25rem;
+  overflow-x: clip;
+}
+
+.metaRow {
+  margin-left: calc(-1 * var(--meta-sep));
+}
+
+.metaRow > .seriesLink {
+  margin-left: var(--meta-sep);
+}
+
+.publishDate {
+  display: inline-block;
+  white-space: nowrap;
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-small);
+  color: var(--text-muted);
+}
+
+.publishDate::before {
+  content: "·";
+  display: inline-block;
+  width: var(--meta-sep);
+  text-align: center;
+}
+
 .seriesLink {
   font-family: var(--font-ui), sans-serif;
   font-size: var(--font-size-small);

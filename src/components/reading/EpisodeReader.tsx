@@ -13,6 +13,7 @@ import type {
 import styles from "./EpisodeReader.module.css";
 import { ExploreSidebar } from "./ExploreSidebar";
 import { setLastOpenedEpisode } from "@/lib/progress";
+import { formatDate } from "@/lib/formatDate";
 import { TableOfContents } from "./TableOfContents";
 import { LikeButton } from "./LikeButton";
 import { BookmarkButton } from "./BookmarkButton";
@@ -576,10 +577,21 @@ export function EpisodeReader({
           {/* ── Title ── */}
           <h1 className={styles.title}>{frontmatter.title}</h1>
 
-          {/* ── Series link ── */}
-          <Link href={`/deep-dives/${series}`} className={styles.seriesLink}>
-            ← {seriesTitle}
-          </Link>
+          {/* ── Meta line — series link · publish date. The date wraps
+               under the link on narrow screens; its leading middot is
+               clipped off when it starts a line (see .metaLine). ── */}
+          <div className={styles.metaLine}>
+            <div className={styles.metaRow}>
+              <Link href={`/deep-dives/${series}`} className={styles.seriesLink}>
+                ← {seriesTitle}
+              </Link>
+              {frontmatter.date && (
+                <time dateTime={frontmatter.date} className={styles.publishDate}>
+                  {formatDate(frontmatter.date)}
+                </time>
+              )}
+            </div>
+          </div>
 
           {/* ── Action Bar ── */}
           <ActionBar
