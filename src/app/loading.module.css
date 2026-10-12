@@ -20,8 +20,18 @@
   height: 80px;
 }
 
+.animatedMark {
+  animation: spin 1.2s linear infinite;
+}
+
 .staticMark {
   display: none;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

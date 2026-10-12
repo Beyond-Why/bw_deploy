@@ -1,4 +1,3 @@
-import { Lottie } from "lottie-react";
 import styles from "./loading.module.css";
 
 export default function Loading() {
@@ -9,10 +8,9 @@ export default function Loading() {
           pre-hydration (see the background-color note below), so picking
           the branch with client state would risk a hydration mismatch or
           a flash of the animated mark before swapping to the static one. */}
-      <Lottie
-        src="/logo/loading-animation.json"
-        loop
-        autoplay
+      <img
+        src="/logo/apertures-light.svg"
+        alt=""
         className={`${styles.mark} ${styles.animatedMark}`}
       />
       <img
