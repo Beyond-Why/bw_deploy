@@ -12,6 +12,7 @@ import Beat from "./Beat";
 import PullQuote from "./PullQuote";
 import Closer from "./Closer";
 import Space from "./Space";
+import YouTubeEmbed from "./YouTubeEmbed";
 
 /* ──────────────────────────────────────────────────────────────
    Custom MDX component map.
@@ -126,5 +127,6 @@ export const mdxComponents = {
   PullQuote,
   Closer,
   Space,
+  YouTubeEmbed,
   ...interactiveComponents,
 };
