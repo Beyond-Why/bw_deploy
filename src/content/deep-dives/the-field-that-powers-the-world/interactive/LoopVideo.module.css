@@ -1,7 +1,72 @@
+.figure {
+  margin: 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.videoWrapper {
+  position: relative;
+  cursor: pointer;
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
+  background: #050510;
+}
+
 .video {
   display: block;
   width: 100%;
   height: auto;
-  border-radius: 8px;
-  background: #050510;
+}
+
+/* Play/pause button — centered, shown only when paused */
+.playBtn {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: opacity 180ms ease, background 180ms ease;
+  opacity: 1;
+}
+
+.playBtn:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* Hide the overlay while playing — show briefly on hover */
+.playBtnHidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.videoWrapper:hover .playBtnHidden {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Progress bar */
+.progressTrack {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+  transition: height 160ms ease;
+}
+
+.progressTrack:hover {
+  height: 5px;
+}
+
+.progressFill {
+  height: 100%;
+  background: #fff;
+  border-radius: 0 0 8px 8px;
+  transition: width 100ms linear;
+  pointer-events: none;
 }
