@@ -10,14 +10,24 @@ interface LoopVideoProps {
   poster?: string;
   /** Accessible label; the video carries no audio and has no captions/controls. */
   label?: string;
+  /** Fraction of the video (0–1) that must be on screen before it plays. Default 1. */
+  threshold?: number;
+  /** Pause in ms on the last frame before each replay. Default 0 (seamless loop). */
+  pauseMs?: number;
 }
 
 /**
- * A muted, looping video that only plays while it is 100% inside the
- * viewport (IntersectionObserver threshold: 1.0) and pauses the moment
- * any part of it scrolls out of view.
+ * A muted, looping video that only plays while at least `threshold` of it
+ * is inside the viewport and pauses as soon as less of it is visible.
+ * With `pauseMs`, it holds on the last frame that long before replaying.
  */
-export default function LoopVideo({ src, poster, label }: LoopVideoProps) {
+export default function LoopVideo({
+  src,
+  poster,
+  label,
+  threshold = 1,
+  pauseMs = 0,
+}: LoopVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -28,20 +38,39 @@ export default function LoopVideo({ src, poster, label }: LoopVideoProps) {
       return;
     }
 
+    let visible = false;
+    let restartTimer: ReturnType<typeof setTimeout> | undefined;
+
+    const onEnded = () => {
+      restartTimer = setTimeout(() => {
+        restartTimer = undefined;
+        video.currentTime = 0;
+        if (visible) void video.play().catch(() => {});
+      }, pauseMs);
+    };
+    if (pauseMs > 0) video.addEventListener("ended", onEnded);
+
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
+        visible = entry.isIntersecting && entry.intersectionRatio >= threshold;
+        // While holding between loops, let the timer resume playback.
+        if (restartTimer) return;
+        if (visible) {
           void video.play().catch(() => {});
         } else {
           video.pause();
         }
       },
-      { threshold: 1.0 }
+      { threshold }
     );
 
     observer.observe(video);
-    return () => observer.disconnect();
-  }, []);
+    return () => {
+      observer.disconnect();
+      video.removeEventListener("ended", onEnded);
+      clearTimeout(restartTimer);
+    };
+  }, [threshold, pauseMs]);
 
   return (
     <video
@@ -51,7 +80,7 @@ export default function LoopVideo({ src, poster, label }: LoopVideoProps) {
       poster={poster}
       aria-label={label}
       muted
-      loop
+      loop={pauseMs <= 0}
       playsInline
       preload="metadata"
     />
