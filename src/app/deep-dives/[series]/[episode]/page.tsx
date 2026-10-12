@@ -9,6 +9,7 @@ import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { mdxComponents } from "@/components/mdx/MDXComponents";
 import { mdxOptions } from "@/components/mdx/mdxOptions";
+import "@/components/mdx/katex";
 import { EpisodeReader } from "@/components/reading/EpisodeReader";
 import { getCurrentUser } from "@/lib/auth/getUser";
 import { getLikeState } from "@/lib/likes";

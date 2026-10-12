@@ -4,6 +4,7 @@ import { getCollections, getInsightCard } from "@/lib/content";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { mdxComponents } from "@/components/mdx/MDXComponents";
 import { mdxOptions } from "@/components/mdx/mdxOptions";
+import "@/components/mdx/katex";
 import { InsightCardsPanel } from "@/components/library";
 import { getCurrentUser } from "@/lib/auth/getUser";
 import { getLikeState } from "@/lib/likes";

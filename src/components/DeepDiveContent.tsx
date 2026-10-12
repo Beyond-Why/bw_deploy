@@ -1,6 +1,7 @@
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { mdxComponents } from "@/components/mdx/MDXComponents";
 import { mdxOptions } from "@/components/mdx/mdxOptions";
+import "@/components/mdx/katex";
 import type { SeriesFrontmatter, EpisodeInfo, InsightCollection, EpisodeStats } from "@/lib/content";
 import { StatusPill } from "@/components/library/StatusPill";
 import { ComingSoonCard } from "@/components/library/ComingSoonCard";

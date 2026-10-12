@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { mdxComponents } from "@/components/mdx/MDXComponents";
 import { mdxOptions } from "@/components/mdx/mdxOptions";
+import "@/components/mdx/katex";
 import styles from "./page.module.css";
 import Link from "next/link";
 import { JsonLd } from "@/components/seo/JsonLd";

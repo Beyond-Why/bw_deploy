@@ -1,0 +1,28 @@
+/* ── KATEX (math rendering) — recolor to the site's warm palette ── */
+.katex {
+  color: var(--text-primary);
+  font-size: 1.1em;
+}
+
+/* Inline \frac sets its digits at script size (0.7×), which reads cramped
+   beside body text. Scaling .mfrac scales the digits, rule, and KaTeX's
+   em-based num/den offsets together, so proportions stay intact. Display
+   math is excluded — its fractions are already full size. */
+.katex:not(.katex-display > .katex) .mfrac {
+  font-size: 1.2em;
+}
+
+/* overflow-y: hidden clips glyphs that overshoot KaTeX's strut box (e.g. a
+   superscript's top), so part of the outer spacing moves into padding to
+   give them room inside the clip. Bottom spacing stays 1em overall. */
+.katex-display {
+  margin: 0.15em 0 0.75em 0;
+  padding: 0.25em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* Collapses the paragraph-gap MDX leaves before a required blank line + $$ block */
+p:has(+ .katex-display) {
+  margin-bottom: 0.3em;
+}

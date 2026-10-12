@@ -7,7 +7,6 @@ import { Navigation } from "@/components/Navigation";
 import { getCurrentUser } from "@/lib/auth/getUser";
 import { getProfileById } from "@/lib/profile";
 import { SITE_DESCRIPTION, SITE_LOCALE, SITE_NAME, SITE_URL } from "@/lib/seo";
-import "katex/dist/katex.min.css";
 import "./globals.css";
 
 /* ── FONTS ── */
