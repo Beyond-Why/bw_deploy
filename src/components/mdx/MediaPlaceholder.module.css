@@ -5,7 +5,14 @@
   align-items: center;
   justify-content: center;
   padding: var(--space-md);
-  background: var(--bg-elevated);
+  /* Faint diagonal hatching — reads as "something goes here". */
+  background:
+    repeating-linear-gradient(
+      135deg,
+      transparent 0 14px,
+      color-mix(in srgb, var(--border-subtle) 55%, transparent) 14px 15px
+    ),
+    var(--bg-elevated);
   border: 1px dashed var(--border-medium);
   border-radius: inherit;
 }

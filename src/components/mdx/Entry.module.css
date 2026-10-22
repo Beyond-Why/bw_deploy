@@ -1,7 +1,7 @@
 .entry {
   display: grid;
   grid-template-columns: 52px minmax(0, 1fr);
-  margin: var(--space-lg) 0;
+  margin: var(--space-md) 0;
 }
 
 .time {
@@ -24,6 +24,7 @@
 /* MDX paragraphs bring the prose .p sizes and bottom margin; the entry's
    own type and margin win. */
 .text > p {
+  margin: 0 0 0.75em;
   font-size: inherit;
   line-height: inherit;
 }

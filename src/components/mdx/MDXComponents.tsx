@@ -111,6 +111,15 @@ export const mdxComponents = {
     return <pre className={styles.pre} {...props} />;
   },
   hr: () => <hr className={styles.hr} />,
+  // GFM tables — wrapped so a wide one scrolls sideways instead of
+  // stretching the column.
+  table: (props: ComponentProps<"table">) => (
+    <div className={styles.tableWrap}>
+      <table className={styles.table} {...props} />
+    </div>
+  ),
+  th: (props: ComponentProps<"th">) => <th className={styles.th} {...props} />,
+  td: (props: ComponentProps<"td">) => <td className={styles.td} {...props} />,
   img: (props: ComponentProps<"img">) => (
     <figure className={styles.figure}>
       {/* eslint-disable-next-line @next/next/no-img-element */}

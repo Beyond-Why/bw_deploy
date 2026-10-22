@@ -68,6 +68,8 @@ export interface EpisodeFrontmatter {
   highlight?: "breakthrough" | "milestone";
   /** Builder Log only — a video file path or a YouTube id; the cover becomes its poster. */
   video?: string;
+  /** Builder Log only — the clip's length as shown on the cover chip, e.g. "0:28". */
+  videoLength?: string;
   /** Local-only: when true, the loaders treat this as missing in production
    *  (`next build` / `next start`) but show it in `next dev`. */
   draft?: boolean;
@@ -381,6 +383,8 @@ export interface BuilderLogEntry {
   thumbnail?: string;
   thumbnailAlt?: string;
   video?: string;
+  /** "0:28" — shown on the cover's duration chip. */
+  videoLength?: string;
   /** Raw MDX body. */
   body: string;
   summary: BuilderLogBodySummary;
@@ -466,6 +470,7 @@ export async function getBuilderLog(series: string): Promise<BuilderLog | null> 
           thumbnail: frontmatter.thumbnail,
           thumbnailAlt: frontmatter.thumbnailAlt,
           video: frontmatter.video,
+          videoLength: frontmatter.videoLength,
           body: content,
           summary: summarizeLogBody(content),
           frontmatter,

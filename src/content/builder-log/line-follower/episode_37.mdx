@@ -6,6 +6,7 @@ date: "2026-10-09"
 excerpt: "Pick up, carry, drop. The whole job, start to finish, for the first time."
 highlight: "milestone"
 video: "/content/builder-log/line-follower/videos/day-37.mp4"
+videoLength: "0:41"
 thumbnail: "/content/builder-log/line-follower/day-37.png"
 thumbnailAlt: "Placeholder cover reading “The whole job” on a light background with a thin blue stripe along the bottom."
 ---
@@ -39,9 +40,11 @@ Now the robot checks its own battery a few times a second and pushes the motors 
 
 The battery is a 2-cell pack: 8.4 V full, 7.4 V nominal. I read it through a 10k/10k voltage divider on an analog pin, so the board sees half the real voltage.
 
-- At 0 min: 8.3 V resting, 7.9 V with the motors at full push.
-- At 10 min: 7.8 V resting, 7.0 V at full push.
-- At 18 min: 7.5 V resting, 6.4 V at full push.
+| Run time | Resting | Motors at full push |
+| --- | --- | --- |
+| 0 min | 8.3 V | 7.9 V |
+| 10 min | 7.8 V | 7.0 V |
+| 18 min | 7.5 V | 6.4 V |
 
 Motor speed roughly follows the voltage, so at 18 minutes the same PWM value gives about 20% less speed, and the tuned steering stops matching.
 

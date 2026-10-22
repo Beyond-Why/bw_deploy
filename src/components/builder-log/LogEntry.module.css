@@ -1,0 +1,167 @@
+/* Desktop: 132px rail, 40px gap, 680px main column (spec "Series page").
+   The vertical line itself belongs to the feed; each log's glyph sits on
+   it at --rail-line. */
+.log {
+  --rail-width: 132px;
+  --rail-gap: 40px;
+  --rail-line: 7px;
+  --numeral-size: 72px;
+  --title-size: 32px;
+  display: grid;
+  grid-template-columns: var(--rail-width) minmax(0, 1fr);
+  column-gap: var(--rail-gap);
+  scroll-margin-top: calc(var(--nav-height) + 16px);
+}
+
+/* ── RAIL ── */
+.rail {
+  position: relative;
+}
+
+.railInner {
+  position: sticky;
+  top: calc(var(--nav-height) + 24px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 6px 0 0 30px;
+}
+
+.node {
+  position: absolute;
+  top: 10px;
+  left: var(--rail-line);
+  translate: -50% 0;
+}
+
+.dayLabel {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--text-muted);
+}
+
+/* Outlined DM Serif numeral — muted stroke, accent on the log being read. */
+.numeral {
+  margin: 4px 0 6px;
+  font-family: var(--font-heading), serif;
+  font-size: var(--numeral-size);
+  line-height: 1;
+  font-variant-numeric: lining-nums;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--text-muted);
+}
+
+.numeralCurrent {
+  -webkit-text-stroke-color: var(--log-accent);
+}
+
+.date {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.latest {
+  margin-top: 10px;
+  padding: 2px 9px;
+  border-radius: 6px;
+  background: var(--log-accent);
+  color: var(--bg-primary);
+  font-family: var(--font-ui), sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.highlight {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 13px;
+}
+
+.breakthrough {
+  color: var(--log-accent);
+}
+
+.milestone {
+  color: var(--text-primary);
+}
+
+/* ── MAIN COLUMN ── */
+.main {
+  min-width: 0;
+}
+
+.title {
+  max-width: 15em;
+  margin: 0 0 14px;
+  font-family: var(--font-heading), serif;
+  font-size: var(--title-size);
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.body {
+  margin-top: 8px;
+}
+
+/* ── TABLET (700–1099px): 88px rail, 24px gap, flexible main ── */
+@media (max-width: 1099px) {
+  .log {
+    --rail-width: 88px;
+    --rail-gap: 24px;
+    --numeral-size: 52px;
+    --title-size: 28px;
+  }
+
+  .railInner {
+    padding-left: 20px;
+  }
+
+  /* "Breakthrough" doesn't fit beside its glyph in a 88px rail. */
+  .highlight {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    font-size: 11.5px;
+  }
+}
+
+/* ── PHONE (under 700px): rail stacked above the title, in one row ──
+   Placeholder layout until the phone design lands. */
+@media (max-width: 699px) {
+  .log {
+    --numeral-size: 40px;
+    --title-size: 26px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .railInner {
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 10px;
+    padding: 0 0 10px;
+  }
+
+  .node {
+    display: none;
+  }
+
+  .numeral {
+    margin: 0;
+    -webkit-text-stroke-color: var(--log-accent);
+  }
+
+  .latest,
+  .highlight {
+    margin-top: 0;
+  }
+}

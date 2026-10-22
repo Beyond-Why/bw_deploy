@@ -1,5 +1,5 @@
 import { getRecentCommentsForUser, type RecentComment, type RecentCommentsCursor } from "@/lib/comments";
-import { getSeriesIndex } from "@/lib/content";
+import { getEpisode, getSeriesIndex } from "@/lib/content";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { RecentCommentsList } from "./RecentCommentsList";
 import styles from "./ProfileHomeSection.module.css";
@@ -17,10 +17,10 @@ export interface CommentActivityItem extends RecentComment {
   contentHref: string;
 }
 
-/** contentId is always "deep-dives/{series}" or "deep-dives/{series}/{episode}"
- *  — comments only exist on deep-dive episodes/hubs (see CommentSection's
- *  callers; builder-log and insight-card content don't have a comment
- *  surface today). */
+/** contentId is "deep-dives/{series}", "deep-dives/{series}/{episode}" or
+ *  "builder-log/{series}/{episode_N}" — comments exist on deep-dive
+ *  episodes/hubs and on each Builder Log's share page (see LogDiscussion).
+ *  Insight cards have no comment surface. */
 function seriesSlugFromContentId(contentId: string): string | null {
   const parts = contentId.split("/");
   if (parts[0] !== "deep-dives" || !parts[1]) return null;
@@ -31,6 +31,18 @@ async function withContentTitle(
   item: RecentComment,
   titleCache: Map<string, string>
 ): Promise<CommentActivityItem> {
+  // A Builder Log comment is titled with its log, read fresh like the rest.
+  const [type, logSeries, logSlug] = item.contentId.split("/");
+  if (type === "builder-log" && logSeries && logSlug) {
+    let contentTitle = titleCache.get(item.contentId);
+    if (contentTitle === undefined) {
+      const log = await getEpisode("builder-log", logSeries, logSlug);
+      contentTitle = log?.frontmatter.title ?? item.episodeTitle ?? item.contentId;
+      titleCache.set(item.contentId, contentTitle);
+    }
+    return { ...item, contentTitle, contentHref: `/${item.contentId}` };
+  }
+
   const seriesSlug = seriesSlugFromContentId(item.contentId);
   let contentTitle = seriesSlug ?? item.contentId;
 

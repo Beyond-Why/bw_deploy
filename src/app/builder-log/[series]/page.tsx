@@ -1,146 +1,98 @@
-import { getSeriesIndex, getEpisodes } from "@/lib/content";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
+import { getBuilderLog } from "@/lib/content";
+import { formatDayLabel } from "@/lib/formatDate";
 import { mdxComponents } from "@/components/mdx/MDXComponents";
 import { mdxOptions } from "@/components/mdx/mdxOptions";
 import "@/components/mdx/katex";
-import { StatusPill } from "@/components/library";
-import styles from "./page.module.css";
-import Link from "next/link";
+import LogEntry from "@/components/builder-log/LogEntry";
+import LogFeed from "@/components/builder-log/LogFeed";
+import SeriesHeader from "@/components/builder-log/SeriesHeader";
+import { LogOrderProvider, type LogOrder } from "@/components/builder-log/logState";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { isPlaceholder, isUnreleased, metaDescription, pageMetadata, seriesJsonLd } from "@/lib/seo";
+import styles from "./page.module.css";
 
 interface PageProps {
   params: Promise<{ series: string }>;
+  searchParams: Promise<{ order?: string }>;
 }
 
-export async function generateMetadata({ params }: PageProps) {
+export async function generateMetadata({ params }: { params: PageProps["params"] }) {
   const { series } = await params;
-  const seriesData = await getSeriesIndex("builder-log", series);
-  if (!seriesData) notFound();
-  const { frontmatter, content } = seriesData;
-  if (isPlaceholder(frontmatter)) notFound();
+  const log = await getBuilderLog(series);
+  if (!log || isPlaceholder(log.frontmatter)) notFound();
+  // path has no query string, so ?order=oldest shares the clean canonical.
   return pageMetadata({
-    title: frontmatter.title,
-    description: metaDescription(frontmatter, content),
+    title: log.frontmatter.title,
+    description: metaDescription(log.frontmatter, log.intro),
     path: `/builder-log/${series}`,
-    noindex: isUnreleased(frontmatter),
+    noindex: isUnreleased(log.frontmatter),
   });
 }
 
-export default async function BuilderLogSeriesPage({ params }: PageProps) {
+export default async function BuilderLogSeriesPage({ params, searchParams }: PageProps) {
   const { series } = await params;
-  const seriesData = await getSeriesIndex("builder-log", series);
-  if (!seriesData) notFound();
-  const { frontmatter, content } = seriesData;
-  const episodes = await getEpisodes("builder-log", series);
-  if (isPlaceholder(frontmatter)) notFound();
+  const { order: orderParam } = await searchParams;
+  const log = await getBuilderLog(series);
+  if (!log || isPlaceholder(log.frontmatter)) notFound();
 
-  const tags = Array.isArray(frontmatter.tags) ? (frontmatter.tags as string[]) : [];
-  const milestonesHit = Number(frontmatter.milestonesHit) || 0;
-  const milestonesTotal = Number(frontmatter.milestonesTotal) || 0;
+  const { frontmatter, logs } = log;
+  const initialOrder: LogOrder = orderParam === "oldest" ? "oldest" : "newest";
+  const newest = logs[logs.length - 1];
+  const firstInOrder = initialOrder === "newest" ? newest : logs[0];
 
   const structuredData = seriesJsonLd({
     name: frontmatter.title,
-    description: metaDescription(frontmatter, content),
+    description: metaDescription(frontmatter, log.intro),
     path: `/builder-log/${series}`,
     image: frontmatter.thumbnail,
-    parts: episodes
-      .filter((ep) => !isUnreleased(frontmatter, ep.frontmatter))
-      .map((ep) => ({
-        headline: ep.frontmatter.title,
-        path: `/builder-log/${series}/${ep.slug}`,
-        position: ep.episode,
+    parts: logs
+      .filter((entry) => !isUnreleased(frontmatter, entry.frontmatter))
+      .map((entry) => ({
+        headline: entry.title,
+        path: `/builder-log/${series}/${entry.slug}`,
+        position: entry.day,
       })),
   });
+
+  const feedLogs = logs.map((entry) => ({
+    day: entry.day,
+    node: (
+      <LogEntry
+        series={series}
+        log={entry}
+        isLatest={entry === newest}
+        // Until the journey bar tracks scrolling, "being read" = the newest.
+        current={entry === newest}
+        priority={entry === firstInOrder}
+        body={<MDXRemote source={entry.body} components={mdxComponents} options={mdxOptions} />}
+      />
+    ),
+  }));
 
   return (
     <>
       <JsonLd data={structuredData} />
-      <article className={styles.seriesPage}>
-        {/* Header */}
-        <header className={styles.header}>
-          <span className={styles.label}>Builder Log</span>
-          {frontmatter.category && (
-            <span className={styles.category}>{frontmatter.category}</span>
-          )}
-          {frontmatter.status && <StatusPill status={frontmatter.status} kind="builderlog" />}
-        </header>
-
-        <h1 className={styles.title}>{frontmatter.title}</h1>
-
-        {/* Tech stack — moved off the card */}
-        {tags.length > 0 && (
-          <div className={styles.techRow}>
-            {tags.map((tag) => (
-              <span key={tag} className={styles.techChip}>
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {/* Series Content */}
-        <div className="prose">
-          <MDXRemote source={content} components={mdxComponents} options={mdxOptions} />
-        </div>
-
-        {/* Milestone breakdown — moved off the card */}
-        {milestonesTotal > 0 && (
-          <div className={styles.milestoneBlock}>
-            <h2 className={styles.milestoneTitle}>Milestones</h2>
-            <div className={styles.milestoneMeter}>
-              <div className={styles.milestoneSegments} aria-hidden="true">
-                {Array.from({ length: milestonesTotal }).map((_, i) => (
-                  <span
-                    key={i}
-                    className={i < milestonesHit ? styles.milestoneSegmentDone : styles.milestoneSegment}
-                  />
-                ))}
-              </div>
-              <span className={styles.milestoneCount}>
-                {milestonesHit} of {milestonesTotal} hit
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* Episode Timeline — the full log, unabridged (the card only shows the 3 most recent) */}
-        {episodes.length > 0 && (
-          <nav className={styles.timeline}>
-            <h2 className={styles.timelineTitle}>Build Timeline</h2>
-            <ol className={styles.episodes}>
-              {[...episodes].sort((a, b) => b.episode - a.episode).map((ep) => (
-                <li key={ep.slug} className={styles.episodeItem}>
-                  <Link
-                    href={`/builder-log/${series}/${ep.slug}`}
-                    className={styles.episodeLink}
-                  >
-                    <div className={styles.timelineDot} />
-                    <div className={styles.episodeContent}>
-                      <span className={styles.episodeNum}>
-                        Log {String(ep.episode).padStart(2, "0")}
-                      </span>
-                      <span className={styles.episodeTitle}>
-                        {ep.frontmatter.title}
-                      </span>
-                      {ep.frontmatter.description && (
-                        <span className={styles.episodeDesc}>
-                          {ep.frontmatter.description}
-                        </span>
-                      )}
-                      {ep.frontmatter.date && (
-                        <span className={styles.episodeDate}>
-                          {ep.frontmatter.date}
-                        </span>
-                      )}
-                    </div>
-                  </Link>
-                </li>
-              ))}
-            </ol>
-          </nav>
-        )}
+      <article className={styles.page}>
+        <LogOrderProvider initialOrder={initialOrder}>
+          <SeriesHeader
+            title={frontmatter.title}
+            premise={frontmatter.description}
+            category={frontmatter.category}
+            status={frontmatter.status}
+            started={formatDayLabel(log.firstDate) || undefined}
+            latest={formatDayLabel(log.lastDate) || undefined}
+            count={log.count}
+            lastDay={log.lastDay}
+            intro={
+              log.intro ? (
+                <MDXRemote source={log.intro} components={mdxComponents} options={mdxOptions} />
+              ) : null
+            }
+          />
+          <LogFeed logs={feedLogs} />
+        </LogOrderProvider>
       </article>
     </>
   );

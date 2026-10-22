@@ -1,0 +1,77 @@
+.frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--bg-elevated);
+}
+
+/* Covers are designed at 16:9; anything else letterboxes, never crops. */
+.image {
+  object-fit: contain;
+}
+
+.video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-code);
+}
+
+/* YouTubeEmbed brings its own 16:9 wrapper and margins. */
+.player {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.player > * {
+  margin: 0;
+}
+
+.play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  padding: 0 0 0 3px;
+  border: 0;
+  border-radius: 50%;
+  translate: -50% -50%;
+  background: color-mix(in srgb, var(--bg-primary) 72%, transparent);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: transform var(--transition-fast), background-color var(--transition-fast);
+}
+
+.play:hover {
+  transform: scale(1.06);
+  background: color-mix(in srgb, var(--bg-primary) 86%, transparent);
+}
+
+.length {
+  position: absolute;
+  right: 20px;
+  bottom: 22px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--bg-primary) 82%, transparent);
+  color: var(--text-primary);
+  font-family: var(--font-ui), sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .play {
+    transition: none;
+  }
+
+  .play:hover {
+    transform: none;
+  }
+}

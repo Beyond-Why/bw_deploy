@@ -1,9 +1,15 @@
 import {
   getSeriesIndex,
   getEpisode,
-  getEpisodes,
+  getBuilderLog,
 } from "@/lib/content";
 import { notFound } from "next/navigation";
+import LogEntry from "@/components/builder-log/LogEntry";
+import LogDiscussion from "@/components/builder-log/LogDiscussion";
+import { BuilderLogIcon } from "@/components/icons";
+import { getCurrentUser } from "@/lib/auth/getUser";
+import { getProfileById } from "@/lib/profile";
+import type { CurrentUser } from "@/components/comments/CommentSection";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { mdxComponents } from "@/components/mdx/MDXComponents";
 import { mdxOptions } from "@/components/mdx/mdxOptions";
@@ -49,111 +55,97 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function BuilderLogEpisodePage({ params }: PageProps) {
   const { series, episode } = await params;
-  const [episodeData, seriesData, episodes] = await Promise.all([
-    getEpisode("builder-log", series, episode),
-    getSeriesIndex("builder-log", series),
-    getEpisodes("builder-log", series),
-  ]);
+  const log = await getBuilderLog(series);
   // Only slugs the series actually lists — never index.mdx or an arbitrary file.
-  if (!episodeData || !seriesData || !episodes.some((ep) => ep.slug === episode)) notFound();
-  const { frontmatter, content } = episodeData;
-  if (isPlaceholder(frontmatter) || isPlaceholder(seriesData.frontmatter)) notFound();
+  const index = log ? log.logs.findIndex((entry) => entry.slug === episode) : -1;
+  if (!log || index === -1 || isPlaceholder(log.frontmatter)) notFound();
 
-  const currentIndex = episodes.findIndex((ep) => ep.slug === episode);
-  const prevEpisode = currentIndex > 0 ? episodes[currentIndex - 1] : null;
-  const nextEpisode =
-    currentIndex < episodes.length - 1 ? episodes[currentIndex + 1] : null;
+  const entry = log.logs[index];
+  const prev = log.logs[index - 1] ?? null;
+  const next = log.logs[index + 1] ?? null;
+  const seriesTitle = log.frontmatter.title;
+
+  const user = await getCurrentUser();
+  const profile = user ? await getProfileById(user.id) : null;
+  const currentUser: CurrentUser | null = profile
+    ? {
+        id: profile.id,
+        handle: profile.username,
+        displayName: profile.displayName || profile.username,
+        avatarUrl: profile.avatarUrl,
+      }
+    : null;
 
   const episodePath = `/builder-log/${series}/${episode}`;
   const seriesPath = `/builder-log/${series}`;
   const structuredData = [
     articleJsonLd({
-      headline: frontmatter.title,
-      description: metaDescription(frontmatter, content),
+      headline: entry.title,
+      description: metaDescription(entry.frontmatter, entry.body),
       path: episodePath,
-      images: [`${episodePath}/opengraph-image`, frontmatter.thumbnail || seriesData.frontmatter.thumbnail],
-      datePublished: publishedDate(frontmatter),
-      dateModified: modifiedDate(frontmatter),
-      position: frontmatter.episode,
-      partOf: { name: seriesData.frontmatter.title, path: seriesPath },
+      images: [`${episodePath}/opengraph-image`, entry.thumbnail || log.frontmatter.thumbnail],
+      datePublished: publishedDate(entry.frontmatter),
+      dateModified: modifiedDate(entry.frontmatter),
+      position: entry.day,
+      partOf: { name: seriesTitle, path: seriesPath },
     }),
     breadcrumbJsonLd([
       { name: "Home", path: "/" },
-      { name: seriesData.frontmatter.title, path: seriesPath },
-      { name: frontmatter.title, path: episodePath },
+      { name: seriesTitle, path: seriesPath },
+      { name: entry.title, path: episodePath },
     ]),
   ];
 
   return (
     <>
       <JsonLd data={structuredData} />
-      <article className={styles.episodePage}>
-        {/* Header */}
-        <header className={styles.header}>
-          <Link href={`/builder-log/${series}`} className={styles.seriesLink}>
-            ← {seriesData.frontmatter.title}
+      <article className={styles.page}>
+        <Link href={seriesPath} className={styles.seriesLink}>
+          <BuilderLogIcon size={14} />
+          {seriesTitle}
+        </Link>
+
+        <LogEntry
+          series={series}
+          log={entry}
+          isLatest={!next}
+          current
+          priority
+          headingLevel={1}
+          body={<MDXRemote source={entry.body} components={mdxComponents} options={mdxOptions} />}
+        />
+
+        <nav className={styles.nav} aria-label="Other logs">
+          {prev ? (
+            <Link href={`${seriesPath}/${prev.slug}`} className={styles.navLink}>
+              <span className={styles.navDirection}>← Day {prev.day}</span>
+              <span className={styles.navTitle}>{prev.title}</span>
+            </Link>
+          ) : (
+            <span />
+          )}
+          <Link href={`${seriesPath}#day-${entry.day}`} className={styles.journey}>
+            See it in the journey
           </Link>
-          <div className={styles.meta}>
-            <span className={styles.label}>Builder Log</span>
-            <span className={styles.episodeNum}>
-              Episode {frontmatter.episode}
-            </span>
-            {frontmatter.date && (
-              <span className={styles.date}>{frontmatter.date}</span>
-            )}
-          </div>
-          <h1 className={styles.title}>{frontmatter.title}</h1>
-          {frontmatter.description && (
-            <p className={styles.description}>{frontmatter.description}</p>
-          )}
-        </header>
-
-        {/* Content */}
-        <div className="prose">
-          <MDXRemote source={content} components={mdxComponents} options={mdxOptions} />
-        </div>
-
-        {/* Episode Navigation */}
-        <nav className={styles.navigation}>
-          {prevEpisode ? (
-            <Link
-              href={`/builder-log/${series}/${prevEpisode.slug}`}
-              className={styles.navLink}
-            >
-              <span className={styles.navDirection}>← Previous</span>
-              <span className={styles.navTitle}>
-                {prevEpisode.frontmatter.title}
-              </span>
+          {next ? (
+            <Link href={`${seriesPath}/${next.slug}`} className={`${styles.navLink} ${styles.navNext}`}>
+              <span className={styles.navDirection}>Day {next.day} →</span>
+              <span className={styles.navTitle}>{next.title}</span>
             </Link>
           ) : (
-            <Link
-              href={`/builder-log/${series}`}
-              className={styles.navLink}
-            >
-              <span className={styles.navDirection}>← Back</span>
-              <span className={styles.navTitle}>Project Overview</span>
-            </Link>
-          )}
-
-          {nextEpisode ? (
-            <Link
-              href={`/builder-log/${series}/${nextEpisode.slug}`}
-              className={`${styles.navLink} ${styles.navLinkNext}`}
-            >
-              <span className={styles.navDirection}>Next →</span>
-              <span className={styles.navTitle}>
-                {nextEpisode.frontmatter.title}
-              </span>
-            </Link>
-          ) : (
-            <div
-              className={`${styles.navLink} ${styles.navLinkNext} ${styles.navLinkDisabled}`}
-            >
-              <span className={styles.navDirection}>Latest</span>
-              <span className={styles.navTitle}>You&apos;re caught up</span>
-            </div>
+            <span />
           )}
         </nav>
+
+        <div className={styles.discussion}>
+          <LogDiscussion
+            series={series}
+            slug={entry.slug}
+            day={entry.day}
+            title={entry.title}
+            user={currentUser}
+          />
+        </div>
       </article>
     </>
   );

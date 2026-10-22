@@ -1,0 +1,8 @@
+.discussion {
+  margin-top: 72px;
+  scroll-margin-top: calc(var(--nav-height) + 16px);
+}
+
+.heading {
+  margin-bottom: var(--space-md);
+}

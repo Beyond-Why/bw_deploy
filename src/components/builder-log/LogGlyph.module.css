@@ -1,0 +1,54 @@
+.glyph {
+  display: inline-block;
+  flex: none;
+  overflow: visible;
+  vertical-align: middle;
+}
+
+/* Ordinary log: a small muted dot — lighter once read past, quieter ahead. */
+.dot {
+  fill: var(--text-secondary);
+}
+
+.dot.future {
+  fill: var(--text-muted);
+}
+
+.dot.current {
+  fill: var(--log-accent);
+}
+
+.spark {
+  fill: var(--log-accent);
+}
+
+.diamond {
+  fill: var(--text-primary);
+}
+
+/* "Still going": hollow accent ring with a slow, soft pulse. */
+.ring {
+  fill: none;
+  stroke: var(--log-accent);
+  stroke-width: 1.5;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ring {
+    animation: ringPulse 2.4s ease-in-out infinite;
+  }
+}
+
+@keyframes ringPulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.82);
+  }
+}

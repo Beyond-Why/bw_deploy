@@ -1,0 +1,110 @@
+/* The rail line runs the full height of the feed; each log's glyph and
+   the end node sit on it (see --rail-line in LogEntry.module.css). */
+.feed {
+  position: relative;
+  scroll-margin-top: calc(var(--nav-height) + 16px);
+}
+
+.feed::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 28px;
+  left: 7px;
+  width: 1px;
+  background: var(--border-medium);
+}
+
+.logs {
+  display: flex;
+  flex-direction: column;
+  gap: 96px;
+}
+
+.end {
+  position: relative;
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr);
+  column-gap: 40px;
+  margin-top: 96px;
+  padding-bottom: var(--space-2xl);
+}
+
+.endNode {
+  position: absolute;
+  top: 6px;
+  left: 7px;
+  translate: -50% 0;
+  display: grid;
+  place-items: center;
+  background: var(--bg-primary);
+}
+
+.endText {
+  grid-column: 2;
+}
+
+.endTitle {
+  margin: 0;
+  font-family: var(--font-heading), serif;
+  font-size: 28px;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+.endLine {
+  margin: 8px 0 0;
+  font-family: var(--font-body), serif;
+  font-size: 17px;
+  color: var(--text-secondary);
+}
+
+.endButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.endButton {
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1px solid var(--log-accent);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--log-accent);
+  font-family: var(--font-body), serif;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.endButton:hover {
+  background: var(--log-accent-light);
+}
+
+@media (max-width: 1099px) {
+  .end {
+    grid-template-columns: 88px minmax(0, 1fr);
+    column-gap: 24px;
+  }
+}
+
+@media (max-width: 699px) {
+  .feed::before,
+  .endNode {
+    display: none;
+  }
+
+  .logs {
+    gap: 64px;
+  }
+
+  .end {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .endText {
+    grid-column: 1;
+  }
+}

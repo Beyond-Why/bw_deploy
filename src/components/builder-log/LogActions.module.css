@@ -1,0 +1,41 @@
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 24px;
+  margin-top: 28px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-secondary);
+  font-family: var(--font-body), serif;
+  font-size: 16px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.action:hover {
+  color: var(--text-primary);
+}
+
+.action svg {
+  color: var(--text-muted);
+}
+
+.foldBack {
+  margin-left: auto;
+}
+
+.foldBack svg {
+  color: var(--log-accent);
+}

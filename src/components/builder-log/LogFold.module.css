@@ -1,0 +1,57 @@
+.clip {
+  position: relative;
+}
+
+.folded .clip {
+  max-height: 300px;
+  overflow: hidden;
+}
+
+/* Fade the cut edge into the page. */
+.folded .clip::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 140px;
+  background: linear-gradient(to bottom, transparent, var(--bg-primary));
+  pointer-events: none;
+}
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin-top: 20px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 20px 0 16px;
+  border: 1px solid var(--border-medium);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-primary);
+  font-family: var(--font-body), serif;
+  font-size: 16px;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.pill svg {
+  color: var(--log-accent);
+}
+
+.pill:hover {
+  border-color: var(--log-accent);
+  background: var(--log-accent-light);
+}
+
+.hint {
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
