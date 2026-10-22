@@ -39,11 +39,13 @@ function listDirs(dir) {
     .sort();
 }
 
-/** Frontmatter of a real (non-placeholder) MDX file, or null. */
+/** Frontmatter of a real (non-placeholder, non-draft) MDX file, or null.
+ *  This table is never built in dev, so drafts always count as missing
+ *  here — same as the loaders in src/lib/content.ts in production. */
 function readEntry(filePath) {
   if (!fs.existsSync(filePath) || fs.statSync(filePath).size === 0) return null;
   const { data } = matter(fs.readFileSync(filePath, "utf-8"));
-  return data && data.title ? data : null;
+  return data && data.title && data.draft !== true ? data : null;
 }
 
 function slugsWithPrefix(dir, prefix) {

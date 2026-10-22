@@ -23,6 +23,9 @@
   --accent-hover: #4570B8;
   --accent-strong: var(--accent-hover);
   --accent-light: rgba(88, 135, 211, 0.08);
+  /* Builder Log identity colour — currently follows the site accent. */
+  --log-accent: var(--accent);
+  --log-accent-light: var(--accent-light);
   --amber: #c29300;
   --amber-dim: #8a6b45;
   --amber-light: rgba(194, 147, 0, 0.06);
@@ -120,6 +123,9 @@
   --accent-muted-20: rgba(45, 95, 168, 0.20);
   --accent-muted-30: rgba(45, 95, 168, 0.30);
   --accent-light: rgba(123, 164, 224, 0.1);
+  /* Builder Log identity colour — currently follows the site accent. */
+  --log-accent: var(--accent);
+  --log-accent-light: var(--accent-light);
   --amber: #e5b83b;
   --amber-dim: #a07c2a;
   --amber-light: rgba(229, 184, 59, 0.08);

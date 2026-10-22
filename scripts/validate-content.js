@@ -86,6 +86,15 @@ function validateContent() {
       continue;
     }
 
+    // A Builder Log's file name is its day (episode_40.mdx = day 40), and
+    // the frontmatter episode number must say the same.
+    const dayMatch = /builder-log[\\/][^\\/]+[\\/]episode_(\d+)\.mdx$/.exec(filePath);
+    if (dayMatch && Number(data.episode) !== Number(dayMatch[1])) {
+      errors.push(
+        `Builder Log "episode" (${data.episode}) must match its file's day (${dayMatch[1]}): ${rel}`
+      );
+    }
+
     if (!idToFiles.has(id)) idToFiles.set(id, []);
     idToFiles.get(id).push(rel);
   }

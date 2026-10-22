@@ -1,0 +1,61 @@
+---
+id: "90173b73-2bed-432a-a6ab-4b0d927b6fbf"
+title: "Teaching it what black means"
+episode: 20
+date: "2026-09-22"
+excerpt: "Black isn't a colour to this robot. It's a number, and the number changes with the weather."
+highlight: "breakthrough"
+thumbnail: "/content/builder-log/line-follower/day-20.png"
+thumbnailAlt: "Placeholder cover reading “What black means” on a light background with a thin blue stripe along the bottom."
+---
+
+<Entry time="09:40">
+
+I spent the morning just watching numbers. No driving. I held the robot over the mat and printed what each of the five sensors reported, over and over.
+
+The surprise: black isn't a colour to this robot. It's a number, and the number moves around. Over the tape in the dark hall it reads about 900. Over the same tape in sunlight, closer to 600. White mat swings even more.
+
+</Entry>
+
+<Entry time="13:15">
+
+So instead of me deciding what black is, the robot now works it out at the start of every run. It sweeps left and right over the line for two seconds and remembers the darkest and brightest reading each sensor saw. Black is anything past the halfway point between the two.
+
+</Entry>
+
+<Compare>
+  <Photo src="/content/builder-log/line-follower/photo-20-before.png" alt="Placeholder photo of sensor readings before calibration." caption="Before: one fixed threshold for every room" />
+  <Photo src="/content/builder-log/line-follower/photo-20-after.png" alt="Placeholder photo of sensor readings after calibration." caption="After: each sensor finds its own threshold" />
+</Compare>
+
+<Entry time="17:50">
+
+Curtains open, full afternoon sun, and it followed the whole practice loop. Four times in a row. I did not close the curtains once.
+
+</Entry>
+
+<Toggle title="Sensor readings and how the threshold is picked">
+
+Each sensor gives a reading from 0 to 1023 (higher means darker, because less infrared light bounces back). Typical readings I logged:
+
+| Surface | Dark hall | Sunny hall |
+| --- | --- | --- |
+| White mat | 80 to 150 | 260 to 340 |
+| Black tape | 850 to 950 | 560 to 640 |
+
+A single fixed threshold of 500 works in the dark hall but calls the sunny tape "white" on two of the five sensors, because their LEDs are slightly weaker.
+
+Calibration records a minimum and maximum per sensor during a two-second sweep, then uses the midpoint:
+
+```cpp
+// during the sweep
+minSeen[i] = min(minSeen[i], raw[i]);
+maxSeen[i] = max(maxSeen[i], raw[i]);
+
+// afterwards
+threshold[i] = (minSeen[i] + maxSeen[i]) / 2;
+```
+
+If a sensor's max and min end up closer than 200 apart, it never saw the line properly, so the robot beeps twice and refuses to start rather than guessing.
+
+</Toggle>

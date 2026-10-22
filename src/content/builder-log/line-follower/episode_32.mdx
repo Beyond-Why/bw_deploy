@@ -1,0 +1,68 @@
+---
+id: "217d29eb-0b5a-4cfe-b980-991c569a7264"
+title: "It stopped wobbling"
+episode: 32
+date: "2026-10-04"
+excerpt: "It used to snake down every straight. Today it just drove down the middle."
+highlight: "breakthrough"
+video: "/content/builder-log/line-follower/videos/day-32.mp4"
+thumbnail: "/content/builder-log/line-follower/day-32.png"
+thumbnailAlt: "Placeholder cover reading “No more wobble” on a light background with a thin blue stripe along the bottom."
+---
+
+<Entry time="10:05">
+
+Since day 4 the robot has steered like a light switch: line on the left, turn left hard; line on the right, turn right hard. On a straight that means it snakes from side to side the whole way, and on fast runs it overshoots and loses the line.
+
+</Entry>
+
+<Entry time="14:30">
+
+The fix is to steer by *how far* off the line it is, not just *which side*. A little off, a little correction. Far off, a big one. With five sensors the robot can tell the difference between "just drifting" and "about to lose it".
+
+I tried a few strengths. Too weak and it drifts wide on curves. Too strong and the wobble comes back, just faster. Somewhere in the middle it simply drives down the line.
+
+</Entry>
+
+<Gallery>
+  <Photo src="/content/builder-log/line-follower/photo-32-straight.png" alt="Placeholder photo of the robot on a straight section." caption="Dead straight on the long side" />
+  <Photo src="/content/builder-log/line-follower/photo-32-curve.png" alt="Placeholder photo of the robot on a curve." caption="Holding the tight curve" />
+  <Photo src="/content/builder-log/line-follower/photo-32-tuning.png" alt="Placeholder photo of the laptop tuning screen." caption="Tuning, one number at a time" />
+</Gallery>
+
+<Entry time="19:20">
+
+Full lap time went from 41 seconds to 26, and it didn't lose the line once in ten laps. I watched the video three times. It looks like a different robot.
+
+</Entry>
+
+<Lesson>
+
+If the robot can tell you *how wrong* it is, use that, not just whether it's wrong.
+
+</Lesson>
+
+<Toggle title="Proportional steering, with the actual numbers">
+
+The five sensors get weights from left to right: -2, -1, 0, 1, 2. The line's position is the weighted average of which sensors see black, so 0 means centred and ±2 means it's under an outside sensor.
+
+```cpp
+const int BASE = 140;   // wheel speed on a straight (PWM, 0-255)
+const float KP = 35.0;  // steering strength
+
+float error = linePosition();           // -2.0 ... 2.0
+int correction = (int)(KP * error);
+
+setMotors(BASE + correction,            // left wheel
+          BASE - correction);           // right wheel
+```
+
+Tuning notes:
+
+- KP 15: smooth on straights, runs wide and loses the line on the tight curve.
+- KP 60: holds curves, but oscillates about 4 times a second on straights.
+- KP 35: no visible oscillation, holds the tight curve at BASE 140.
+
+If all five sensors read white, it keeps the last correction for 150 ms before stopping, so a small gap in the tape doesn't end the run.
+
+</Toggle>

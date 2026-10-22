@@ -1,6 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 import matter from "gray-matter";
+import { formatDayLabel } from "./formatDate";
 
 /* ──────────────────────────────────────────────────────────────
    Content library for Beyond Why.
@@ -32,6 +33,9 @@ export interface SeriesFrontmatter {
   /** When this went live — drives the NewTag "new for 7 days" window.
    *  Falls back to `date` where absent (see isNew() in lib/publishing.ts). */
   publishedAt?: string;
+  /** Local-only: when true, the loaders treat this as missing in production
+   *  (`next build` / `next start`) but show it in `next dev`. */
+  draft?: boolean;
   /** Renders the ComingSoonBar in shelves instead of the live series card. */
   comingSoon?: boolean;
   /** Freeform ETA shown on the coming-soon placeholder, e.g. "~1 week". */
@@ -60,6 +64,13 @@ export interface EpisodeFrontmatter {
   /** Builder Log only — the newest log's excerpt/thumbnail are the only
    *  ones the series card ever reads, for its featured-log block. */
   excerpt?: string;
+  /** Builder Log only — marks a log on the rail, journey bar and homepage road. */
+  highlight?: "breakthrough" | "milestone";
+  /** Builder Log only — a video file path or a YouTube id; the cover becomes its poster. */
+  video?: string;
+  /** Local-only: when true, the loaders treat this as missing in production
+   *  (`next build` / `next start`) but show it in `next dev`. */
+  draft?: boolean;
   /** When this went live — drives the NewTag "new for 7 days" window.
    *  Falls back to `date` where absent (see isNew() in lib/publishing.ts). */
   publishedAt?: string;
@@ -94,6 +105,9 @@ export interface InsightCardFrontmatter {
   /** When this went live — drives the NewTag "new for 7 days" window.
    *  Falls back to `date` where absent (see isNew() in lib/publishing.ts). */
   publishedAt?: string;
+  /** Local-only: when true, the loaders treat this as missing in production
+   *  (`next build` / `next start`) but show it in `next dev`. */
+  draft?: boolean;
   /** Renders the ComingSoonCard instead of the live card. */
   comingSoon?: boolean;
   /** Freeform ETA shown on the coming-soon placeholder, e.g. "~1 week". */
@@ -118,6 +132,9 @@ export interface InsightCollectionFrontmatter {
   motif?: InsightMotifType;
   /** When this went live — drives the NewTag "new for 7 days" window. */
   publishedAt?: string;
+  /** Local-only: when true, the loaders treat this as missing in production
+   *  (`next build` / `next start`) but show it in `next dev`. */
+  draft?: boolean;
   /** Renders the ComingSoonBar in shelves instead of the live collection. */
   comingSoon?: boolean;
   /** Freeform ETA shown on the coming-soon placeholder, e.g. "~1 week". */
@@ -200,6 +217,20 @@ async function readDirIfExists(dirPath: string): Promise<string[]> {
   }
 }
 
+/** Drafts (`draft: true`) only exist outside production — in a production
+ *  build every loader below treats them exactly like missing content. */
+function isHiddenDraft(frontmatter: { draft?: unknown } | undefined): boolean {
+  return frontmatter?.draft === true && process.env.NODE_ENV === "production";
+}
+
+/** readMDXFileIfExists, with production-hidden drafts reading as missing. */
+async function readPublishedMDXFile<T extends { draft?: unknown }>(
+  filePath: string
+): Promise<ParsedMDX<T> | null> {
+  const parsed = await readMDXFileIfExists<T>(filePath);
+  return parsed && !isHiddenDraft(parsed.frontmatter) ? parsed : null;
+}
+
 async function dirExists(dirPath: string): Promise<boolean> {
   try {
     const stat = await fs.stat(dirPath);
@@ -220,7 +251,7 @@ export async function getSeriesIndex(
   slug: string
 ): Promise<ParsedMDX<SeriesFrontmatter> | null> {
   const filePath = path.join(CONTENT_DIR, type, slug, "index.mdx");
-  return readMDXFileIfExists<SeriesFrontmatter>(filePath);
+  return readPublishedMDXFile<SeriesFrontmatter>(filePath);
 }
 
 /**
@@ -239,21 +270,33 @@ export async function getEpisodes(
     (f) => f.startsWith("episode_") && f.endsWith(".mdx")
   );
 
-  const episodes: EpisodeInfo[] = await Promise.all(
-    episodeFiles.map(async (file) => {
+  const episodes = await Promise.all(
+    episodeFiles.map(async (file): Promise<EpisodeInfo | null> => {
       const filePath = path.join(seriesDir, file);
       const { frontmatter } = await readMDXFile<EpisodeFrontmatter>(filePath);
+      if (isHiddenDraft(frontmatter)) return null;
       const episodeSlug = file.replace(".mdx", "");
+      // A Builder Log's file name IS its day: episode_40.mdx is day 40, gaps
+      // and all (validate-content.js checks the frontmatter agrees).
+      const day = type === "builder-log" ? dayFromSlug(episodeSlug) : null;
       return {
         slug: episodeSlug,
         id: frontmatter.id,
-        episode: frontmatter.episode,
+        episode: day ?? frontmatter.episode,
         frontmatter,
       };
     })
   );
 
-  return episodes.sort((a, b) => a.episode - b.episode);
+  return episodes
+    .filter((ep): ep is EpisodeInfo => ep !== null)
+    .sort((a, b) => a.episode - b.episode);
+}
+
+/** "episode_40" → 40, or null when the slug carries no number. */
+function dayFromSlug(episodeSlug: string): number | null {
+  const match = /^episode_(\d+)$/.exec(episodeSlug);
+  return match ? Number(match[1]) : null;
 }
 
 /**
@@ -266,7 +309,7 @@ export async function getEpisode(
   episodeSlug: string
 ): Promise<ParsedMDX<EpisodeFrontmatter> | null> {
   const filePath = path.join(CONTENT_DIR, type, slug, `${episodeSlug}.mdx`);
-  return readMDXFileIfExists<EpisodeFrontmatter>(filePath);
+  return readPublishedMDXFile<EpisodeFrontmatter>(filePath);
 }
 
 /**
@@ -291,6 +334,7 @@ export async function getAllSeries(
       try {
         const { frontmatter } =
           await readMDXFile<SeriesFrontmatter>(indexPath);
+        if (isHiddenDraft(frontmatter)) return null;
         return { slug: dir.name, id: frontmatter.id, frontmatter };
       } catch {
         return null;
@@ -303,6 +347,146 @@ export async function getAllSeries(
     id: string;
     frontmatter: SeriesFrontmatter;
   }[];
+}
+
+/* ── BUILDER LOG ──
+   One series = src/content/builder-log/{series}/index.mdx (its body is the
+   optional "Meet the robot" intro) + one episode_{day}.mdx per log. Builder
+   Log pages read everything through getBuilderLog() below. ── */
+
+/** What a log's body holds, counted from its MDX source — drives the
+ *  "Inside: 3 photos and a look under the hood" hint on a folded log. */
+export interface BuilderLogBodySummary {
+  entries: number;
+  /** Gallery <Photo> children, plus 2 per <Compare>. */
+  photos: number;
+  /** ```mermaid blocks and diagram components. */
+  diagrams: number;
+  toggles: number;
+}
+
+export interface BuilderLogEntry {
+  slug: string;
+  /** Permanent identity, mirrors frontmatter.id. */
+  id: string;
+  /** Days since the build started — the episode number. */
+  day: number;
+  /** YYYY-MM-DD. */
+  date: string;
+  /** "Tue 11 Nov". */
+  dateLabel: string;
+  title: string;
+  excerpt?: string;
+  highlight?: "breakthrough" | "milestone";
+  thumbnail?: string;
+  thumbnailAlt?: string;
+  video?: string;
+  /** Raw MDX body. */
+  body: string;
+  summary: BuilderLogBodySummary;
+  frontmatter: EpisodeFrontmatter;
+}
+
+export interface BuilderLog {
+  slug: string;
+  /** Permanent identity, mirrors frontmatter.id. */
+  id: string;
+  frontmatter: SeriesFrontmatter;
+  /** index.mdx body — the optional "Meet the robot" intro ("" when absent). */
+  intro: string;
+  /** Oldest first (ascending day). */
+  logs: BuilderLogEntry[];
+  /** YYYY-MM-DD of the first and newest log ("" when there are none). */
+  firstDate: string;
+  lastDate: string;
+  /** Day number of the newest log (0 when there are none). */
+  lastDay: number;
+  count: number;
+}
+
+const DIAGRAM_TAGS = ["Mermaid", "Diagram"];
+
+function countTags(source: string, tag: string): number {
+  return source.match(new RegExp(`<${tag}(?=[\\s/>])`, "g"))?.length ?? 0;
+}
+
+/** Counts a body's components. Fenced code is set aside first so a
+ *  `<Entry>` quoted inside a code sample isn't mistaken for a real one —
+ *  except ```mermaid fences, which are diagrams in their own right. */
+export function summarizeLogBody(body: string): BuilderLogBodySummary {
+  // Fences may be indented when they sit inside a component like <Toggle>.
+  const fences = body.match(/^[ \t]*(```|~~~)[^\n]*\n[\s\S]*?^[ \t]*\1[ \t]*$/gm) ?? [];
+  const mermaidFences = fences.filter((fence) => /^\s*(```|~~~)\s*mermaid\b/.test(fence)).length;
+  const source = fences.reduce((text, fence) => text.replace(fence, ""), body);
+
+  const galleries = source.match(/<Gallery[\s\S]*?<\/Gallery>/g) ?? [];
+  const galleryPhotos = galleries.reduce((sum, gallery) => sum + countTags(gallery, "Photo"), 0);
+
+  return {
+    entries: countTags(source, "Entry"),
+    photos: galleryPhotos + 2 * countTags(source, "Compare"),
+    diagrams: mermaidFences + DIAGRAM_TAGS.reduce((sum, tag) => sum + countTags(source, tag), 0),
+    toggles: countTags(source, "Toggle"),
+  };
+}
+
+/** gray-matter turns unquoted YAML dates into Date objects — normalise to YYYY-MM-DD. */
+function isoDay(value: unknown): string {
+  if (value instanceof Date) return isNaN(value.getTime()) ? "" : value.toISOString().slice(0, 10);
+  return typeof value === "string" ? value : "";
+}
+
+/**
+ * A Builder Log series with every log, oldest first, or null if the series
+ * doesn't exist (or is a draft in production).
+ * Reads: src/content/builder-log/{series}/index.mdx + episode_*.mdx
+ */
+export async function getBuilderLog(series: string): Promise<BuilderLog | null> {
+  const index = await getSeriesIndex("builder-log", series);
+  if (!index) return null;
+
+  const episodes = await getEpisodes("builder-log", series);
+  const logs = (
+    await Promise.all(
+      episodes.map(async (ep): Promise<BuilderLogEntry | null> => {
+        const parsed = await getEpisode("builder-log", series, ep.slug);
+        // Zero-byte placeholder files have no title — not a log yet.
+        if (!parsed || !parsed.frontmatter.title) return null;
+        const { frontmatter, content } = parsed;
+        const date = isoDay(frontmatter.date);
+        return {
+          slug: ep.slug,
+          id: frontmatter.id,
+          day: ep.episode,
+          date,
+          dateLabel: formatDayLabel(date),
+          title: frontmatter.title,
+          excerpt: frontmatter.excerpt,
+          highlight: frontmatter.highlight,
+          thumbnail: frontmatter.thumbnail,
+          thumbnailAlt: frontmatter.thumbnailAlt,
+          video: frontmatter.video,
+          body: content,
+          summary: summarizeLogBody(content),
+          frontmatter,
+        };
+      })
+    )
+  ).filter((log): log is BuilderLogEntry => log !== null);
+
+  const first = logs[0];
+  const last = logs[logs.length - 1];
+  return {
+    slug: series,
+    id: index.frontmatter.id,
+    frontmatter: index.frontmatter,
+    intro: index.content.trim(),
+    logs,
+    firstDate: first?.date ?? "",
+    lastDate: last?.date ?? "",
+    lastDay: last?.day ?? 0,
+    count: logs.length,
+  };
 }
 
 /* ── INSIGHT CARDS ──
@@ -319,7 +503,7 @@ const INSIGHT_CARDS_DIR = path.join(CONTENT_DIR, "insight-cards");
  */
 export async function getCollection(slug: string): Promise<InsightCollection | null> {
   const collectionDir = path.join(INSIGHT_CARDS_DIR, slug);
-  const index = await readMDXFileIfExists<InsightCollectionFrontmatter>(
+  const index = await readPublishedMDXFile<InsightCollectionFrontmatter>(
     path.join(collectionDir, "index.mdx")
   );
   if (!index) return null;
@@ -330,19 +514,22 @@ export async function getCollection(slug: string): Promise<InsightCollection | n
     (f) => f.startsWith("card_") && f.endsWith(".mdx")
   );
 
-  const cards: InsightCardEntry[] = await Promise.all(
-    cardFiles.map(async (file) => {
-      const { frontmatter: cardFrontmatter } =
-        await readMDXFile<InsightCardFrontmatter>(
-          path.join(collectionDir, file)
-        );
-      return {
-        slug: file.replace(".mdx", ""),
-        id: cardFrontmatter.id,
-        frontmatter: cardFrontmatter,
-      };
-    })
-  );
+  const cards = (
+    await Promise.all(
+      cardFiles.map(async (file): Promise<InsightCardEntry | null> => {
+        const { frontmatter: cardFrontmatter } =
+          await readMDXFile<InsightCardFrontmatter>(
+            path.join(collectionDir, file)
+          );
+        if (isHiddenDraft(cardFrontmatter)) return null;
+        return {
+          slug: file.replace(".mdx", ""),
+          id: cardFrontmatter.id,
+          frontmatter: cardFrontmatter,
+        };
+      })
+    )
+  ).filter((card): card is InsightCardEntry => card !== null);
 
   cards.sort((a, b) => (a.frontmatter.order ?? 0) - (b.frontmatter.order ?? 0));
 
@@ -384,7 +571,7 @@ export async function getInsightCard(
   cardSlug: string
 ): Promise<ParsedMDX<InsightCardFrontmatter> | null> {
   const filePath = path.join(INSIGHT_CARDS_DIR, collectionSlug, `${cardSlug}.mdx`);
-  return readMDXFileIfExists<InsightCardFrontmatter>(filePath);
+  return readPublishedMDXFile<InsightCardFrontmatter>(filePath);
 }
 
 /**

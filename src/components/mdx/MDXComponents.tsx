@@ -30,6 +30,20 @@ const textContent = (node: React.ReactNode): string => {
   return "";
 };
 
+// TEMPORARY: Builder Log body components render only their children until
+// the real <Entry>, <Toggle>, <Compare>, <Gallery>/<Photo>, <Lesson> and
+// <DeepDiveLink> land — this keeps the sample log MDX building meanwhile.
+const PassThrough = ({ children }: { children?: React.ReactNode }) => <>{children}</>;
+const builderLogPlaceholders = {
+  Entry: PassThrough,
+  Toggle: PassThrough,
+  Compare: PassThrough,
+  Gallery: PassThrough,
+  Photo: PassThrough,
+  Lesson: PassThrough,
+  DeepDiveLink: PassThrough,
+};
+
 // Helper to extract text from ReactNode and create a slug for heading IDs
 const generateSlug = (children: React.ReactNode): string => {
   if (typeof children === "string") {
@@ -128,5 +142,6 @@ export const mdxComponents = {
   Closer,
   Space,
   YouTubeEmbed,
+  ...builderLogPlaceholders,
   ...interactiveComponents,
 };

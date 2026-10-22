@@ -1,0 +1,62 @@
+---
+id: "ee7382a9-2d67-4c32-8969-1f56b3c2c43e"
+title: "First full lap with a block"
+episode: 37
+date: "2026-10-09"
+excerpt: "Pick up, carry, drop. The whole job, start to finish, for the first time."
+highlight: "milestone"
+video: "/content/builder-log/line-follower/videos/day-37.mp4"
+thumbnail: "/content/builder-log/line-follower/day-37.png"
+thumbnailAlt: "Placeholder cover reading “The whole job” on a light background with a thin blue stripe along the bottom."
+---
+
+<Entry time="11:00">
+
+It did the whole job. Followed the line to the pickup stop, grabbed the block, carried it round to the drop stop, let go, and finished the lap. Start to finish, no hands.
+
+</Entry>
+
+<Entry time="15:45">
+
+Then it failed the next six runs in a row, always in the second half of the lap, always by swinging wide on the last curve.
+
+The code hadn't changed, so I started logging the battery while it drove. Fresh off the charger it does fine. Ten minutes in, the battery voltage dips every time the motors push hard, the wheels slow down, and the steering I tuned on day 32 is suddenly too weak for the speed it's actually going.
+
+</Entry>
+
+<Gallery>
+  <Photo src="/content/builder-log/line-follower/photo-37-pickup.png" alt="Placeholder photo of the gripper holding the block." caption="Block in hand at the pickup stop" />
+  <Photo src="/content/builder-log/line-follower/photo-37-drop.png" alt="Placeholder photo of the block left at the drop stop." caption="And left exactly at the drop stop" />
+</Gallery>
+
+<Entry time="20:30">
+
+Now the robot checks its own battery a few times a second and pushes the motors a little harder as it drains. Eight laps in a row on one charge, the last one as tidy as the first.
+
+</Entry>
+
+<Toggle title="Battery voltage sag, measured">
+
+The battery is a 2-cell pack: 8.4 V full, 7.4 V nominal. I read it through a 10k/10k voltage divider on an analog pin, so the board sees half the real voltage.
+
+| Run time | Resting | Motors at full push |
+| --- | --- | --- |
+| 0 min | 8.3 V | 7.9 V |
+| 10 min | 7.8 V | 7.0 V |
+| 18 min | 7.5 V | 6.4 V |
+
+Motor speed roughly follows the voltage, so at 18 minutes the same PWM value gives about 20% less speed, and the tuned steering stops matching.
+
+The fix scales every motor command against a reference voltage:
+
+```cpp
+const float V_REF = 7.8;                 // voltage I tuned at
+float vbat = readBattery();              // smoothed over 8 samples
+float scale = constrain(V_REF / vbat, 0.9, 1.25);
+
+setMotors((left  * scale), (right * scale));
+```
+
+Below 6.6 V resting, it stops and flashes its LED instead of trying, because the servo starts to drop the block.
+
+</Toggle>
