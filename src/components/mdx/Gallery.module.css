@@ -1,0 +1,33 @@
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: var(--space-lg) 0;
+}
+
+/* Phone: an edge-to-edge strip, one photo and a peek of the next, snapping
+   to each. --mdx-bleed is the page's side gutter (set by the page; 16px if
+   unset): the negative margin cancels it so photos run to the screen edges,
+   and the matching padding puts the first photo back in line with the text. */
+@media (max-width: 699px) {
+  .gallery {
+    display: flex;
+    gap: 12px;
+    margin-inline: calc(-1 * var(--mdx-bleed, 16px));
+    padding-inline: var(--mdx-bleed, 16px);
+    scroll-padding-inline: var(--mdx-bleed, 16px);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .gallery::-webkit-scrollbar {
+    display: none;
+  }
+
+  .gallery > * {
+    flex: 0 0 78%;
+    scroll-snap-align: start;
+  }
+}

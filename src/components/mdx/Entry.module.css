@@ -1,0 +1,44 @@
+.entry {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  margin: var(--space-lg) 0;
+}
+
+.time {
+  /* Sits on the first line of text: 18px × 1.78 line, 12px label. */
+  padding-top: 0.55em;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--log-accent);
+}
+
+.text {
+  font-family: var(--font-body), serif;
+  font-size: 18px;
+  line-height: 1.78;
+}
+
+/* MDX paragraphs bring the prose .p sizes and bottom margin; the entry's
+   own type and margin win. */
+.text > p {
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.text > :last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 699px) {
+  .entry {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 6px;
+  }
+
+  .time {
+    padding-top: 0;
+  }
+}

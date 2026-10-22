@@ -1,7 +1,9 @@
 .episodePage {
+  /* Side gutter, which full-bleed MDX blocks (Gallery's phone strip) cancel. */
+  --mdx-bleed: var(--space-md);
   max-width: var(--content-width);
   margin: 0 auto;
-  padding: var(--space-lg) var(--space-md) var(--space-xl);
+  padding: var(--space-lg) var(--mdx-bleed) var(--space-xl);
 }
 
 /* ── HEADER ── */

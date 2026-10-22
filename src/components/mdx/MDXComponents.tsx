@@ -13,6 +13,13 @@ import PullQuote from "./PullQuote";
 import Closer from "./Closer";
 import Space from "./Space";
 import YouTubeEmbed from "./YouTubeEmbed";
+import Entry from "./Entry";
+import Toggle from "./Toggle";
+import Photo from "./Photo";
+import Gallery from "./Gallery";
+import Compare from "./Compare";
+import Lesson from "./Lesson";
+import DeepDiveLink from "./DeepDiveLink";
 
 /* ──────────────────────────────────────────────────────────────
    Custom MDX component map.
@@ -28,20 +35,6 @@ const textContent = (node: React.ReactNode): string => {
     return textContent((node.props as { children?: React.ReactNode }).children);
   }
   return "";
-};
-
-// TEMPORARY: Builder Log body components render only their children until
-// the real <Entry>, <Toggle>, <Compare>, <Gallery>/<Photo>, <Lesson> and
-// <DeepDiveLink> land — this keeps the sample log MDX building meanwhile.
-const PassThrough = ({ children }: { children?: React.ReactNode }) => <>{children}</>;
-const builderLogPlaceholders = {
-  Entry: PassThrough,
-  Toggle: PassThrough,
-  Compare: PassThrough,
-  Gallery: PassThrough,
-  Photo: PassThrough,
-  Lesson: PassThrough,
-  DeepDiveLink: PassThrough,
 };
 
 // Helper to extract text from ReactNode and create a slug for heading IDs
@@ -142,6 +135,13 @@ export const mdxComponents = {
   Closer,
   Space,
   YouTubeEmbed,
-  ...builderLogPlaceholders,
+  // Builder Log
+  Entry,
+  Toggle,
+  Photo,
+  Gallery,
+  Compare,
+  Lesson,
+  DeepDiveLink,
   ...interactiveComponents,
 };

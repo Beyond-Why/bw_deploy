@@ -1,0 +1,43 @@
+.lesson {
+  margin: var(--space-xl) 0;
+}
+
+.rule {
+  display: block;
+  width: 22px;
+  height: 2px;
+  margin-bottom: 12px;
+  border-radius: 1px;
+  background: var(--log-accent);
+}
+
+.label {
+  margin: 0 0 8px;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--log-accent);
+}
+
+.text {
+  font-family: var(--font-dm-serif-italic), serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 25px;
+  line-height: 1.35;
+  color: var(--text-primary);
+  text-wrap: pretty;
+}
+
+.text > p {
+  margin: 0;
+  font: inherit;
+  color: inherit;
+}
+
+@media (max-width: 699px) {
+  .text {
+    font-size: 21px;
+  }
+}

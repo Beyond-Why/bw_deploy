@@ -1,0 +1,23 @@
+.compare {
+  margin: var(--space-lg) 0;
+}
+
+.pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.caption {
+  margin-top: 10px;
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--font-size-xs);
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+@media (max-width: 699px) {
+  .pair {
+    gap: 8px;
+  }
+}
