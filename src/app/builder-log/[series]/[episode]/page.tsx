@@ -28,14 +28,11 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps) {
   const { series, episode } = await params;
-  let episodeData: Awaited<ReturnType<typeof getEpisode>>;
-  let seriesData: Awaited<ReturnType<typeof getSeriesIndex>>;
-  try {
-    episodeData = await getEpisode("builder-log", series, episode);
-    seriesData = await getSeriesIndex("builder-log", series);
-  } catch {
-    notFound();
-  }
+  const [episodeData, seriesData] = await Promise.all([
+    getEpisode("builder-log", series, episode),
+    getSeriesIndex("builder-log", series),
+  ]);
+  if (!episodeData || !seriesData) notFound();
   const { frontmatter, content } = episodeData;
   if (isPlaceholder(frontmatter) || isPlaceholder(seriesData.frontmatter)) notFound();
   return pageMetadata({
@@ -52,17 +49,14 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function BuilderLogEpisodePage({ params }: PageProps) {
   const { series, episode } = await params;
-  let frontmatter: Awaited<ReturnType<typeof getEpisode>>["frontmatter"];
-  let content: Awaited<ReturnType<typeof getEpisode>>["content"];
-  let seriesData: Awaited<ReturnType<typeof getSeriesIndex>>;
-  let episodes: Awaited<ReturnType<typeof getEpisodes>>;
-  try {
-    ({ frontmatter, content } = await getEpisode("builder-log", series, episode));
-    seriesData = await getSeriesIndex("builder-log", series);
-    episodes = await getEpisodes("builder-log", series);
-  } catch {
-    notFound();
-  }
+  const [episodeData, seriesData, episodes] = await Promise.all([
+    getEpisode("builder-log", series, episode),
+    getSeriesIndex("builder-log", series),
+    getEpisodes("builder-log", series),
+  ]);
+  // Only slugs the series actually lists — never index.mdx or an arbitrary file.
+  if (!episodeData || !seriesData || !episodes.some((ep) => ep.slug === episode)) notFound();
+  const { frontmatter, content } = episodeData;
   if (isPlaceholder(frontmatter) || isPlaceholder(seriesData.frontmatter)) notFound();
 
   const currentIndex = episodes.findIndex((ep) => ep.slug === episode);

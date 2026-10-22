@@ -39,14 +39,10 @@ async function withContentTitle(
     if (cached) {
       contentTitle = cached;
     } else {
-      try {
-        const seriesData = await getSeriesIndex("deep-dives", seriesSlug);
-        contentTitle = seriesData.frontmatter.title;
-      } catch {
-        // Series removed/renamed since the comment was posted — fall back
-        // to the slug rather than breaking the row.
-        contentTitle = seriesSlug;
-      }
+      const seriesData = await getSeriesIndex("deep-dives", seriesSlug);
+      // Series removed/renamed since the comment was posted — fall back
+      // to the slug rather than breaking the row.
+      contentTitle = seriesData?.frontmatter.title ?? seriesSlug;
       titleCache.set(seriesSlug, contentTitle);
     }
   }

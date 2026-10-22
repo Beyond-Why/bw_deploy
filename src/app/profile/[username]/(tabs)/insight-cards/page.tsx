@@ -1,3 +1,5 @@
+import { notFound } from "next/navigation";
+import { getCollections } from "@/lib/content";
 import { getProfileByUsername } from "@/lib/profile";
 import { getCurrentUser } from "@/lib/auth/getUser";
 import { getBookmarkItems } from "@/components/profile/BookmarksSection";
@@ -12,6 +14,8 @@ export default async function ProfileInsightCardsTab({
   params: Promise<{ username: string }>;
 }) {
   const { username } = await params;
+  // No Insight Card content at all — the tab doesn't exist (see ProfileNav).
+  if ((await getCollections()).length === 0) notFound();
   const profile = await getProfileByUsername(username);
   const user = await getCurrentUser();
   const isOwner = !!profile && user?.id === profile.id;
@@ -23,7 +27,10 @@ export default async function ProfileInsightCardsTab({
     (item) => item.contentType === "insight-card" || item.contentType === "insight-collection"
   );
 
-  if (items.length === 0) {
+  // Saves whose collection was since removed from disk drop out here.
+  const insightSaves = await buildInsightSaves(items);
+
+  if (insightSaves.length === 0) {
     return (
       <EmptyState
         icon={<InsightCardIcon size={32} />}
@@ -34,8 +41,6 @@ export default async function ProfileInsightCardsTab({
       />
     );
   }
-
-  const insightSaves = await buildInsightSaves(items);
 
   return <InsightSaveStack saves={insightSaves} />;
 }

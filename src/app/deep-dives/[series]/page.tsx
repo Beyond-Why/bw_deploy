@@ -16,12 +16,8 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps) {
   const { series } = await params;
-  let seriesData: Awaited<ReturnType<typeof getSeriesIndex>>;
-  try {
-    seriesData = await getSeriesIndex("deep-dives", series);
-  } catch {
-    notFound();
-  }
+  const seriesData = await getSeriesIndex("deep-dives", series);
+  if (!seriesData) notFound();
   const { frontmatter, content } = seriesData;
   if (isPlaceholder(frontmatter)) notFound();
   return pageMetadata({
@@ -34,15 +30,10 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function DeepDiveSeriesPage({ params }: PageProps) {
   const { series } = await params;
-  let frontmatter: Awaited<ReturnType<typeof getSeriesIndex>>["frontmatter"];
-  let content: Awaited<ReturnType<typeof getSeriesIndex>>["content"];
-  let episodes: Awaited<ReturnType<typeof getEpisodes>>;
-  try {
-    ({ frontmatter, content } = await getSeriesIndex("deep-dives", series));
-    episodes = await getEpisodes("deep-dives", series);
-  } catch {
-    notFound();
-  }
+  const seriesData = await getSeriesIndex("deep-dives", series);
+  if (!seriesData) notFound();
+  const { frontmatter, content } = seriesData;
+  const episodes = await getEpisodes("deep-dives", series);
   if (isPlaceholder(frontmatter)) notFound();
 
   const user = await getCurrentUser();

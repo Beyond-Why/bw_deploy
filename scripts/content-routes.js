@@ -10,6 +10,8 @@
    - /insight-cards/{collection} → 308 to its first card.
    - Unknown series / episode / collection / card slugs → rewritten to
      a path with no route, which Next answers with a real 404.
+   - The bare /deep-dives, /builder-log and /insight-cards homepage aliases → 404
+     while that content type has nothing in it.
 
    Built from src/content at build time, so it mirrors exactly what
    was deployed. Zero-byte placeholder files count as missing, matching
@@ -76,6 +78,8 @@ function contentRoutes() {
       readEntry(path.join(typeDir, slug, "index.mdx"))
     );
 
+    if (seriesSlugs.length === 0) notFound.push(`/${type}`);
+
     // Unknown series, with or without anything after it.
     notFound.push(`/${type}/:series${anythingBut(seriesSlugs)}`);
     notFound.push(`/${type}/:series${anythingBut(seriesSlugs)}/:rest*`);
@@ -90,6 +94,7 @@ function contentRoutes() {
   const collections = listDirs(insightDir).filter((slug) =>
     readEntry(path.join(insightDir, slug, "index.mdx"))
   );
+  if (collections.length === 0) notFound.push("/insight-cards");
   notFound.push(`/insight-cards/:collection${anythingBut(collections)}`);
   notFound.push(`/insight-cards/:collection${anythingBut(collections)}/:rest*`);
 

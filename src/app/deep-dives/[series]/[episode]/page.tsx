@@ -36,14 +36,11 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps) {
   const { series, episode } = await params;
-  let episodeData: Awaited<ReturnType<typeof getEpisode>>;
-  let seriesData: Awaited<ReturnType<typeof getSeriesIndex>>;
-  try {
-    episodeData = await getEpisode("deep-dives", series, episode);
-    seriesData = await getSeriesIndex("deep-dives", series);
-  } catch {
-    notFound();
-  }
+  const [episodeData, seriesData] = await Promise.all([
+    getEpisode("deep-dives", series, episode),
+    getSeriesIndex("deep-dives", series),
+  ]);
+  if (!episodeData || !seriesData) notFound();
   const { frontmatter, content } = episodeData;
   if (isPlaceholder(frontmatter) || isPlaceholder(seriesData.frontmatter)) notFound();
   return pageMetadata({
@@ -63,17 +60,14 @@ export default async function DeepDiveEpisodePage({ params, searchParams }: Page
   const { resume } = await searchParams;
 
   // Core episode data
-  let frontmatter: Awaited<ReturnType<typeof getEpisode>>["frontmatter"];
-  let content: Awaited<ReturnType<typeof getEpisode>>["content"];
-  let seriesData: Awaited<ReturnType<typeof getSeriesIndex>>;
-  let episodes: Awaited<ReturnType<typeof getEpisodes>>;
-  try {
-    ({ frontmatter, content } = await getEpisode("deep-dives", series, episode));
-    seriesData = await getSeriesIndex("deep-dives", series);
-    episodes = await getEpisodes("deep-dives", series);
-  } catch {
-    notFound();
-  }
+  const [episodeData, seriesData, episodes] = await Promise.all([
+    getEpisode("deep-dives", series, episode),
+    getSeriesIndex("deep-dives", series),
+    getEpisodes("deep-dives", series),
+  ]);
+  // Only slugs the series actually lists — never index.mdx or an arbitrary file.
+  if (!episodeData || !seriesData || !episodes.some((ep) => ep.slug === episode)) notFound();
+  const { frontmatter, content } = episodeData;
   if (isPlaceholder(frontmatter) || isPlaceholder(seriesData.frontmatter)) notFound();
 
   // Likes + reading progress — keyed by a compound id so slugs never

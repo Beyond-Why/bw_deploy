@@ -18,20 +18,12 @@ interface PageProps {
 
 /** The card and its collection, or a 404 for an unknown slug either way. */
 async function loadCard(collectionSlug: string, cardSlug: string) {
-  let collection: Awaited<ReturnType<typeof getCollection>>;
-  let card: Awaited<ReturnType<typeof getInsightCard>>;
-  try {
-    collection = await getCollection(collectionSlug);
-  } catch {
-    notFound();
-  }
+  const collection = await getCollection(collectionSlug);
+  if (!collection) notFound();
   // Only slugs the collection actually lists — never an arbitrary file path.
   if (!collection.cards.some((c) => c.slug === cardSlug)) notFound();
-  try {
-    card = await getInsightCard(collectionSlug, cardSlug);
-  } catch {
-    notFound();
-  }
+  const card = await getInsightCard(collectionSlug, cardSlug);
+  if (!card) notFound();
   if (isPlaceholder(card.frontmatter)) notFound();
   return { collection, card };
 }

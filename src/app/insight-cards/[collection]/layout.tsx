@@ -40,7 +40,10 @@ export default async function InsightCollectionLayout({ params, children }: Layo
   // the URL client-side, since this layout doesn't receive the [card] param.
   const cardContent: Record<string, ReactNode> = {};
   for (const card of activeCollection.cards) {
-    const { content } = await getInsightCard(collection, card.slug);
+    const cardData = await getInsightCard(collection, card.slug);
+    // Removed from disk since the collection was listed — skip, don't crash.
+    if (!cardData) continue;
+    const { content } = cardData;
     cardContent[card.slug] = (
       <MDXRemote source={content} components={mdxComponents} options={mdxOptions} />
     );

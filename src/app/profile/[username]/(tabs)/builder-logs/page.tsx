@@ -1,3 +1,5 @@
+import { notFound } from "next/navigation";
+import { getAllSeries } from "@/lib/content";
 import { getProfileByUsername } from "@/lib/profile";
 import { getCurrentUser } from "@/lib/auth/getUser";
 import { getBookmarkItems } from "@/components/profile/BookmarksSection";
@@ -11,6 +13,8 @@ export default async function ProfileBuilderLogsTab({
   params: Promise<{ username: string }>;
 }) {
   const { username } = await params;
+  // No Builder Log content at all — the tab doesn't exist.
+  if ((await getAllSeries("builder-log")).length === 0) notFound();
   const profile = await getProfileByUsername(username);
   const user = await getCurrentUser();
   const isOwner = !!profile && user?.id === profile.id;

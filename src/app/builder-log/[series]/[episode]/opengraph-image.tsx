@@ -13,14 +13,11 @@ export default async function Image({
   params: Promise<{ series: string; episode: string }>;
 }) {
   const { series, episode } = await params;
-  let episodeData: Awaited<ReturnType<typeof getEpisode>>;
-  let seriesData: Awaited<ReturnType<typeof getSeriesIndex>>;
-  try {
-    episodeData = await getEpisode("builder-log", series, episode);
-    seriesData = await getSeriesIndex("builder-log", series);
-  } catch {
-    notFound();
-  }
+  const [episodeData, seriesData] = await Promise.all([
+    getEpisode("builder-log", series, episode),
+    getSeriesIndex("builder-log", series),
+  ]);
+  if (!episodeData || !seriesData) notFound();
   const { frontmatter } = episodeData;
   if (isPlaceholder(frontmatter)) notFound();
   return renderOgImage({

@@ -13,12 +13,8 @@ export default async function Image({
   params: Promise<{ collection: string; card: string }>;
 }) {
   const { collection, card } = await params;
-  let collectionData: Awaited<ReturnType<typeof getCollection>>;
-  try {
-    collectionData = await getCollection(collection);
-  } catch {
-    notFound();
-  }
+  const collectionData = await getCollection(collection);
+  if (!collectionData) notFound();
   const entry = collectionData.cards.find((c) => c.slug === card);
   if (!entry || isPlaceholder(entry.frontmatter)) notFound();
   return renderOgImage({

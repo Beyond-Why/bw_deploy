@@ -9,14 +9,21 @@ function cx(...classes: Array<string | false | undefined>): string {
   return classes.filter(Boolean).join(" ");
 }
 
-export function ProfileNav({ username }: { username: string }) {
+export function ProfileNav({
+  username,
+  showInsightCards,
+}: {
+  username: string;
+  /** False while no Insight Card content exists — the tab is hidden, not empty. */
+  showInsightCards: boolean;
+}) {
   const pathname = usePathname();
   const base = `/profile/${username}`;
 
   const tabs = [
     { href: base, label: "Home", exact: true },
     { href: `${base}/deep-dives`, label: "Deep Dives" },
-    { href: `${base}/insight-cards`, label: "Insight Cards" },
+    ...(showInsightCards ? [{ href: `${base}/insight-cards`, label: "Insight Cards" }] : []),
   ];
 
   return (

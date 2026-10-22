@@ -173,6 +173,33 @@ async function readMDXFile<T>(filePath: string): Promise<ParsedMDX<T>> {
   };
 }
 
+/** readMDXFile, or null when the file (or a folder above it) doesn't
+ *  exist — so missing content reads as "nothing here" rather than an
+ *  error. Any other failure (e.g. malformed frontmatter) still throws. */
+async function readMDXFileIfExists<T>(filePath: string): Promise<ParsedMDX<T> | null> {
+  try {
+    return await readMDXFile<T>(filePath);
+  } catch (err) {
+    if (isMissingPathError(err)) return null;
+    throw err;
+  }
+}
+
+function isMissingPathError(err: unknown): boolean {
+  const code = (err as NodeJS.ErrnoException | null)?.code;
+  return code === "ENOENT" || code === "ENOTDIR";
+}
+
+/** Directory entries, or [] when the directory doesn't exist. */
+async function readDirIfExists(dirPath: string): Promise<string[]> {
+  try {
+    return await fs.readdir(dirPath);
+  } catch (err) {
+    if (isMissingPathError(err)) return [];
+    throw err;
+  }
+}
+
 async function dirExists(dirPath: string): Promise<boolean> {
   try {
     const stat = await fs.stat(dirPath);
@@ -185,19 +212,20 @@ async function dirExists(dirPath: string): Promise<boolean> {
 /* ── SERIES (Deep Dives & Builder Log) ── */
 
 /**
- * Get the index page data for a series.
+ * Get the index page data for a series, or null if it doesn't exist.
  * Reads: src/content/{type}/{slug}/index.mdx
  */
 export async function getSeriesIndex(
   type: "deep-dives" | "builder-log",
   slug: string
-): Promise<ParsedMDX<SeriesFrontmatter>> {
+): Promise<ParsedMDX<SeriesFrontmatter> | null> {
   const filePath = path.join(CONTENT_DIR, type, slug, "index.mdx");
-  return readMDXFile<SeriesFrontmatter>(filePath);
+  return readMDXFileIfExists<SeriesFrontmatter>(filePath);
 }
 
 /**
- * Get all episodes for a series, sorted by episode number.
+ * Get all episodes for a series, sorted by episode number — [] if the
+ * series doesn't exist.
  * Reads: src/content/{type}/{slug}/episode_*.mdx
  */
 export async function getEpisodes(
@@ -205,7 +233,7 @@ export async function getEpisodes(
   slug: string
 ): Promise<EpisodeInfo[]> {
   const seriesDir = path.join(CONTENT_DIR, type, slug);
-  const files = await fs.readdir(seriesDir);
+  const files = await readDirIfExists(seriesDir);
 
   const episodeFiles = files.filter(
     (f) => f.startsWith("episode_") && f.endsWith(".mdx")
@@ -229,16 +257,16 @@ export async function getEpisodes(
 }
 
 /**
- * Get a single episode's content.
+ * Get a single episode's content, or null if it doesn't exist.
  * Reads: src/content/{type}/{slug}/{episodeSlug}.mdx
  */
 export async function getEpisode(
   type: "deep-dives" | "builder-log",
   slug: string,
   episodeSlug: string
-): Promise<ParsedMDX<EpisodeFrontmatter>> {
+): Promise<ParsedMDX<EpisodeFrontmatter> | null> {
   const filePath = path.join(CONTENT_DIR, type, slug, `${episodeSlug}.mdx`);
-  return readMDXFile<EpisodeFrontmatter>(filePath);
+  return readMDXFileIfExists<EpisodeFrontmatter>(filePath);
 }
 
 /**
@@ -285,16 +313,19 @@ export async function getAllSeries(
 const INSIGHT_CARDS_DIR = path.join(CONTENT_DIR, "insight-cards");
 
 /**
- * Get one collection and its cards, sorted by frontmatter.order.
+ * Get one collection and its cards, sorted by frontmatter.order — or null
+ * if the collection doesn't exist.
  * Reads: src/content/insight-cards/{slug}/index.mdx + card_*.mdx
  */
-export async function getCollection(slug: string): Promise<InsightCollection> {
+export async function getCollection(slug: string): Promise<InsightCollection | null> {
   const collectionDir = path.join(INSIGHT_CARDS_DIR, slug);
-  const { frontmatter } = await readMDXFile<InsightCollectionFrontmatter>(
+  const index = await readMDXFileIfExists<InsightCollectionFrontmatter>(
     path.join(collectionDir, "index.mdx")
   );
+  if (!index) return null;
+  const { frontmatter } = index;
 
-  const files = await fs.readdir(collectionDir);
+  const files = await readDirIfExists(collectionDir);
   const cardFiles = files.filter(
     (f) => f.startsWith("card_") && f.endsWith(".mdx")
   );
@@ -345,15 +376,15 @@ export async function getCollections(): Promise<InsightCollection[]> {
 }
 
 /**
- * Get a single card's full content.
+ * Get a single card's full content, or null if it doesn't exist.
  * Reads: src/content/insight-cards/{collectionSlug}/{cardSlug}.mdx
  */
 export async function getInsightCard(
   collectionSlug: string,
   cardSlug: string
-): Promise<ParsedMDX<InsightCardFrontmatter>> {
+): Promise<ParsedMDX<InsightCardFrontmatter> | null> {
   const filePath = path.join(INSIGHT_CARDS_DIR, collectionSlug, `${cardSlug}.mdx`);
-  return readMDXFile<InsightCardFrontmatter>(filePath);
+  return readMDXFileIfExists<InsightCardFrontmatter>(filePath);
 }
 
 /**
@@ -413,6 +444,7 @@ export async function resolveReference(ref: string): Promise<NormalizedFeaturedC
     if (!cardSlug) return null;
     try {
       const card = await getInsightCard(collectionSlug, cardSlug);
+      if (!card) return null;
       return {
         type: "episode",
         title: card.frontmatter.title,
@@ -432,6 +464,7 @@ export async function resolveReference(ref: string): Promise<NormalizedFeaturedC
     try {
       const series = await getSeriesIndex(type, slug);
       const ep = await getEpisode(type, slug, episodeSlug);
+      if (!series || !ep) return null;
       return {
         type: "episode",
         title: ep.frontmatter.title,
@@ -453,6 +486,7 @@ export async function resolveReference(ref: string): Promise<NormalizedFeaturedC
   // It's a series
   try {
     const series = await getSeriesIndex(type, slug);
+    if (!series) return null;
     const episodes = await getEpisodes(type, slug);
     return {
       type: "series",

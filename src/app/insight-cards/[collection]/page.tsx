@@ -10,13 +10,9 @@ interface PageProps {
 // its first card, so links and search results consolidate on the card.
 export default async function InsightCollectionPage({ params }: PageProps) {
   const { collection } = await params;
-  let cards: Awaited<ReturnType<typeof getCollection>>["cards"];
-  try {
-    ({ cards } = await getCollection(collection));
-  } catch {
-    notFound();
-  }
-  const first = cards.find((card) => !isPlaceholder(card.frontmatter));
+  const collectionData = await getCollection(collection);
+  if (!collectionData) notFound();
+  const first = collectionData.cards.find((card) => !isPlaceholder(card.frontmatter));
   if (!first) notFound();
   permanentRedirect(`/insight-cards/${collection}/${first.slug}`);
 }

@@ -12,6 +12,7 @@ import type { BookmarkItem } from "./BookmarksList";
 export async function buildInsightSave(bookmark: BookmarkItem): Promise<RecentInsightSave | null> {
   try {
     const collection = await getCollection(bookmark.contentId);
+    if (!collection) return null;
     const cards: InsightRowCardItem[] = collection.cards.map((card) => ({
       slug: `${collection.slug}/${card.slug}`,
       href: `/insight-cards/${collection.slug}/${card.slug}`,

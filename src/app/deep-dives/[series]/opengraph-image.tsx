@@ -9,12 +9,9 @@ export const contentType = ogImageContentType;
 
 export default async function Image({ params }: { params: Promise<{ series: string }> }) {
   const { series } = await params;
-  let frontmatter: Awaited<ReturnType<typeof getSeriesIndex>>["frontmatter"];
-  try {
-    ({ frontmatter } = await getSeriesIndex("deep-dives", series));
-  } catch {
-    notFound();
-  }
+  const seriesData = await getSeriesIndex("deep-dives", series);
+  if (!seriesData) notFound();
+  const { frontmatter } = seriesData;
   if (isPlaceholder(frontmatter)) notFound();
   return renderOgImage({
     kind: "Deep Dive",

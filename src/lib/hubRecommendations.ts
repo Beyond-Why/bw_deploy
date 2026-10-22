@@ -17,25 +17,22 @@ async function enrichContinueReadingRow(
   if (collection !== "deep-dives") return null;
   if (!seriesSlug || !episodeSlug || seriesSlug === excludeSeriesSlug) return null;
 
-  try {
-    const [series, episode, episodes] = await Promise.all([
-      getSeriesIndex("deep-dives", seriesSlug),
-      getEpisode("deep-dives", seriesSlug, episodeSlug),
-      getEpisodes("deep-dives", seriesSlug),
-    ]);
+  const [series, episode, episodes] = await Promise.all([
+    getSeriesIndex("deep-dives", seriesSlug),
+    getEpisode("deep-dives", seriesSlug, episodeSlug),
+    getEpisodes("deep-dives", seriesSlug),
+  ]);
+  // Content since removed/renamed on disk — skip rather than crash the page.
+  if (!series || !episode) return null;
 
-    return {
-      type: "deep-dive",
-      title: series.frontmatter.title,
-      href: `/deep-dives/${seriesSlug}/${episodeSlug}?resume=true`,
-      thumbnail: episode.frontmatter.thumbnail || series.frontmatter.thumbnail,
-      progressPercent: Math.round(row.scrollPercent * 100),
-      meta: `Episode ${episode.frontmatter.episode} of ${episodes.length}`,
-    };
-  } catch {
-    // Content since removed/renamed on disk — skip rather than crash the page.
-    return null;
-  }
+  return {
+    type: "deep-dive",
+    title: series.frontmatter.title,
+    href: `/deep-dives/${seriesSlug}/${episodeSlug}?resume=true`,
+    thumbnail: episode.frontmatter.thumbnail || series.frontmatter.thumbnail,
+    progressPercent: Math.round(row.scrollPercent * 100),
+    meta: `Episode ${episode.frontmatter.episode} of ${episodes.length}`,
+  };
 }
 
 export interface HubRecommendations {

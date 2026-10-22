@@ -24,32 +24,29 @@ const EPISODE_FETCH_CAP_BY_COLLECTION_ROWS = [15, 10, 6, 4];
  *  Home page can fetch it once up front (alongside Continue Reading) to
  *  decide on the shared all-empty state, and so the per-type tabs
  *  (Deep Dives / Insight Cards / Builder Logs) can fetch once and filter. */
-/** Episode/series bookmark title + thumbnail are re-read from the source
- *  MDX on every request instead of the bookmark row's saved-at snapshot,
- *  so a card always reflects the current title/thumbnail even if the
- *  content was edited after the user bookmarked it. The bookmark row's
- *  own contentTitle/thumbnailUrl columns are left in place (and used as a
- *  fallback if the source file is gone) — only the read path changed. */
-async function withFreshEpisodeMetadata(item: BookmarkItem): Promise<BookmarkItem> {
+/** Episode bookmark title + thumbnail are re-read from the source MDX on
+ *  every request instead of the bookmark row's saved-at snapshot, so a
+ *  card always reflects the current title/thumbnail even if the content
+ *  was edited after the user bookmarked it. The bookmark row's own
+ *  contentTitle/thumbnailUrl columns are left in place — only the read
+ *  path changed. Returns null when the source file is gone (renamed or
+ *  removed since the bookmark was saved), so the bookmark is skipped
+ *  rather than linking to a 404. */
+async function withFreshEpisodeMetadata(item: BookmarkItem): Promise<BookmarkItem | null> {
   const [type, seriesSlug, episodeSlug] = item.contentId.split("/");
   if ((type !== "deep-dives" && type !== "builder-log") || !seriesSlug || !episodeSlug) {
     return item;
   }
-  try {
-    const [{ frontmatter }, seriesData] = await Promise.all([
-      getEpisode(type, seriesSlug, episodeSlug),
-      getSeriesIndex(type, seriesSlug),
-    ]);
-    return {
-      ...item,
-      contentTitle: frontmatter.title,
-      thumbnailUrl: frontmatter.thumbnail || seriesData.frontmatter.thumbnail || null,
-    };
-  } catch {
-    // Source file renamed/removed since the bookmark was saved — keep the
-    // snapshot rather than breaking the card.
-    return item;
-  }
+  const [episode, seriesData] = await Promise.all([
+    getEpisode(type, seriesSlug, episodeSlug),
+    getSeriesIndex(type, seriesSlug),
+  ]);
+  if (!episode || !seriesData) return null;
+  return {
+    ...item,
+    contentTitle: episode.frontmatter.title,
+    thumbnailUrl: episode.frontmatter.thumbnail || seriesData.frontmatter.thumbnail || null,
+  };
 }
 
 export async function getBookmarkItems(userId: string): Promise<BookmarkItem[]> {
@@ -68,13 +65,14 @@ export async function getBookmarkItems(userId: string): Promise<BookmarkItem[]> 
     contentCategory: row.contentCategory,
     createdAt: row.createdAt.toISOString(),
   }));
-  return Promise.all(
+  const fresh = await Promise.all(
     items.map((item) =>
       item.contentType === "episode" || item.contentType === "builder-log"
         ? withFreshEpisodeMetadata(item)
         : item
     )
   );
+  return fresh.filter((item): item is BookmarkItem => item !== null);
 }
 
 export interface BookmarksDataResult {

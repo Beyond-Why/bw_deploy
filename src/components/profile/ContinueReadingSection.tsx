@@ -16,25 +16,22 @@ async function enrichRow(row: ReadingProgressRow): Promise<ProfileContentPreview
   if (collection !== "deep-dives" && collection !== "builder-log") return null;
   if (!seriesSlug || !episodeSlug) return null;
 
-  try {
-    const [series, episode, episodes] = await Promise.all([
-      getSeriesIndex(collection, seriesSlug),
-      getEpisode(collection, seriesSlug, episodeSlug),
-      getEpisodes(collection, seriesSlug),
-    ]);
+  const [series, episode, episodes] = await Promise.all([
+    getSeriesIndex(collection, seriesSlug),
+    getEpisode(collection, seriesSlug, episodeSlug),
+    getEpisodes(collection, seriesSlug),
+  ]);
+  // Content since removed/renamed on disk — skip rather than crash the tab.
+  if (!series || !episode) return null;
 
-    return {
-      type: COLLECTION_TYPE[collection],
-      title: series.frontmatter.title,
-      href: `/${collection}/${seriesSlug}/${episodeSlug}?resume=true`,
-      thumbnail: episode.frontmatter.thumbnail || series.frontmatter.thumbnail,
-      progressPercent: Math.round(row.scrollPercent * 100),
-      meta: `${collection === "deep-dives" ? "Episode" : "Log"} ${episode.frontmatter.episode} of ${episodes.length}`,
-    };
-  } catch {
-    // Content since removed/renamed on disk — skip rather than crash the tab.
-    return null;
-  }
+  return {
+    type: COLLECTION_TYPE[collection],
+    title: series.frontmatter.title,
+    href: `/${collection}/${seriesSlug}/${episodeSlug}?resume=true`,
+    thumbnail: episode.frontmatter.thumbnail || series.frontmatter.thumbnail,
+    progressPercent: Math.round(row.scrollPercent * 100),
+    meta: `${collection === "deep-dives" ? "Episode" : "Log"} ${episode.frontmatter.episode} of ${episodes.length}`,
+  };
 }
 
 /** Continue Reading's live data, extracted from the section component so

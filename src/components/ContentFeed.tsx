@@ -91,11 +91,20 @@ export function ContentFeed({
   // (this only ever shuffles post-hydration, so no SSR/client mismatch risk).
   const [shuffledCollections] = useState<InsightCollection[]>(() => shuffleOnce(collections));
 
+  // A single-type tab only exists while there's something to show in it.
+  const hasDeepDives = deepDives.length > 0;
+  const hasCollections = collections.length > 0;
+  const tabs: ContentType[] = [
+    "All",
+    ...(hasDeepDives ? (["Deep Dives"] as const) : []),
+    ...(hasCollections ? (["Insight Cards"] as const) : []),
+  ];
+
   // Initialize tab from URL and scroll to section if on a filtered path
   useEffect(() => {
     const path = window.location.pathname;
-    if (path === "/deep-dives") setActiveTab("Deep Dives");
-    else if (path === "/insight-cards") setActiveTab("Insight Cards");
+    if (path === "/deep-dives" && hasDeepDives) setActiveTab("Deep Dives");
+    else if (path === "/insight-cards" && hasCollections) setActiveTab("Insight Cards");
     else setActiveTab("All");
 
     if (path !== "/") {
@@ -104,9 +113,8 @@ export function ContentFeed({
       }, 100);
       return () => clearTimeout(timer);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- URL is read once, on mount
   }, []);
-
-  const tabs: ContentType[] = ["All", "Deep Dives", "Insight Cards"];
 
   // Sort by date for single-type tabs
   const sortedDeepDives = [...deepDives].sort(

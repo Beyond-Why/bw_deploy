@@ -9,12 +9,9 @@ export const contentType = ogImageContentType;
 
 export default async function Image({ params }: { params: Promise<{ series: string }> }) {
   const { series } = await params;
-  let frontmatter: Awaited<ReturnType<typeof getSeriesIndex>>["frontmatter"];
-  try {
-    ({ frontmatter } = await getSeriesIndex("builder-log", series));
-  } catch {
-    notFound();
-  }
+  const seriesData = await getSeriesIndex("builder-log", series);
+  if (!seriesData) notFound();
+  const { frontmatter } = seriesData;
   if (isPlaceholder(frontmatter)) notFound();
   return renderOgImage({
     kind: "Builder Log",
