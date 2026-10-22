@@ -8,6 +8,13 @@
   padding: 0 var(--mdx-bleed);
 }
 
+/* Room for the fixed journey bar (64px) under the end section. */
+@media (min-width: 700px) {
+  .page {
+    padding-bottom: calc(64px + var(--space-xl));
+  }
+}
+
 @media (max-width: 699px) {
   .page {
     --mdx-bleed: 16px;

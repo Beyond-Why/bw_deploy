@@ -6,7 +6,7 @@ import { ProfileHeader } from "../ProfileHeader";
 import { ProfileNav } from "@/components/profile/ProfileNav";
 import { ProfileShell } from "@/components/profile/ProfileShell";
 import { NOINDEX } from "@/lib/seo";
-import { getCollections } from "@/lib/content";
+import { getAllSeries, getCollections } from "@/lib/content";
 import styles from "./layout.module.css";
 
 export const metadata: Metadata = { robots: NOINDEX };
@@ -25,14 +25,20 @@ export default async function ProfileTabsLayout({
 
   const user = await getCurrentUser();
   const isOwner = user?.id === profile.id;
-  const hasInsightCards = (await getCollections()).length > 0;
+  const [collections, builderLogs] = await Promise.all([getCollections(), getAllSeries("builder-log")]);
+  const hasInsightCards = collections.length > 0;
+  const hasBuilderLogs = builderLogs.length > 0;
 
   return (
     <div>
       <ProfileShell>
         <ProfileHeader profile={profile} isOwner={isOwner} />
       </ProfileShell>
-      <ProfileNav username={profile.username} showInsightCards={hasInsightCards} />
+      <ProfileNav
+        username={profile.username}
+        showInsightCards={hasInsightCards}
+        showBuilderLogs={hasBuilderLogs}
+      />
       <ProfileShell>
         <div className={styles.content}>{children}</div>
       </ProfileShell>

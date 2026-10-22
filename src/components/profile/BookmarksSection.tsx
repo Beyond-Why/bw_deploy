@@ -34,6 +34,17 @@ const EPISODE_FETCH_CAP_BY_COLLECTION_ROWS = [15, 10, 6, 4];
  *  rather than linking to a 404. */
 async function withFreshEpisodeMetadata(item: BookmarkItem): Promise<BookmarkItem | null> {
   const [type, seriesSlug, episodeSlug] = item.contentId.split("/");
+  // A whole Builder Log series ("Bookmark this build"): refresh from its
+  // index.mdx, and drop it if the series is gone.
+  if (type === "builder-log" && seriesSlug && !episodeSlug) {
+    const seriesData = await getSeriesIndex("builder-log", seriesSlug);
+    if (!seriesData) return null;
+    return {
+      ...item,
+      contentTitle: seriesData.frontmatter.title,
+      thumbnailUrl: seriesData.frontmatter.thumbnail || null,
+    };
+  }
   if ((type !== "deep-dives" && type !== "builder-log") || !seriesSlug || !episodeSlug) {
     return item;
   }

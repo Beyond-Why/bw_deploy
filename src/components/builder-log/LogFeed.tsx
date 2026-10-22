@@ -17,7 +17,14 @@ export interface FeedLog {
  * already rendered on the server; this only re-orders them, tells each
  * one its position (the first three never fold) and handles #day-N links.
  */
-export default function LogFeed({ logs }: { logs: FeedLog[] }) {
+export default function LogFeed({
+  logs,
+  oldestEndActions,
+}: {
+  logs: FeedLog[];
+  /** Extra buttons for the oldest-first ending ("Bookmark this build"). */
+  oldestEndActions?: ReactNode;
+}) {
   const { order, setOrder, switchCount } = useLogOrder();
   const feedRef = useRef<HTMLDivElement>(null);
   const [openRequest, setOpenRequest] = useState<{ day: number; token: number } | null>(null);
@@ -76,6 +83,7 @@ export default function LogFeed({ logs }: { logs: FeedLog[] }) {
             <p className={styles.endTitle}>That&apos;s everything so far.</p>
             <p className={styles.endLine}>The next log gets written the day something works.</p>
             <div className={styles.endButtons}>
+              {oldestEndActions}
               <button type="button" className={styles.endButton} onClick={() => setOrder("newest")}>
                 Back to latest
               </button>

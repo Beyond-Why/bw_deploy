@@ -4,6 +4,7 @@ import LogGlyph, { glyphForHighlight } from "./LogGlyph";
 import LogCover from "./LogCover";
 import LogFold from "./LogFold";
 import LogActions from "./LogActions";
+import RailNumeral from "./RailNumeral";
 import { LogFoldScope } from "./logState";
 import styles from "./LogEntry.module.css";
 
@@ -30,7 +31,8 @@ export default function LogEntry({
   /** The log's MDX, already rendered on the server. */
   body: ReactNode;
   isLatest?: boolean;
-  /** The log being read — its numeral gets the accent stroke. */
+  /** The log being read — its numeral gets the accent stroke. Only used
+   *  outside a series page; there, the scroll position decides. */
   current?: boolean;
   /** Load the cover eagerly (the first log on the page). */
   priority?: boolean;
@@ -45,9 +47,14 @@ export default function LogEntry({
       <LogFoldScope day={log.day} likelyTall={isLikelyTall(log)}>
         <div className={styles.rail}>
           <div className={styles.railInner}>
-            <LogGlyph kind={glyph} state={current ? "current" : "past"} className={styles.node} />
+            <LogGlyph kind={glyph} className={styles.node} />
             <span className={styles.dayLabel}>Day</span>
-            <span className={`${styles.numeral} ${current ? styles.numeralCurrent : ""}`}>{log.day}</span>
+            <RailNumeral
+              day={log.day}
+              current={current}
+              className={styles.numeral}
+              currentClassName={styles.numeralCurrent}
+            />
             {log.date && (
               <time className={styles.date} dateTime={log.date}>
                 {log.dateLabel}

@@ -67,6 +67,9 @@
 }
 
 .endButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   min-height: 44px;
   padding: 0 20px;
   border: 1px solid var(--log-accent);
@@ -80,6 +83,10 @@
 }
 
 .endButton:hover {
+  background: var(--log-accent-light);
+}
+
+.endButtonOn {
   background: var(--log-accent-light);
 }
 

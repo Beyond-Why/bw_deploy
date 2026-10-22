@@ -12,10 +12,13 @@ function cx(...classes: Array<string | false | undefined>): string {
 export function ProfileNav({
   username,
   showInsightCards,
+  showBuilderLogs,
 }: {
   username: string;
   /** False while no Insight Card content exists — the tab is hidden, not empty. */
   showInsightCards: boolean;
+  /** False while no Builder Log exists — same rule. */
+  showBuilderLogs: boolean;
 }) {
   const pathname = usePathname();
   const base = `/profile/${username}`;
@@ -24,6 +27,7 @@ export function ProfileNav({
     { href: base, label: "Home", exact: true },
     { href: `${base}/deep-dives`, label: "Deep Dives" },
     ...(showInsightCards ? [{ href: `${base}/insight-cards`, label: "Insight Cards" }] : []),
+    ...(showBuilderLogs ? [{ href: `${base}/builder-logs`, label: "Builder Logs" }] : []),
   ];
 
   return (
