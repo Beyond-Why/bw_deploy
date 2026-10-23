@@ -161,3 +161,8 @@
     font-size: 17px;
   }
 }
+
+/* Phone pager: the series strip in PhonePager stands in for the header. */
+:global(html[data-log-pager]) .header {
+  display: none;
+}

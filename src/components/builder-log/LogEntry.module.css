@@ -137,18 +137,36 @@
    Placeholder layout until the phone design lands. */
 @media (max-width: 699px) {
   .log {
-    --numeral-size: 40px;
+    --numeral-size: 56px;
     --title-size: 26px;
     grid-template-columns: minmax(0, 1fr);
   }
 
+  /* Header row: the numeral, then date and chips stacked beside it. */
   .railInner {
     position: static;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 4px 10px;
-    padding: 0 0 10px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-auto-flow: row;
+    align-items: center;
+    column-gap: 12px;
+    row-gap: 4px;
+    padding: 0 0 12px;
+  }
+
+  .dayLabel {
+    display: none;
+  }
+
+  .numeral {
+    grid-row: 1 / span 3;
+  }
+
+  .date,
+  .latest,
+  .highlight {
+    grid-column: 2;
+    justify-self: start;
   }
 
   .node {

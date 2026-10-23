@@ -2,14 +2,8 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import LogGlyph from "./LogGlyph";
-import { LogPositionProvider, useLogOrder } from "./logState";
+import { LogPositionProvider, useCurrentLog, useLogOrder, usePager } from "./logState";
 import styles from "./LogFeed.module.css";
-
-/** The site sets `scroll-behavior: smooth` on html for everyone; honour
- *  reduced motion here by asking for an instant jump explicitly. */
-function scrollBehavior(): ScrollBehavior {
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth";
-}
 
 export interface FeedLog {
   day: number;
@@ -32,6 +26,8 @@ export default function LogFeed({
   oldestEndActions?: ReactNode;
 }) {
   const { order, setOrder, switchCount } = useLogOrder();
+  const { currentDay } = useCurrentLog();
+  const { isPager, expanded, setExpanded, slide } = usePager();
   const feedRef = useRef<HTMLDivElement>(null);
   const [openRequest, setOpenRequest] = useState<{ day: number; token: number } | null>(null);
 
@@ -39,7 +35,7 @@ export default function LogFeed({
 
   // After switching order, start reading from the top of the feed.
   useEffect(() => {
-    if (switchCount > 0) feedRef.current?.scrollIntoView({ block: "start", behavior: scrollBehavior() });
+    if (switchCount > 0) feedRef.current?.scrollIntoView({ block: "start" });
   }, [switchCount]);
 
   // #day-N: unfold that log and bring it into view — on load (the browser's
@@ -51,8 +47,7 @@ export default function LogFeed({
       if (!match) return;
       const day = Number(match[1]);
       setOpenRequest({ day, token: Date.now() });
-      const scroll = () =>
-        document.getElementById(`day-${day}`)?.scrollIntoView({ block: "start", behavior: scrollBehavior() });
+      const scroll = () => document.getElementById(`day-${day}`)?.scrollIntoView({ block: "start" });
       requestAnimationFrame(scroll);
       // Images and folds above it can still shift the page as they settle.
       setTimeout(scroll, 350);
@@ -63,13 +58,44 @@ export default function LogFeed({
   }, []);
 
   return (
-    <div ref={feedRef} id="log-feed" className={styles.feed}>
+    <div
+      ref={feedRef}
+      id="log-feed"
+      className={styles.feed}
+      data-expanded={isPager && expanded ? "" : undefined}
+    >
       <div className={styles.logs}>
-        {ordered.map((log, index) => (
-          <LogPositionProvider key={log.day} value={{ index, openRequest }}>
-            {log.node}
-          </LogPositionProvider>
-        ))}
+        {ordered.map((log, index) => {
+          // Phone pager: every log stays in the page; only the current one
+          // shows (the rest are display:none until chosen).
+          const active = log.day === currentDay;
+          const slideClass =
+            isPager && active && slide ? (slide.from === "left" ? styles.slideLeft : styles.slideRight) : "";
+          return (
+            <div
+              key={isPager && active && slide ? `${log.day}-${slide.key}` : log.day}
+              className={`${styles.slot} ${slideClass}`}
+              data-active={active ? "" : undefined}
+            >
+              <LogPositionProvider value={{ index, openRequest }}>{log.node}</LogPositionProvider>
+              {isPager && active && expanded && (
+                <button
+                  type="button"
+                  className={styles.foldBack}
+                  onClick={() => {
+                    setExpanded(false);
+                    if (feedRef.current) feedRef.current.scrollTop = 0;
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="m18 15-6-6-6 6" />
+                  </svg>
+                  Fold it back
+                </button>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       <div className={styles.end}>

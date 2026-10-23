@@ -175,6 +175,20 @@ html {
   overscroll-behavior: none;
 }
 
+/* Builder Log phone pager (set by LogStateProvider under 700px): one log
+   per screen in its own scroll area, so the page itself doesn't scroll. */
+html[data-log-pager] {
+  overflow: hidden;
+}
+
+/* Readers who ask for less motion get instant jumps (in-page links,
+   scrollIntoView) instead of animated scrolling. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
 /* ── BODY ── */
 body {
   font-family: var(--font-body), "Lora", Georgia, serif;

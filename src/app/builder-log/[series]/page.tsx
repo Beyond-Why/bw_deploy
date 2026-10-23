@@ -5,10 +5,11 @@ import { formatDayLabel } from "@/lib/formatDate";
 import { mdxComponents } from "@/components/mdx/MDXComponents";
 import { mdxOptions } from "@/components/mdx/mdxOptions";
 import "@/components/mdx/katex";
-import LogEntry from "@/components/builder-log/LogEntry";
+import LogEntry, { foldHint } from "@/components/builder-log/LogEntry";
 import LogFeed from "@/components/builder-log/LogFeed";
 import SeriesHeader from "@/components/builder-log/SeriesHeader";
 import JourneyBar from "@/components/builder-log/JourneyBar";
+import PhonePager from "@/components/builder-log/PhonePager";
 import BookmarkBuildButton from "@/components/builder-log/BookmarkBuildButton";
 import { LogStateProvider, type LogMeta, type LogOrder } from "@/components/builder-log/logState";
 import { getCurrentUser } from "@/lib/auth/getUser";
@@ -84,6 +85,7 @@ export default async function BuilderLogSeriesPage({ params, searchParams }: Pag
       thumbnail: entry.thumbnail,
       thumbnailAlt: entry.thumbnailAlt,
       hasThumbnail: entry.thumbnail ? await publicFileExists(entry.thumbnail) : false,
+      hint: foldHint(entry.summary),
     }))
   );
 
@@ -136,6 +138,7 @@ export default async function BuilderLogSeriesPage({ params, searchParams }: Pag
             }
           />
           <JourneyBar />
+          <PhonePager seriesTitle={frontmatter.title} />
         </LogStateProvider>
       </article>
     </>

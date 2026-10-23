@@ -70,6 +70,9 @@ export interface LogMeta {
   thumbnailAlt?: string;
   /** The thumbnail file exists (checked on the server). */
   hasThumbnail: boolean;
+  /** "Inside: 3 photos and a look under the hood" — shown with "Read the
+   *  whole log" when the log is cut off. */
+  hint?: string;
 }
 
 interface CurrentLogState {
@@ -80,6 +83,26 @@ interface CurrentLogState {
 }
 
 const LogsContext = createContext<LogMeta[]>([]);
+
+/** Phone layout (under 700px, with JS): one log per screen. */
+interface PagerState {
+  isPager: boolean;
+  /** The current log was opened past the screen ("Read the whole log"). */
+  expanded: boolean;
+  setExpanded: (expanded: boolean) => void;
+  /** Which side the current log slid in from, with a key that changes on
+   *  every move so the animation replays. */
+  slide: { from: "left" | "right"; key: number } | null;
+}
+
+const PagerContext = createContext<PagerState>({
+  isPager: false,
+  expanded: false,
+  setExpanded: () => {},
+  slide: null,
+});
+
+const PHONE_QUERY = "(max-width: 699px)";
 
 const CurrentLogContext = createContext<CurrentLogState>({
   currentDay: null,
@@ -157,6 +180,12 @@ export function LogStateProvider({
   });
   const syncPausedRef = useRef(false);
   const goToTokenRef = useRef(0);
+  const [isPager, setIsPager] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const [slide, setSlide] = useState<PagerState["slide"]>(null);
+  const pagerRef = useRef(false);
+  const currentDayRef = useRef(currentDay);
+  currentDayRef.current = currentDay;
 
   const setOrder = useCallback((next: LogOrder) => {
     setOrderState(next);
@@ -178,7 +207,8 @@ export function LogStateProvider({
 
   // ── Scroll sync ──
   const syncFromScroll = useCallback(() => {
-    if (syncPausedRef.current) return;
+    // The phone pager shows one log at a time — position comes from it.
+    if (syncPausedRef.current || pagerRef.current) return;
     const sections = document.querySelectorAll<HTMLElement>("section[data-day]");
     if (sections.length === 0) return;
     const readLine = window.innerHeight * READ_LINE;
@@ -223,6 +253,24 @@ export function LogStateProvider({
 
   const goToDay = useCallback(
     (day: number, { instant = false }: { instant?: boolean } = {}) => {
+      if (pagerRef.current) {
+        // Phone: swap the visible log in place; the new one starts folded
+        // and at its top, and slides in from the side it lives on (older
+        // from the left — the content follows the finger).
+        const from = currentDayRef.current;
+        if (from !== null && from !== day && !instant && !prefersReducedMotion()) {
+          setSlide((prev) => ({ from: day < from ? "left" : "right", key: (prev?.key ?? 0) + 1 }));
+        } else {
+          setSlide(null);
+        }
+        setExpanded(false);
+        setCurrentDay(day);
+        requestAnimationFrame(() => {
+          const area = document.getElementById("log-feed");
+          if (area) area.scrollTop = 0;
+        });
+        return;
+      }
       const section = document.getElementById(`day-${day}`);
       if (!section) return;
       const token = ++goToTokenRef.current;
@@ -242,13 +290,71 @@ export function LogStateProvider({
     [syncFromScroll]
   );
 
+  // ── Phone pager on/off ──
+  // Without JS this never runs, so a phone simply gets the stacked feed.
+  useEffect(() => {
+    const media = window.matchMedia(PHONE_QUERY);
+    let firstApply = true;
+    const apply = () => {
+      const opening = firstApply;
+      firstApply = false;
+      const on = media.matches;
+      if (on === pagerRef.current) return;
+      pagerRef.current = on;
+      setIsPager(on);
+      setExpanded(false);
+      setSlide(null);
+      if (on) {
+        document.documentElement.dataset.logPager = "on";
+        // Page load: open on #day-N if the link has one, otherwise the
+        // newest log. Rotating down from desktop keeps the log being read.
+        if (opening) {
+          const match = /^#day-(\d+)$/.exec(window.location.hash);
+          const fromHash =
+            match && logs.some((log) => log.day === Number(match[1])) ? Number(match[1]) : null;
+          setCurrentDay(fromHash ?? (logs.length ? logs[logs.length - 1].day : null));
+        }
+      } else {
+        delete document.documentElement.dataset.logPager;
+        // Rotated past 700px: keep reading the same log in the feed.
+        const day = currentDayRef.current;
+        if (day !== null) {
+          requestAnimationFrame(() => {
+            const section = document.getElementById(`day-${day}`);
+            if (section) window.scrollTo({ top: scrollTargetFor(section), behavior: "instant" });
+          });
+        }
+      }
+    };
+    apply();
+    media.addEventListener("change", apply);
+    return () => {
+      media.removeEventListener("change", apply);
+      // Fully reset, so a re-run (Strict Mode, or new logs) applies afresh.
+      pagerRef.current = false;
+      delete document.documentElement.dataset.logPager;
+    };
+  }, [logs]);
+
+  // On the phone the URL follows the log being read — replaceState, so the
+  // back button still leaves the page instead of stepping through logs.
+  useEffect(() => {
+    if (!isPager || currentDay === null) return;
+    const url = new URL(window.location.href);
+    url.hash = `day-${currentDay}`;
+    window.history.replaceState(null, "", url);
+  }, [isPager, currentDay]);
+
   const orderValue = useMemo(() => ({ order, setOrder, switchCount }), [order, setOrder, switchCount]);
   const currentValue = useMemo(() => ({ currentDay, goToDay }), [currentDay, goToDay]);
+  const pagerValue = useMemo(() => ({ isPager, expanded, setExpanded, slide }), [isPager, expanded, slide]);
 
   return (
     <OrderContext.Provider value={orderValue}>
       <LogsContext.Provider value={logs}>
-        <CurrentLogContext.Provider value={currentValue}>{children}</CurrentLogContext.Provider>
+        <CurrentLogContext.Provider value={currentValue}>
+          <PagerContext.Provider value={pagerValue}>{children}</PagerContext.Provider>
+        </CurrentLogContext.Provider>
       </LogsContext.Provider>
     </OrderContext.Provider>
   );
@@ -265,6 +371,10 @@ export function useLogs() {
 
 export function useCurrentLog() {
   return useContext(CurrentLogContext);
+}
+
+export function usePager() {
+  return useContext(PagerContext);
 }
 
 /* ── POSITION + OPEN REQUESTS (provided by LogFeed) ── */
@@ -315,7 +425,9 @@ export function LogFoldScope({
   children: ReactNode;
 }) {
   const { index, openRequest } = useContext(PositionContext);
-  const alwaysOpen = index < ALWAYS_OPEN_COUNT;
+  const { isPager } = useContext(PagerContext);
+  // The phone pager folds the whole screen instead (see PhonePager).
+  const alwaysOpen = isPager || index < ALWAYS_OPEN_COUNT;
   const [expanded, setExpanded] = useState(false);
   const [measuredTall, setMeasuredTall] = useState<boolean | null>(null);
 
