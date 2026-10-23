@@ -1,6 +1,6 @@
+import type { ReactNode } from "react";
 import type { EpisodeInfo, SeriesFrontmatter, InsightCardFrontmatter } from "@/lib/content";
 import { DeepDiveCard } from "@/components/library/DeepDiveCard";
-import { BuilderLogCard } from "@/components/library/BuilderLogCard";
 import { InsightBarCard } from "@/components/library/InsightBarCard";
 import { useMixedHeading } from "@/components/library/InsightRowHeadingProvider";
 import { InsightCardIcon } from "@/components/icons";
@@ -15,11 +15,8 @@ interface RecommendationFeedProps {
     frontmatter: SeriesFrontmatter;
     episodes: EpisodeInfo[];
   }[];
-  builderLogs: {
-    slug: string;
-    frontmatter: SeriesFrontmatter;
-    episodes: EpisodeInfo[];
-  }[];
+  /** Server-rendered compact BuilderLogBanners (the banner's phone layout). */
+  builderLogBanners: { slug: string; node: ReactNode }[];
   insightCards: { slug: string; frontmatter: InsightCardFrontmatter; collectionTitle: string }[];
 }
 
@@ -28,7 +25,7 @@ interface RecommendationFeedProps {
  *  Discussion section recommendations column. */
 export function RecommendationFeed({
   relatedSeries,
-  builderLogs,
+  builderLogBanners,
   insightCards,
 }: RecommendationFeedProps) {
   const insightHeading = useMixedHeading();
@@ -74,16 +71,11 @@ export function RecommendationFeed({
         </div>
       )}
 
-      {builderLogs.length > 0 && (
+      {builderLogBanners.length > 0 && (
         <div className={styles.cardFeed}>
-          {builderLogs.map((log) => (
-            <div key={log.slug} className={styles.cardItem}>
-              <BuilderLogCard
-                slug={log.slug}
-                frontmatter={log.frontmatter}
-                href={`/builder-log/${log.slug}`}
-                episodes={log.episodes}
-              />
+          {builderLogBanners.map((banner) => (
+            <div key={banner.slug} className={styles.cardItem}>
+              {banner.node}
             </div>
           ))}
         </div>

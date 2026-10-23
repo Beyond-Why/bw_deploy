@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import type {
   EpisodeInfo,
@@ -27,11 +28,8 @@ interface ExploreSidebarProps {
     frontmatter: SeriesFrontmatter;
     episodes: EpisodeInfo[];
   }[];
-  builderLogs: {
-    slug: string;
-    frontmatter: SeriesFrontmatter;
-    episodes: EpisodeInfo[];
-  }[];
+  /** Server-rendered compact BuilderLogBanners (the banner's phone layout). */
+  builderLogBanners: { slug: string; node: ReactNode }[];
   insightCards: { slug: string; frontmatter: InsightCardFrontmatter; collectionTitle: string }[];
 }
 
@@ -42,7 +40,7 @@ export function ExploreSidebar({
   currentEpisodeSlug,
   modeQuery,
   relatedSeries,
-  builderLogs,
+  builderLogBanners,
   insightCards,
 }: ExploreSidebarProps) {
   return (
@@ -119,7 +117,7 @@ export function ExploreSidebar({
           ══════════════════════════════════════════════════════ */}
       <RecommendationFeed
         relatedSeries={relatedSeries}
-        builderLogs={builderLogs}
+        builderLogBanners={builderLogBanners}
         insightCards={insightCards}
       />
     </div>

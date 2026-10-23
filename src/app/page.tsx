@@ -3,6 +3,7 @@ import { getAllSeries, getFeaturedContent, getPopularContent, getCollections, ge
 import { HeroSection } from "@/components/HeroSection";
 import { PopularSection } from "@/components/PopularSection";
 import { ContentFeed } from "@/components/ContentFeed";
+import BuilderLogBanner from "@/components/library/BuilderLogBanner";
 import { getLikeCountsByContentIds } from "@/lib/likes";
 import { getCommentCountsByContentIds } from "@/lib/comments";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -79,6 +80,9 @@ export default async function Home() {
         <ContentFeed
           deepDives={deepDives}
           builderLogs={builderLogs}
+          builderLogBanners={Object.fromEntries(
+            builderLogs.map((log) => [log.slug, <BuilderLogBanner key={log.slug} series={log.slug} />])
+          )}
           collections={collections}
           episodeStats={episodeStats}
           headingShuffleSeed={headingShuffleSeed}

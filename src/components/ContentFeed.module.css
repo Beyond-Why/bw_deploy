@@ -104,3 +104,9 @@
   display: flex;
   flex-direction: column;
 }
+
+/* Builder Logs tab: each banner brings its own vertical padding. */
+.builderLogList {
+  display: flex;
+  flex-direction: column;
+}

@@ -11,6 +11,7 @@ import { mdxComponents } from "@/components/mdx/MDXComponents";
 import { mdxOptions } from "@/components/mdx/mdxOptions";
 import "@/components/mdx/katex";
 import { EpisodeReader } from "@/components/reading/EpisodeReader";
+import BuilderLogBanner from "@/components/library/BuilderLogBanner";
 import { getCurrentUser } from "@/lib/auth/getUser";
 import { getLikeState } from "@/lib/likes";
 import { getBookmarkState } from "@/lib/bookmarks";
@@ -130,13 +131,12 @@ export default async function DeepDiveEpisodePage({ params, searchParams }: Page
       }))
   );
 
+  // Compact banners (the banner's phone layout) for the first two series.
   const allBuilderLogsRaw = await getAllSeries("builder-log");
-  const builderLogs = await Promise.all(
-    allBuilderLogsRaw.slice(0, 2).map(async (b) => ({
-      ...b,
-      episodes: await getEpisodes("builder-log", b.slug),
-    }))
-  );
+  const builderLogBanners = allBuilderLogsRaw.slice(0, 2).map((b) => ({
+    slug: b.slug,
+    node: <BuilderLogBanner series={b.slug} variant="compact" />,
+  }));
 
   const allInsightCards = await getAllInsightCards();
   const insightCards = allInsightCards.slice(0, 4);
@@ -174,7 +174,7 @@ export default async function DeepDiveEpisodePage({ params, searchParams }: Page
         prevEpisode={prevEpisode}
         nextEpisode={nextEpisode}
         relatedSeries={relatedSeries}
-        builderLogs={builderLogs}
+        builderLogBanners={builderLogBanners}
         insightCards={insightCards}
         contentId={contentId}
         seriesId={seriesId}

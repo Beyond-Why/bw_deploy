@@ -1,17 +1,20 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, type ReactNode } from "react";
 import styles from "./ContentFeed.module.css";
-import { DeepDiveCard, BuilderLogCard, InsightRow, InsightRowHeadingProvider, InsightCollectionBlock, ComingSoonBar } from "./library";
+import { DeepDiveCard, InsightRow, InsightRowHeadingProvider, InsightCollectionBlock, ComingSoonBar } from "./library";
 import type { SeriesFrontmatter, EpisodeInfo, InsightCollection, EpisodeStats } from "@/lib/content";
 import type { InsightRowCardItem } from "./library";
 import { buildHomeFeed } from "@/lib/feedScheduler";
 
-type ContentType = "All" | "Deep Dives" | "Insight Cards";
+type ContentType = "All" | "Deep Dives" | "Insight Cards" | "Builder Logs";
 
 interface ContentFeedProps {
   deepDives: { slug: string; frontmatter: SeriesFrontmatter; episodes?: EpisodeInfo[] }[];
   builderLogs: { slug: string; frontmatter: SeriesFrontmatter; episodes?: EpisodeInfo[] }[];
+  /** One server-rendered BuilderLogBanner per series, keyed by slug — see
+   *  app/page.tsx (the banner reads files, so it can't render in here). */
+  builderLogBanners: Record<string, ReactNode>;
   collections: InsightCollection[];
   /** Deep Dive episode like/comment counts, keyed by contentId — see
    *  app/page.tsx. Optional: tiles fall back to dates only. */
@@ -82,6 +85,7 @@ export function ContentFeed({
   episodeStats,
   headingShuffleSeed,
   feedScheduleSeed,
+  builderLogBanners,
 }: ContentFeedProps) {
   const [activeTab, setActiveTab] = useState<ContentType>("All");
   const sectionRef = useRef<HTMLElement>(null);
@@ -94,10 +98,12 @@ export function ContentFeed({
   // A single-type tab only exists while there's something to show in it.
   const hasDeepDives = deepDives.length > 0;
   const hasCollections = collections.length > 0;
+  const hasBuilderLogs = builderLogs.length > 0;
   const tabs: ContentType[] = [
     "All",
     ...(hasDeepDives ? (["Deep Dives"] as const) : []),
     ...(hasCollections ? (["Insight Cards"] as const) : []),
+    ...(hasBuilderLogs ? (["Builder Logs"] as const) : []),
   ];
 
   // Initialize tab from URL and scroll to section if on a filtered path
@@ -105,6 +111,7 @@ export function ContentFeed({
     const path = window.location.pathname;
     if (path === "/deep-dives" && hasDeepDives) setActiveTab("Deep Dives");
     else if (path === "/insight-cards" && hasCollections) setActiveTab("Insight Cards");
+    else if (path === "/builder-log" && hasBuilderLogs) setActiveTab("Builder Logs");
     else setActiveTab("All");
 
     if (path !== "/") {
@@ -147,6 +154,7 @@ export function ContentFeed({
       "All": "/",
       "Deep Dives": "/deep-dives",
       "Insight Cards": "/insight-cards",
+      "Builder Logs": "/builder-log",
     };
     window.history.pushState(null, "", urlMap[tab]);
   };
@@ -207,13 +215,7 @@ export function ContentFeed({
                 }
                 case "builderLog":
                   return (
-                    <BuilderLogCard
-                      key={`slot-bl-${shelf.item.slug}`}
-                      slug={shelf.item.slug}
-                      frontmatter={shelf.item.frontmatter}
-                      href={`/builder-log/${shelf.item.slug}`}
-                      episodes={shelf.item.episodes}
-                    />
+                    <div key={`slot-bl-${shelf.item.slug}`}>{builderLogBanners[shelf.item.slug]}</div>
                   );
                 default:
                   return null;
@@ -267,6 +269,14 @@ export function ContentFeed({
               />
             );
           })}
+        </div>
+      )}
+      {/* ── Builder Logs — Tab Only — one banner per series, newest first ── */}
+      {activeTab === "Builder Logs" && (
+        <div className={styles.builderLogList}>
+          {sortedBuilderLogs.map((log) => (
+            <div key={`bl-${log.slug}`}>{builderLogBanners[log.slug]}</div>
+          ))}
         </div>
       )}
     </section>

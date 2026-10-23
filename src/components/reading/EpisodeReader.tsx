@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
@@ -274,11 +274,8 @@ interface EpisodeReaderProps {
     frontmatter: SeriesFrontmatter;
     episodes: EpisodeInfo[];
   }[];
-  builderLogs: {
-    slug: string;
-    frontmatter: SeriesFrontmatter;
-    episodes: EpisodeInfo[]
-  }[];
+  /** Server-rendered compact BuilderLogBanners (the banner's phone layout). */
+  builderLogBanners: { slug: string; node: ReactNode }[];
   insightCards: { slug: string; frontmatter: InsightCardFrontmatter; collectionTitle: string }[];
   /** Globally-unique id for likes/reading-progress, e.g. "deep-dives/{series}/{episode}". */
   contentId: string;
@@ -307,7 +304,7 @@ export function EpisodeReader({
   prevEpisode,
   nextEpisode,
   relatedSeries,
-  builderLogs,
+  builderLogBanners,
   insightCards,
   contentId,
   seriesId,
@@ -749,7 +746,7 @@ export function EpisodeReader({
                 currentEpisodeSlug={currentEpisodeSlug}
                 modeQuery={modeQuery}
                 relatedSeries={relatedSeries}
-                builderLogs={builderLogs}
+                builderLogBanners={builderLogBanners}
                 insightCards={insightCards}
               />
             ) : (
