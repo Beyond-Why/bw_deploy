@@ -1,23 +1,52 @@
 /* ── BUILDER LOG BANNER ──
-   Phone layout is the base; container queries on the banner's own width
-   step up to tablet (≥660px) and desktop (≥1040px). The compact variant
-   (Explore sidebar) never steps up — those rules are scoped to
-   .banner:not(.compact).
+   From 700px wide the full banner is a full-width band (it breaks out of
+   the page column) with its own centred content area, .band: max 1360px,
+   64px side padding (48px below 1100px). Phone layout is the base;
+   container queries on .band's width step up to tablet (≥660px) and
+   desktop (≥1060px — below that the quote would crowd the premise, so it
+   stacks under the text). The compact variant (Explore sidebar) never
+   steps up — those rules are scoped to .banner:not(.compact).
 
    Road geometry: --line-y is the road's height from the top of .road,
    --road-h the road's total height (line + hanging cards), --road-pad the
    inset of the first node from the column edge. */
 
 .banner {
-  container: banner / inline-size;
   position: relative;
   isolation: isolate;
 }
 
-/* The dot grid bleeds to the full viewport width; only this background
-   breaks out of the column. 100vw counts the vertical scrollbar, so the
-   overflow is clipped by <main> (overflow-x: clip in globals.css) rather
-   than ever widening the page. */
+/* The content area — the query container for every layout rule below. */
+.band {
+  container: banner / inline-size;
+}
+
+/* 700px and up: a full-width band. margin-inline centres it on the page
+   column, so its visible middle is the page's middle; the scrollbar-width
+   sliver 100vw adds is clipped by <main> (overflow-x: clip in globals.css),
+   never a sideways scrollbar. */
+@media (min-width: 700px) {
+  .banner:not(.compact) {
+    margin-inline: calc(50% - 50vw);
+  }
+
+  .banner:not(.compact) .band {
+    max-width: 1360px;
+    margin: 0 auto;
+    padding: 0 48px;
+  }
+}
+
+@media (min-width: 1100px) {
+  .banner:not(.compact) .band {
+    padding: 0 64px;
+  }
+}
+
+/* The dot grid fills the full viewport width (on phones the banner stays
+   in the column and the grid alone bleeds; from 700px the banner is
+   already 100vw, so the same inset resolves to 0), fading in and out over
+   its top and bottom 80px. */
 .banner::before {
   content: "";
   position: absolute;
@@ -28,6 +57,8 @@
     transparent 1.5px
   );
   background-size: 22px 22px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 80px, #000 calc(100% - 80px), transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 80px, #000 calc(100% - 80px), transparent);
   pointer-events: none;
 }
 
@@ -35,9 +66,11 @@
   display: none;
 }
 
-/* Vertical breathing room lives on .inner (container queries can't style
-   the container itself), inside the dot grid: 96px above / 72px below on
-   phones, 144px / 104px wider (see the tablet query), none compact. */
+/* Vertical breathing room lives on .inner, inside the dot grid: the same
+   room above the kind row and below the last line (the card captions, or
+   the swipe hint on phones) — 48px phone, 88px tablet, 120px desktop.
+   The bottom padding is a little less where the road height already
+   leaves space under the captions. None in the compact variant. */
 .inner {
   --line-y: 40px;
   --road-h: 212px;
@@ -45,7 +78,7 @@
   --card-w: 124px;
   position: relative;
   min-width: 0;
-  padding: 96px 0 72px;
+  padding: 48px 0 48px;
 }
 
 .compact .inner {
@@ -96,7 +129,7 @@
 /* The phone layout leads with the quote instead (per 08c). */
 .premise {
   display: none;
-  max-width: 540px;
+  max-width: 34em;
   margin: 8px 0 0;
   font-family: var(--font-body), serif;
   font-size: 17px;
@@ -497,7 +530,7 @@
    the quote block, which hangs over the newest node. */
 @container banner (min-width: 660px) {
   .banner:not(.compact) .inner {
-    padding: 144px 0 104px;
+    padding: 88px 0 59px;
     --road-h: 240px;
     --road-pad: 8px;
     --card-w: 140px;
@@ -576,17 +609,19 @@
   }
 }
 
-/* ── DESKTOP (banner ≥ 1040px) ──
-   The quote lifts up beside the premise; the road sits ~436px down. */
-@container banner (min-width: 1040px) {
+/* ── DESKTOP (band ≥ 1060px) ──
+   Text on the left; the quote block anchored to the band's right edge,
+   above the newest node; the road across the full width. */
+@container banner (min-width: 1060px) {
   .banner:not(.compact) .inner {
-    --road-h: 236px;
-    --card-w: 150px;
+    padding: 120px 0 98px;
+    --road-h: 250px;
+    --card-w: 170px;
     --quote-room: 0px;
   }
 
   .banner:not(.compact) .title {
-    font-size: 46px;
+    font-size: 52px;
   }
 
   .banner:not(.compact) .startTablet {
@@ -610,11 +645,12 @@
   }
 
   .banner:not(.compact) .quote {
-    width: 410px;
+    right: 0;
+    width: 440px;
   }
 
   .banner:not(.compact) .excerpt {
-    font-size: 30px;
+    font-size: 32px;
   }
 }
 

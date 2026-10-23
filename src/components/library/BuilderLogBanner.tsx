@@ -22,7 +22,7 @@ const CARD_GAP = 16;
  * layout, since node spacing only grows with the track.
  */
 const LAYOUTS = {
-  desktop: { track: 1040 - 2 * 8, card: 150 },
+  desktop: { track: 1060 - 2 * 8, card: 170 },
   tablet: { track: 660 - 2 * 8, card: 140 },
   phone: { track: 900 - 2 * 16, card: 124 },
 } as const;
@@ -37,9 +37,10 @@ const ROAD_SPAN = 80;
  * per log and the latest highlights hanging off it, and the newest log's
  * line as a quote.
  *
- * One markup, laid out by container queries on the banner's own width —
- * desktop (≥1040px), tablet (660–1039px), phone (<660px) — so it fits
- * whatever column it's in. `variant="compact"` always uses the phone
+ * One markup, laid out by container queries on the banner's content area
+ * (the centred band) — desktop (≥1060px), tablet (660–1059px), phone
+ * (<660px) — so it fits whatever column it's in. From 700px wide the full
+ * banner is a full-width band with its own 1360px content area. `variant="compact"` always uses the phone
  * layout and sits flat (no padding, texture or glow) for the sidebar.
  *
  *   <BuilderLogBanner series="line-follower" />
@@ -128,91 +129,93 @@ export default async function BuilderLogBanner({
       className={`${styles.banner} ${variant === "compact" ? styles.compact : ""}`}
       aria-labelledby={titleId}
     >
-      <div className={styles.inner}>
-        <div className={styles.text}>
-          <div className={styles.kindRow}>
-            <span className={styles.kind}>
-              <BuilderLogIcon size={15} />
-              Builder Log
-            </span>
-            {frontmatter.status && <StatusPill status={frontmatter.status} kind="builderlog" />}
-          </div>
-          <h2 id={titleId} className={styles.title}>
-            <Link href={seriesHref}>{frontmatter.title}</Link>
-          </h2>
-          {frontmatter.description && <p className={styles.premise}>{frontmatter.description}</p>}
-          {startLink(styles.startTablet)}
-        </div>
-
-        <div className={styles.stage} data-peek-host>
-          <div className={styles.quote}>
-            <p className={styles.latestLine}>
-              <span className={styles.latest}>Latest</span> Day {newest.day}, {newest.dateLabel}
-            </p>
-            <blockquote className={styles.excerpt}>
-              {newest.excerpt ? <>&ldquo;{quoteText}&rdquo;</> : quoteText}
-            </blockquote>
-            {newest.excerpt && (
-              <Link href={dayHref(newest.day)} scroll={false} className={styles.logTitle}>
-                {newest.title}
-              </Link>
-            )}
-            <div className={styles.quoteActions}>
-              <Link href={dayHref(newest.day)} scroll={false} className={styles.read}>
-                <span className={`${styles.circle} ${styles.circleAccent}`} aria-hidden="true">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M5 12h14M13 6l6 6-6 6" />
-                  </svg>
-                </span>
-                Read Day {newest.day}
-              </Link>
-              {startLink(styles.startPhone)}
+      <div className={styles.band}>
+        <div className={styles.inner}>
+          <div className={styles.text}>
+            <div className={styles.kindRow}>
+              <span className={styles.kind}>
+                <BuilderLogIcon size={15} />
+                Builder Log
+              </span>
+              {frontmatter.status && <StatusPill status={frontmatter.status} kind="builderlog" />}
             </div>
+            <h2 id={titleId} className={styles.title}>
+              <Link href={seriesHref}>{frontmatter.title}</Link>
+            </h2>
+            {frontmatter.description && <p className={styles.premise}>{frontmatter.description}</p>}
+            {startLink(styles.startTablet)}
           </div>
 
-          <div className={styles.scroller}>
-            <div className={styles.road}>
-              <div className={styles.track}>
-                <span className={styles.glow} style={{ left: `${position(logs.length - 1)}%` }} aria-hidden="true" />
-                <span className={styles.line} style={{ width: `${position(logs.length - 1)}%` }} aria-hidden="true" />
-                <span className={styles.tail} style={{ left: `${position(logs.length - 1)}%` }} aria-hidden="true" />
-
-                <BuilderLogRoadNodes nodes={roadNodes} seriesHref={seriesHref} />
-
-                <span className={styles.ring} style={{ left: `calc(${position(logs.length - 1)}% + 34px)` }} aria-hidden="true">
-                  <LogGlyph kind="ring" size={16} />
-                </span>
-                <span className={styles.nextLog} style={{ left: `calc(${position(logs.length - 1)}% + 18px)` }}>
-                  The next log isn&apos;t written yet
-                </span>
-
-                <div className={styles.dayOne}>
-                  <span className={styles.dayOneLabel}>
-                    <strong>Day {first.day}</strong> {first.dateLabel}
+          <div className={styles.stage} data-peek-host>
+            <div className={styles.quote}>
+              <p className={styles.latestLine}>
+                <span className={styles.latest}>Latest</span> Day {newest.day}, {newest.dateLabel}
+              </p>
+              <blockquote className={styles.excerpt}>
+                {newest.excerpt ? <>&ldquo;{quoteText}&rdquo;</> : quoteText}
+              </blockquote>
+              {newest.excerpt && (
+                <Link href={dayHref(newest.day)} scroll={false} className={styles.logTitle}>
+                  {newest.title}
+                </Link>
+              )}
+              <div className={styles.quoteActions}>
+                <Link href={dayHref(newest.day)} scroll={false} className={styles.read}>
+                  <span className={`${styles.circle} ${styles.circleAccent}`} aria-hidden="true">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M5 12h14M13 6l6 6-6 6" />
+                    </svg>
                   </span>
-                  {startLink(styles.startDesktop)}
-                </div>
-
-                {cards.map(({ entry, index, hasCover, layouts }, cardIndex) => (
-                  <HangingCard
-                    key={entry.day}
-                    entry={entry}
-                    href={dayHref(entry.day)}
-                    left={position(index)}
-                    tilt={CARD_TILTS[cardIndex % CARD_TILTS.length]}
-                    hasCover={hasCover}
-                    layouts={layouts}
-                  />
-                ))}
+                  Read Day {newest.day}
+                </Link>
+                {startLink(styles.startPhone)}
               </div>
             </div>
+
+            <div className={styles.scroller}>
+              <div className={styles.road}>
+                <div className={styles.track}>
+                  <span className={styles.glow} style={{ left: `${position(logs.length - 1)}%` }} aria-hidden="true" />
+                  <span className={styles.line} style={{ width: `${position(logs.length - 1)}%` }} aria-hidden="true" />
+                  <span className={styles.tail} style={{ left: `${position(logs.length - 1)}%` }} aria-hidden="true" />
+
+                  <BuilderLogRoadNodes nodes={roadNodes} seriesHref={seriesHref} />
+
+                  <span className={styles.ring} style={{ left: `calc(${position(logs.length - 1)}% + 34px)` }} aria-hidden="true">
+                    <LogGlyph kind="ring" size={16} />
+                  </span>
+                  <span className={styles.nextLog} style={{ left: `calc(${position(logs.length - 1)}% + 18px)` }}>
+                    The next log isn&apos;t written yet
+                  </span>
+
+                  <div className={styles.dayOne}>
+                    <span className={styles.dayOneLabel}>
+                      <strong>Day {first.day}</strong> {first.dateLabel}
+                    </span>
+                    {startLink(styles.startDesktop)}
+                  </div>
+
+                  {cards.map(({ entry, index, hasCover, layouts }, cardIndex) => (
+                    <HangingCard
+                      key={entry.day}
+                      entry={entry}
+                      href={dayHref(entry.day)}
+                      left={position(index)}
+                      tilt={CARD_TILTS[cardIndex % CARD_TILTS.length]}
+                      hasCover={hasCover}
+                      layouts={layouts}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+            <p className={styles.swipeHint}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M19 12H5M11 18l-6-6 6-6" />
+              </svg>
+              Swipe back to Day 1
+            </p>
           </div>
-          <p className={styles.swipeHint}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M19 12H5M11 18l-6-6 6-6" />
-            </svg>
-            Swipe back to Day 1
-          </p>
         </div>
       </div>
     </section>

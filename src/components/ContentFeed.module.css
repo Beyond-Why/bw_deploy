@@ -105,8 +105,9 @@
   flex-direction: column;
 }
 
-/* Builder Logs tab: each banner brings its own vertical padding. */
+/* Builder Logs tab: same gap between banners as the All feed's items. */
 .builderLogList {
   display: flex;
   flex-direction: column;
+  gap: 1.75rem;
 }
