@@ -185,6 +185,14 @@ html[data-log-pager] {
   }
 }
 
+/* Full-bleed backgrounds (e.g. the Builder Log banner's dot grid) use
+   100vw, which includes the vertical scrollbar; clipping here keeps them
+   from ever adding a sideways scrollbar. clip, not hidden: it creates no
+   scroll container, so position: sticky inside still works. */
+main {
+  overflow-x: clip;
+}
+
 /* ── BODY ── */
 body {
   font-family: var(--font-body), "Lora", Georgia, serif;

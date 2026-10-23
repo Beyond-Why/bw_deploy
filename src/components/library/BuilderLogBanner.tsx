@@ -5,6 +5,7 @@ import { getBuilderLog, type BuilderLogEntry } from "@/lib/content";
 import { publicFileExists } from "@/lib/publicAsset";
 import { BuilderLogIcon } from "@/components/icons";
 import LogGlyph, { glyphForHighlight } from "@/components/builder-log/LogGlyph";
+import BuilderLogRoadNodes, { type RoadNode } from "./BuilderLogRoadNodes";
 import { StatusPill } from "./StatusPill";
 import styles from "./BuilderLogBanner.module.css";
 
@@ -93,6 +94,20 @@ export default async function BuilderLogBanner({
       }))
   );
 
+  // Every node is a link with a hover/focus peek, so it needs its cover.
+  const roadNodes: RoadNode[] = await Promise.all(
+    logs.map(async (entry, index) => ({
+      day: entry.day,
+      dateLabel: entry.dateLabel,
+      title: entry.title,
+      thumbnail: entry.thumbnail,
+      hasThumbnail: entry.thumbnail ? await publicFileExists(entry.thumbnail) : false,
+      glyph: glyphForHighlight(entry.highlight),
+      left: position(index),
+      newest: entry === newest,
+    }))
+  );
+
   const titleId = `builder-log-${series}-title`;
   const quoteText = newest.excerpt || newest.title;
 
@@ -129,7 +144,7 @@ export default async function BuilderLogBanner({
           {startLink(styles.startTablet)}
         </div>
 
-        <div className={styles.stage}>
+        <div className={styles.stage} data-peek-host>
           <div className={styles.quote}>
             <p className={styles.latestLine}>
               <span className={styles.latest}>Latest</span> Day {newest.day}, {newest.dateLabel}
@@ -138,12 +153,12 @@ export default async function BuilderLogBanner({
               {newest.excerpt ? <>&ldquo;{quoteText}&rdquo;</> : quoteText}
             </blockquote>
             {newest.excerpt && (
-              <Link href={dayHref(newest.day)} className={styles.logTitle}>
+              <Link href={dayHref(newest.day)} scroll={false} className={styles.logTitle}>
                 {newest.title}
               </Link>
             )}
             <div className={styles.quoteActions}>
-              <Link href={dayHref(newest.day)} className={styles.read}>
+              <Link href={dayHref(newest.day)} scroll={false} className={styles.read}>
                 <span className={`${styles.circle} ${styles.circleAccent}`} aria-hidden="true">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M5 12h14M13 6l6 6-6 6" />
@@ -162,15 +177,7 @@ export default async function BuilderLogBanner({
                 <span className={styles.line} style={{ width: `${position(logs.length - 1)}%` }} aria-hidden="true" />
                 <span className={styles.tail} style={{ left: `${position(logs.length - 1)}%` }} aria-hidden="true" />
 
-                {logs.map((entry, index) =>
-                  entry === newest ? (
-                    <span key={entry.day} className={styles.newestNode} style={{ left: `${position(index)}%` }} aria-hidden="true" />
-                  ) : (
-                    <span key={entry.day} className={styles.node} style={{ left: `${position(index)}%` }} aria-hidden="true">
-                      <LogGlyph kind={glyphForHighlight(entry.highlight)} />
-                    </span>
-                  )
-                )}
+                <BuilderLogRoadNodes nodes={roadNodes} seriesHref={seriesHref} />
 
                 <span className={styles.ring} style={{ left: `calc(${position(logs.length - 1)}% + 34px)` }} aria-hidden="true">
                   <LogGlyph kind="ring" size={16} />
@@ -231,6 +238,7 @@ function HangingCard({
   return (
     <Link
       href={href}
+      scroll={false}
       className={styles.card}
       data-desktop={layouts.desktop ? "" : undefined}
       data-tablet={layouts.tablet ? "" : undefined}

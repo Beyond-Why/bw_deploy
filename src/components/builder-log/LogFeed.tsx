@@ -38,23 +38,29 @@ export default function LogFeed({
     if (switchCount > 0) feedRef.current?.scrollIntoView({ block: "start" });
   }, [switchCount]);
 
-  // #day-N: unfold that log and bring it into view — on load (the browser's
-  // own jump happens before folds settle, so scroll again) and on later
-  // hash changes.
+  // #day-N: unfold that log and bring it into view — on arrival (a fresh
+  // load or a link from another page) and on later hash changes. Arrival
+  // jumps instantly and re-applies as images and folds above it settle:
+  // a smooth scroll here would race the browser's / router's own hash
+  // scroll and could stop halfway down the page.
   useEffect(() => {
-    const openFromHash = () => {
+    const openFromHash = (arrival: boolean) => {
       const match = /^#day-(\d+)$/.exec(window.location.hash);
       if (!match) return;
       const day = Number(match[1]);
       setOpenRequest({ day, token: Date.now() });
-      const scroll = () => document.getElementById(`day-${day}`)?.scrollIntoView({ block: "start" });
+      const scroll = () =>
+        document
+          .getElementById(`day-${day}`)
+          ?.scrollIntoView({ block: "start", behavior: arrival ? "instant" : "smooth" });
       requestAnimationFrame(scroll);
-      // Images and folds above it can still shift the page as they settle.
       setTimeout(scroll, 350);
+      if (arrival) setTimeout(scroll, 900);
     };
-    openFromHash();
-    window.addEventListener("hashchange", openFromHash);
-    return () => window.removeEventListener("hashchange", openFromHash);
+    openFromHash(true);
+    const onHashChange = () => openFromHash(false);
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
   }, []);
 
   return (

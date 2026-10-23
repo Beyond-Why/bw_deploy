@@ -12,7 +12,7 @@ import styles from "./LogEntry.module.css";
 /**
  * One Builder Log day: the sticky rail (glyph on the line, "Day", the
  * outlined numeral, date, "Latest" chip, highlight label) beside the main
- * column (title, cover, MDX body, actions, "Explore more"). Used by the series feed and,
+ * column (title, cover, MDX body, actions; plus "Explore more" on the share page). Used by the series feed and,
  * on its own, by the single-log share page.
  *
  *   <LogEntry series="line-follower" log={log} body={<MDXRemote … />}
@@ -26,6 +26,7 @@ export default function LogEntry({
   current = false,
   priority = false,
   headingLevel = 2,
+  showExplore = false,
 }: {
   series: string;
   log: BuilderLogEntry;
@@ -39,6 +40,9 @@ export default function LogEntry({
   priority?: boolean;
   /** h1 on the share page, h2 in the series feed. */
   headingLevel?: 1 | 2;
+  /** "Explore more" after the actions row — the share page only; in the
+   *  feed (and the phone pager) the actions row ends the log. */
+  showExplore?: boolean;
 }) {
   const Heading = headingLevel === 1 ? "h1" : "h2";
   const glyph = glyphForHighlight(log.highlight);
@@ -87,7 +91,7 @@ export default function LogEntry({
             <LogFold hint={foldHint(log.summary)}>{body}</LogFold>
           </div>
           <LogActions series={series} slug={log.slug} day={log.day} />
-          <LogExplore slugs={log.explore} />
+          {showExplore && <LogExplore slugs={log.explore} />}
         </div>
       </LogFoldScope>
     </section>

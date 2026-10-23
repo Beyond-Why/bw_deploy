@@ -1,13 +1,11 @@
 "use client";
 
-import Image from "next/image";
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import LogGlyph, { glyphForHighlight } from "./LogGlyph";
-import { useCurrentLog, useLogOrder, useLogs, type LogMeta } from "./logState";
+import { useCurrentLog, useLogOrder, useLogs } from "./logState";
+import LogPeek from "./LogPeek";
 import styles from "./JourneyBar.module.css";
 
-const PEEK_WIDTH = 244;
-const PEEK_EDGE = 8;
 /** Pointer travel (px) after which a press on the track counts as a drag. */
 const DRAG_THRESHOLD = 3;
 
@@ -149,7 +147,7 @@ export default function JourneyBar() {
               aria-valuetext={`Day ${shown.day}, ${shown.dateLabel}: ${shown.title}`}
             />
             {peekIndex !== null && (
-              <Peek log={logs[peekIndex]} ratio={ratio(peekIndex)} at={at(peekIndex)} trackRef={trackRef} />
+              <LogPeek log={logs[peekIndex]} left={at(peekIndex)} bottom="calc(100% + 12px)" />
             )}
           </div>
           <span className={styles.tail} aria-hidden="true">
@@ -182,68 +180,6 @@ export default function JourneyBar() {
           )}
         </button>
       </div>
-    </div>
-  );
-}
-
-/**
- * The hover/drag card above a node. Centred on the node, then nudged back
- * inside the viewport at the ends of the track; the caret keeps pointing
- * at the node. Never takes pointer events, so it can't block the track.
- */
-function Peek({
-  log,
-  ratio,
-  at,
-  trackRef,
-}: {
-  log: LogMeta;
-  ratio: number;
-  /** The node's CSS left position on the track. */
-  at: string;
-  trackRef: React.RefObject<HTMLDivElement | null>;
-}) {
-  const [shift, setShift] = useState(0);
-
-  useLayoutEffect(() => {
-    const track = trackRef.current;
-    if (!track) return;
-    const rect = track.getBoundingClientRect();
-    const thumb = parseFloat(getComputedStyle(track).getPropertyValue("--thumb")) || 20;
-    const nodeX = rect.left + thumb / 2 + ratio * (rect.width - thumb);
-    const left = nodeX - PEEK_WIDTH / 2;
-    const min = PEEK_EDGE;
-    const max = window.innerWidth - PEEK_EDGE - PEEK_WIDTH;
-    setShift(Math.min(max, Math.max(min, left)) - left);
-  }, [ratio, trackRef]);
-
-  return (
-    <div
-      className={styles.peek}
-      style={{ left: at, "--peek-shift": `${shift}px` } as CSSProperties}
-      aria-hidden="true"
-    >
-      <div className={styles.peekThumb}>
-        {log.thumbnail && log.hasThumbnail ? (
-          <Image
-            src={log.thumbnail}
-            alt=""
-            width={PEEK_WIDTH}
-            height={Math.round((PEEK_WIDTH * 9) / 16)}
-            sizes={`${PEEK_WIDTH}px`}
-            className={styles.peekImage}
-          />
-        ) : (
-          <span className={styles.peekPlaceholder} />
-        )}
-      </div>
-      <div className={styles.peekText}>
-        <span className={styles.peekMeta}>
-          <strong>Day {log.day}</strong> {log.dateLabel}
-        </span>
-        <span className={styles.peekTitle}>{log.title}</span>
-      </div>
-      <span className={styles.caret} />
     </div>
   );
 }

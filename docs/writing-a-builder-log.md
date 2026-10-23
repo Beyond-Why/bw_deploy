@@ -44,7 +44,7 @@ thumbnail: "/content/builder-log/<series>/day-40.png"   # 16:9 cover
 thumbnailAlt: "What the cover shows."   # required whenever there's a thumbnail
 video: "/content/builder-log/<series>/videos/day-40.mp4"  # optional: a file path or a YouTube id (e.g. aqz-KE-bpKQ)
 videoLength: "0:28"                     # optional: the clip length shown on the cover
-explore: ["the-field-that-powers-the-world"]  # optional: Deep Dive slugs for "Explore more" under the log
+explore: ["the-field-that-powers-the-world"]  # optional: Deep Dive slugs for "Explore more" on the log's share page
 draft: true                             # optional: hides just this log in production
 ---
 ```

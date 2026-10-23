@@ -11,20 +11,33 @@
 .banner {
   container: banner / inline-size;
   position: relative;
-  overflow-x: clip;
-  padding: 48px 0 40px;
+  isolation: isolate;
+}
+
+/* The dot grid bleeds to the full viewport width; only this background
+   breaks out of the column. 100vw counts the vertical scrollbar, so the
+   overflow is clipped by <main> (overflow-x: clip in globals.css) rather
+   than ever widening the page. */
+.banner::before {
+  content: "";
+  position: absolute;
+  inset: 0 calc(50% - 50vw);
+  z-index: -1;
   background-image: radial-gradient(
     color-mix(in srgb, var(--text-muted) 22%, transparent) 1px,
     transparent 1.5px
   );
   background-size: 22px 22px;
+  pointer-events: none;
 }
 
-.compact {
-  padding: 0;
-  background: none;
+.compact::before {
+  display: none;
 }
 
+/* Vertical breathing room lives on .inner (container queries can't style
+   the container itself), inside the dot grid: 96px above / 72px below on
+   phones, 144px / 104px wider (see the tablet query), none compact. */
 .inner {
   --line-y: 40px;
   --road-h: 212px;
@@ -32,6 +45,11 @@
   --card-w: 124px;
   position: relative;
   min-width: 0;
+  padding: 96px 0 72px;
+}
+
+.compact .inner {
+  padding: 0;
 }
 
 /* ── TEXT ── */
@@ -234,19 +252,44 @@
   border-top: 1px dashed var(--border-medium);
 }
 
-.node,
-.ring,
-.newestNode {
+/* Each node is a link: a 24px hit area centred on the line with the glyph
+   in the middle; hover (and keyboard focus) marks it with a thin ring. */
+.nodeLink,
+.ring {
   position: absolute;
   top: var(--line-y);
+  z-index: 1;
   display: grid;
   place-items: center;
   translate: -50% -50%;
 }
 
-.node,
-.ring {
-  z-index: 1;
+.nodeLink {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+.nodeLink::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  transition: border-color var(--transition-fast);
+}
+
+.nodeLink:hover::after,
+.nodeLink:focus-visible::after {
+  border-color: var(--text-secondary);
+}
+
+.nodeLinkNewest {
+  z-index: 2;
+}
+
+.nodeLinkNewest::after {
+  inset: -3px;
 }
 
 /* Sits over the dashed tail so the line doesn't run through it. */
@@ -257,7 +300,7 @@
 }
 
 .newestNode {
-  z-index: 2;
+  display: block;
   width: 16px;
   height: 16px;
   border-radius: 50%;
@@ -454,6 +497,7 @@
    the quote block, which hangs over the newest node. */
 @container banner (min-width: 660px) {
   .banner:not(.compact) .inner {
+    padding: 144px 0 104px;
     --road-h: 240px;
     --road-pad: 8px;
     --card-w: 140px;
@@ -535,10 +579,6 @@
 /* ── DESKTOP (banner ≥ 1040px) ──
    The quote lifts up beside the premise; the road sits ~436px down. */
 @container banner (min-width: 1040px) {
-  .banner:not(.compact) {
-    padding: 64px 0 24px;
-  }
-
   .banner:not(.compact) .inner {
     --road-h: 236px;
     --card-w: 150px;

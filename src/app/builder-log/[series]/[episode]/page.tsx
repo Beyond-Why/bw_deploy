@@ -107,6 +107,7 @@ export default async function BuilderLogEpisodePage({ params }: PageProps) {
           current
           priority
           headingLevel={1}
+          showExplore
           body={<MDXRemote source={entry.body} components={mdxComponents} options={mdxOptions} />}
         />
 
