@@ -11,6 +11,21 @@ import styles from "./BuilderLogBanner.module.css";
 /** Tilts for the hanging cards, oldest → newest. */
 const CARD_TILTS = [-1.8, 1.3, -0.9];
 const MAX_CARDS = 3;
+/** Gap kept between neighbouring hanging cards. */
+const CARD_GAP = 16;
+
+/**
+ * Per layout, the narrowest road it can have (the container-query minimum
+ * minus the road's insets) and its card width. Picking cards at the
+ * narrowest track guarantees they don't touch at any wider width in that
+ * layout, since node spacing only grows with the track.
+ */
+const LAYOUTS = {
+  desktop: { track: 1040 - 2 * 8, card: 150 },
+  tablet: { track: 660 - 2 * 8, card: 140 },
+  phone: { track: 900 - 2 * 16, card: 124 },
+} as const;
+type Layout = keyof typeof LAYOUTS;
 /** The road runs from the left edge to this share of its width; the
  *  dashed "still going" tail fills the rest. */
 const ROAD_SPAN = 80;
@@ -46,17 +61,36 @@ export default async function BuilderLogBanner({
   const startHref = `${seriesHref}?order=oldest`;
   const position = (index: number) => (logs.length > 1 ? (index / (logs.length - 1)) * ROAD_SPAN : 0);
 
-  // The latest highlights hang off the road, oldest → newest.
+  // Hanging cards, chosen per layout: newest highlights first, skipping any
+  // whose node is closer than a card width (+ gap) to a card already
+  // chosen, up to 3. The union is rendered; each card says which layouts
+  // show it.
   const highlighted = logs
     .map((entry, index) => ({ entry, index }))
-    .filter(({ entry }) => entry.highlight)
-    .slice(-MAX_CARDS);
+    .filter(({ entry }) => entry.highlight);
+  const chosen: Record<Layout, Set<number>> = { desktop: new Set(), tablet: new Set(), phone: new Set() };
+  for (const layout of Object.keys(LAYOUTS) as Layout[]) {
+    const { track, card } = LAYOUTS[layout];
+    const x = (index: number) => (position(index) / 100) * track;
+    for (const { index } of [...highlighted].reverse()) {
+      if (chosen[layout].size >= MAX_CARDS) break;
+      const clear = [...chosen[layout]].every((other) => Math.abs(x(index) - x(other)) >= card + CARD_GAP);
+      if (clear) chosen[layout].add(index);
+    }
+  }
   const cards = await Promise.all(
-    highlighted.map(async ({ entry, index }) => ({
-      entry,
-      index,
-      hasCover: entry.thumbnail ? await publicFileExists(entry.thumbnail) : false,
-    }))
+    highlighted
+      .filter(({ index }) => chosen.desktop.has(index) || chosen.tablet.has(index) || chosen.phone.has(index))
+      .map(async ({ entry, index }) => ({
+        entry,
+        index,
+        layouts: {
+          desktop: chosen.desktop.has(index),
+          tablet: chosen.tablet.has(index),
+          phone: chosen.phone.has(index),
+        },
+        hasCover: entry.thumbnail ? await publicFileExists(entry.thumbnail) : false,
+      }))
   );
 
   const titleId = `builder-log-${series}-title`;
@@ -152,7 +186,7 @@ export default async function BuilderLogBanner({
                   {startLink(styles.startDesktop)}
                 </div>
 
-                {cards.map(({ entry, index, hasCover }, cardIndex) => (
+                {cards.map(({ entry, index, hasCover, layouts }, cardIndex) => (
                   <HangingCard
                     key={entry.day}
                     entry={entry}
@@ -160,7 +194,7 @@ export default async function BuilderLogBanner({
                     left={position(index)}
                     tilt={CARD_TILTS[cardIndex % CARD_TILTS.length]}
                     hasCover={hasCover}
-                    middle={cards.length === 3 && cardIndex === 1}
+                    layouts={layouts}
                   />
                 ))}
               </div>
@@ -184,20 +218,23 @@ function HangingCard({
   left,
   tilt,
   hasCover,
-  middle,
+  layouts,
 }: {
   entry: BuilderLogEntry;
   href: string;
   left: number;
   tilt: number;
   hasCover: boolean;
-  /** The middle of three — hidden on the tablet layout. */
-  middle: boolean;
+  /** Which layouts picked this card (see the spacing rule above). */
+  layouts: Record<Layout, boolean>;
 }) {
   return (
     <Link
       href={href}
-      className={`${styles.card} ${middle ? styles.cardMiddle : ""}`}
+      className={styles.card}
+      data-desktop={layouts.desktop ? "" : undefined}
+      data-tablet={layouts.tablet ? "" : undefined}
+      data-phone={layouts.phone ? "" : undefined}
       style={{ left: `${left}%`, "--tilt": `${tilt}deg` } as CSSProperties}
       aria-label={`Day ${entry.day}: ${entry.title}`}
     >

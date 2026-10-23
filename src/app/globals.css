@@ -26,9 +26,6 @@
   /* Builder Log identity colour — currently follows the site accent. */
   --log-accent: var(--accent);
   --log-accent-light: var(--accent-light);
-  --amber: #c29300;
-  --amber-dim: #8a6b45;
-  --amber-light: rgba(194, 147, 0, 0.06);
 
   /* Logo accent — the ember dot inside the apertures mark. A deepened,
      more saturated take on --accent (periwinkle), ~15-20% darker so it
@@ -110,7 +107,9 @@
 
   --text-primary: #E8E0D6;
   --text-secondary: #B0A89E;
-  --text-muted: #7A736B;
+  /* #8A837A: 5.2:1 on --bg-primary, 4.7:1 on --bg-elevated (WCAG AA);
+     still clearly quieter than --text-secondary. */
+  --text-muted: #8A837A;
   --text-inverse: #1A1A1A;
 
   --accent: #7BA4E0;
@@ -126,9 +125,6 @@
   /* Builder Log identity colour — currently follows the site accent. */
   --log-accent: var(--accent);
   --log-accent-light: var(--accent-light);
-  --amber: #e5b83b;
-  --amber-dim: #a07c2a;
-  --amber-light: rgba(229, 184, 59, 0.08);
 
   --status-progress: #A87A0E;
   --status-complete: #4E7C3A;

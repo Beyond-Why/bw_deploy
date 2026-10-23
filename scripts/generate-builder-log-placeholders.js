@@ -20,8 +20,8 @@ const OUT_DIR = path.join(process.cwd(), "public", "content", "builder-log", "li
 const WIDTH = 1280;
 const HEIGHT = 720;
 
-// Light-theme --accent from src/app/globals.css.
-const ACCENT = "#5887D3";
+// The site blue: --accent / --log-accent in src/app/globals.css (dark theme).
+const ACCENT = "#7BA4E0";
 const BACKGROUND = "#F6F2EC";
 const INK = "#2A2A2A";
 const MUTED = "#9A8F80";

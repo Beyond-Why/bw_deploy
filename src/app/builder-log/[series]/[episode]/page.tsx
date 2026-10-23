@@ -1,8 +1,4 @@
-import {
-  getSeriesIndex,
-  getEpisode,
-  getBuilderLog,
-} from "@/lib/content";
+import { getBuilderLog } from "@/lib/content";
 import { notFound } from "next/navigation";
 import LogEntry from "@/components/builder-log/LogEntry";
 import LogDiscussion from "@/components/builder-log/LogDiscussion";
@@ -34,22 +30,21 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps) {
   const { series, episode } = await params;
-  const [episodeData, seriesData] = await Promise.all([
-    getEpisode("builder-log", series, episode),
-    getSeriesIndex("builder-log", series),
-  ]);
-  if (!episodeData || !seriesData) notFound();
-  const { frontmatter, content } = episodeData;
-  if (isPlaceholder(frontmatter) || isPlaceholder(seriesData.frontmatter)) notFound();
+  const log = await getBuilderLog(series);
+  const entry = log?.logs.find((item) => item.slug === episode);
+  if (!log || !entry || isPlaceholder(log.frontmatter)) notFound();
+  const seriesTitle = log.frontmatter.title;
+  // og:image / twitter:image come from ./opengraph-image — the log's cover
+  // stamped with "Day N" and the series title.
   return pageMetadata({
-    title: `${frontmatter.title} — ${seriesData.frontmatter.title}`,
-    description: metaDescription(frontmatter, content),
+    title: `Day ${entry.day}: ${entry.title}, ${seriesTitle}`,
+    description: entry.excerpt || metaDescription(entry.frontmatter, entry.body),
     path: `/builder-log/${series}/${episode}`,
     type: "article",
-    publishedTime: publishedDate(frontmatter),
-    modifiedTime: modifiedDate(frontmatter),
-    section: seriesData.frontmatter.title,
-    noindex: isUnreleased(seriesData.frontmatter, frontmatter),
+    publishedTime: publishedDate(entry.frontmatter),
+    modifiedTime: modifiedDate(entry.frontmatter),
+    section: seriesTitle,
+    noindex: isUnreleased(log.frontmatter, entry.frontmatter),
   });
 }
 

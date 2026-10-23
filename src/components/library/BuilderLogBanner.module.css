@@ -364,6 +364,11 @@
   transition: rotate var(--transition-base), translate var(--transition-base);
 }
 
+/* Each layout shows only the cards it picked (spacing rule in the TSX). */
+.card:not([data-phone]) {
+  display: none;
+}
+
 .card:hover .frame,
 .card:focus-visible .frame {
   rotate: 0deg;
@@ -469,8 +474,15 @@
   }
 
   .banner:not(.compact) .startPhone,
-  .banner:not(.compact) .swipeHint,
-  .banner:not(.compact) .cardMiddle {
+  .banner:not(.compact) .swipeHint {
+    display: none;
+  }
+
+  .banner:not(.compact) .card {
+    display: block;
+  }
+
+  .banner:not(.compact) .card:not([data-tablet]) {
     display: none;
   }
 
@@ -541,13 +553,16 @@
     display: none;
   }
 
-  .banner:not(.compact) .startDesktop,
-  .banner:not(.compact) .cardMiddle {
+  .banner:not(.compact) .startDesktop {
     display: inline-flex;
   }
 
-  .banner:not(.compact) .cardMiddle {
+  .banner:not(.compact) .card[data-desktop] {
     display: block;
+  }
+
+  .banner:not(.compact) .card:not([data-desktop]) {
+    display: none;
   }
 
   .banner:not(.compact) .stage {

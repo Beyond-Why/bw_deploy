@@ -1,28 +1,27 @@
 import { notFound } from "next/navigation";
-import { getEpisode, getSeriesIndex } from "@/lib/content";
-import { renderOgImage, ogImageContentType, ogImageSize } from "@/lib/og";
+import { getBuilderLog } from "@/lib/content";
+import { renderBuilderLogOgImage, ogImageContentType, ogImageSize } from "@/lib/og";
 import { isPlaceholder } from "@/lib/seo";
 
 export const alt = "Builder Log entry on Beyond Why";
 export const size = ogImageSize;
 export const contentType = ogImageContentType;
 
+/** The log's own cover, stamped with "Day N" and the series title. */
 export default async function Image({
   params,
 }: {
   params: Promise<{ series: string; episode: string }>;
 }) {
   const { series, episode } = await params;
-  const [episodeData, seriesData] = await Promise.all([
-    getEpisode("builder-log", series, episode),
-    getSeriesIndex("builder-log", series),
-  ]);
-  if (!episodeData || !seriesData) notFound();
-  const { frontmatter } = episodeData;
-  if (isPlaceholder(frontmatter)) notFound();
-  return renderOgImage({
-    kind: `Builder Log · Log ${String(frontmatter.episode).padStart(2, "0")}`,
-    title: frontmatter.title,
-    context: seriesData.frontmatter.title,
+  const log = await getBuilderLog(series);
+  const entry = log?.logs.find((item) => item.slug === episode);
+  if (!log || !entry || isPlaceholder(log.frontmatter)) notFound();
+  return renderBuilderLogOgImage({
+    cover: entry.thumbnail,
+    stamp: `Day ${entry.day}`,
+    seriesTitle: log.frontmatter.title,
+    fallbackTitle: entry.title,
+    fallbackKind: `Builder Log · Day ${entry.day}`,
   });
 }

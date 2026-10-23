@@ -145,3 +145,110 @@ export async function renderOgImage({ kind, title, context }: OgImageInput) {
     }
   );
 }
+
+/* ── BUILDER LOG: the log's own cover, stamped by the site ──
+   Builder Log covers (Canva) deliberately leave the day number out; the
+   share image puts the 16:9 cover on the dark canvas — letterboxed, never
+   cropped — and stamps "Day N" and the series title on it. */
+
+const PUBLIC_DIR = path.join(process.cwd(), "public");
+const COVER_TYPES: Record<string, string> = { ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg" };
+
+/** A public/ image as a data URL, or null if it's missing or a format the
+ *  image renderer can't draw. Never reads outside public/. */
+async function coverDataUrl(src?: string): Promise<string | null> {
+  if (!src || !src.startsWith("/")) return null;
+  const filePath = path.join(PUBLIC_DIR, decodeURIComponent(src.split(/[?#]/)[0]));
+  const type = COVER_TYPES[path.extname(filePath).toLowerCase()];
+  if (!type || !filePath.startsWith(PUBLIC_DIR + path.sep)) return null;
+  try {
+    return `data:${type};base64,${(await readFile(filePath)).toString("base64")}`;
+  } catch {
+    return null;
+  }
+}
+
+interface BuilderLogOgInput {
+  /** Site-relative cover path, e.g. "/content/builder-log/<series>/day-40.png". */
+  cover?: string;
+  /** The big stamp: "Day 40", or "Builder Log" for the series. */
+  stamp: string;
+  /** Under the stamp: the series title. */
+  seriesTitle: string;
+  /** Used only by the no-cover fallback card, as its title. */
+  fallbackTitle: string;
+  /** Fallback card's small label, e.g. "Builder Log · Day 40". */
+  fallbackKind: string;
+}
+
+export async function renderBuilderLogOgImage({
+  cover,
+  stamp,
+  seriesTitle,
+  fallbackTitle,
+  fallbackKind,
+}: BuilderLogOgInput) {
+  const image = await coverDataUrl(cover);
+  if (!image) {
+    return renderOgImage({ kind: fallbackKind, title: fallbackTitle, context: seriesTitle });
+  }
+  const { serif, ui } = await loadAssets();
+  const coverWidth = Math.round((ogImageSize.height * 16) / 9);
+
+  return new ImageResponse(
+    (
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          justifyContent: "center",
+          background: COLORS.bg,
+          position: "relative",
+        }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={image} width={coverWidth} height={ogImageSize.height} alt="" />
+        <div
+          style={{
+            position: "absolute",
+            top: 36,
+            right: 36 + (ogImageSize.width - coverWidth) / 2,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-end",
+            maxWidth: 460,
+            padding: "18px 26px 20px",
+            borderRadius: 18,
+            background: "rgba(13, 13, 13, 0.88)",
+            border: `1px solid ${COLORS.border}`,
+          }}
+        >
+          <div style={{ display: "flex", fontFamily: "DM Serif Display", fontSize: 56, lineHeight: 1, color: COLORS.accent }}>
+            {stamp}
+          </div>
+          <div
+            style={{
+              display: "flex",
+              marginTop: 10,
+              fontFamily: "Inter",
+              fontSize: 24,
+              lineHeight: 1.25,
+              textAlign: "right",
+              color: COLORS.text,
+            }}
+          >
+            {seriesTitle}
+          </div>
+        </div>
+      </div>
+    ),
+    {
+      ...ogImageSize,
+      fonts: [
+        { name: "DM Serif Display", data: serif, weight: 400, style: "normal" },
+        { name: "Inter", data: ui, weight: 500, style: "normal" },
+      ],
+    }
+  );
+}

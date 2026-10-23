@@ -47,9 +47,9 @@
 - Text: kind row + status pill, series title 46px as a link, premise.
 - Road about 436px down: one node per log evenly spaced from the content's left edge to 80% of the width, then a dashed tail with the hollow ring and "The next log isn't written yet".
 - Under the Day 1 node: "Day 1" + date and a "Start from Day 1" link (to the series page with ?order=oldest). The newest node is a filled accent circle with a glow.
-- Cards: up to 3 of the most recent highlighted logs, each hanging on a 28px string under its node: 150px wide, 4px dark frame, slight tilts (-1.8, 1.3, -0.9 degrees), the 16:9 thumbnail (duration chip if it has a video), caption "Day N" + title.
+- Cards: up to 3 highlighted logs, picked newest first, skipping any whose node would sit closer than one card width plus 16px to a card already picked at the current layout (desktop, tablet and phone/compact each pick their own set, checked at that layout's narrowest road). Fewer than 3 is fine. Each hangs on a 28px string under its node: 150px wide, 4px dark frame, slight tilts (-1.8, 1.3, -0.9 degrees), the 16:9 thumbnail (duration chip if it has a video), caption "Day N" + title.
 - Latest: above the newest node, right-aligned, 410px wide: "Latest" (accent) + "Day N, date"; the log's excerpt as a quote in DM Serif italic 30px; the log title as a link; a "Read Day N" button. Cards, the title link and "Read Day N" go to the series page #day-<n>. Without an excerpt, the log title takes the quote's place.
-- Tablet: the road sits in the flow under the text with room above for the quote block (quote 25px, block 340px); the middle card hides; "Start from Day 1" moves under the premise.
+- Tablet: the road sits in the flow under the text with room above for the quote block (quote 25px, block 340px); cards follow the same spacing rule at the tablet road width; "Start from Day 1" moves under the premise.
 - Phone: the quote block sits in the flow under the title (quote 23px) with "Read Day N" and "Start from Day 1"; the premise is hidden; the road becomes a 900px-wide sideways-scrolling track that starts scrolled to the newest end, fading out on its left edge; "Swipe back to Day 1" hint; cards 124px. The page itself never scrolls sideways.
 - Compact (Explore sidebar): always the phone layout, flat (no outer padding, dot texture or glow), quote about 20px.
 

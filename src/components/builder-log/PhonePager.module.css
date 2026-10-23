@@ -52,6 +52,13 @@
   -webkit-user-select: none;
 }
 
+/* The pill clips its content (overflow: hidden), so its buttons draw the
+   focus ring inside their own box instead of outside it. */
+.pill :focus-visible {
+  outline-offset: -3px;
+  border-radius: 26px;
+}
+
 .pillDragging {
   height: 164px;
   border-radius: 24px;
