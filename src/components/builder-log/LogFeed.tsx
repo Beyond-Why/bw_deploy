@@ -27,7 +27,7 @@ export default function LogFeed({
 }) {
   const { order, setOrder, switchCount } = useLogOrder();
   const { currentDay } = useCurrentLog();
-  const { isPager, expanded, setExpanded, slide } = usePager();
+  const { isPager, slide } = usePager();
   const feedRef = useRef<HTMLDivElement>(null);
   const [openRequest, setOpenRequest] = useState<{ day: number; token: number } | null>(null);
 
@@ -58,12 +58,7 @@ export default function LogFeed({
   }, []);
 
   return (
-    <div
-      ref={feedRef}
-      id="log-feed"
-      className={styles.feed}
-      data-expanded={isPager && expanded ? "" : undefined}
-    >
+    <div ref={feedRef} id="log-feed" className={styles.feed}>
       <div className={styles.logs}>
         {ordered.map((log, index) => {
           // Phone pager: every log stays in the page; only the current one
@@ -78,21 +73,6 @@ export default function LogFeed({
               data-active={active ? "" : undefined}
             >
               <LogPositionProvider value={{ index, openRequest }}>{log.node}</LogPositionProvider>
-              {isPager && active && expanded && (
-                <button
-                  type="button"
-                  className={styles.foldBack}
-                  onClick={() => {
-                    setExpanded(false);
-                    if (feedRef.current) feedRef.current.scrollTop = 0;
-                  }}
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="m18 15-6-6-6 6" />
-                  </svg>
-                  Fold it back
-                </button>
-              )}
             </div>
           );
         })}

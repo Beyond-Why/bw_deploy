@@ -12,6 +12,10 @@ function buildConfig(phase: string): NextConfig {
 
   return {
     pageExtensions: ["ts", "tsx", "md", "mdx"],
+    // Dev only: keep the Next.js badge off the Builder Log phone pill, and
+    // let a phone on the local Wi-Fi load the dev server's scripts.
+    devIndicators: { position: "top-right" },
+    allowedDevOrigins: ["192.168.1.9"],
     // Resolve metadata before the first byte for every user agent, not just
     // Next's list of non-JS bots. Streamed metadata lands in <body>, where
     // crawlers ignore rel=canonical; generateMetadata here only reads a

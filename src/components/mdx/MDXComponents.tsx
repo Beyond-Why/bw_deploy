@@ -19,7 +19,6 @@ import Photo from "./Photo";
 import Gallery from "./Gallery";
 import Compare from "./Compare";
 import Lesson from "./Lesson";
-import DeepDiveLink from "./DeepDiveLink";
 
 /* ──────────────────────────────────────────────────────────────
    Custom MDX component map.
@@ -151,6 +150,5 @@ export const mdxComponents = {
   Gallery,
   Compare,
   Lesson,
-  DeepDiveLink,
   ...interactiveComponents,
 };

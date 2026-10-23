@@ -14,12 +14,10 @@ const STEP = 48;
 /** A swipe shorter than this (ms) and longer than FLICK_DISTANCE is a flick: exactly one log. */
 const FLICK_MS = 300;
 const FLICK_DISTANCE = 16;
-/** Space at the bottom of the log area taken by the pill. */
-const PILL_ZONE = 92;
 
 /**
  * The series page on a phone (under 700px, with JS): a series strip, one
- * log filling the screen, and the pill — arrows for older/newer, swipe it
+ * log filling the screen (always in full — its area scrolls), and the pill — arrows for older/newer, swipe it
  * to travel (48px a log, a quick flick moves one), tap its middle for the
  * journey sheet. Everything moves through the shared goToDay(), so the
  * URL hash, the slide-in and the reset to the top all happen in one place.
@@ -30,10 +28,9 @@ const PILL_ZONE = 92;
 export default function PhonePager({ seriesTitle }: { seriesTitle: string }) {
   const logs = useLogs();
   const { currentDay, goToDay } = useCurrentLog();
-  const { isPager, expanded, setExpanded } = usePager();
+  const { isPager } = usePager();
   const stripRef = useRef<HTMLDivElement>(null);
   const middleRef = useRef<HTMLButtonElement>(null);
-  const [isLong, setIsLong] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
 
   const index = Math.max(0, logs.findIndex((log) => log.day === currentDay));
@@ -57,23 +54,6 @@ export default function PhonePager({ seriesTitle }: { seriesTitle: string }) {
     };
   }, [isPager]);
 
-  // Is the current log taller than the screen has room for?
-  useEffect(() => {
-    if (!isPager) return;
-    const area = document.getElementById("log-feed");
-    const slot = area?.querySelector<HTMLElement>("[data-active]");
-    if (!area || !slot) return;
-    const measure = () => {
-      const paddingTop = parseFloat(getComputedStyle(area).paddingTop) || 0;
-      setIsLong(slot.offsetHeight > area.clientHeight - paddingTop - PILL_ZONE);
-    };
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(slot);
-    observer.observe(area);
-    return () => observer.disconnect();
-  }, [isPager, currentDay]);
-
   if (!isPager || !current) return null;
 
   const older = index > 0 ? logs[index - 1] : null;
@@ -88,21 +68,6 @@ export default function PhonePager({ seriesTitle }: { seriesTitle: string }) {
           {logs.length} {logs.length === 1 ? "log" : "logs"}
         </span>
       </div>
-
-      {isLong && !expanded && (
-        <>
-          <div className={styles.fade} aria-hidden="true" />
-          <div className={styles.readWhole}>
-            <button type="button" className={styles.readButton} onClick={() => setExpanded(true)}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="m6 9 6 6 6-6" />
-              </svg>
-              Read the whole log
-            </button>
-            {current.hint && <span className={styles.hint}>{current.hint}</span>}
-          </div>
-        </>
-      )}
 
       <Pill
         logs={logs}

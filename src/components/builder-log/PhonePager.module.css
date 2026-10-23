@@ -34,62 +34,11 @@
   color: var(--text-muted);
 }
 
-/* ── LONG LOG: fade + "Read the whole log" ── */
-.fade {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 2;
-  height: calc(240px + env(safe-area-inset-bottom));
-  background: linear-gradient(to bottom, transparent, var(--bg-primary) 55%);
-  pointer-events: none;
-}
-
-.readWhole {
-  position: fixed;
-  right: 16px;
-  bottom: calc(94px + env(safe-area-inset-bottom));
-  left: 16px;
-  z-index: 3;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  text-align: center;
-}
-
-.readButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  padding: 0 22px 0 18px;
-  border: 1px solid var(--border-medium);
-  border-radius: 999px;
-  background: var(--bg-elevated);
-  color: var(--text-primary);
-  font-family: var(--font-body), serif;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-.readButton svg {
-  color: var(--log-accent);
-}
-
-.hint {
-  font-family: var(--font-ui), sans-serif;
-  font-size: 12px;
-  line-height: 1.4;
-  color: var(--text-muted);
-}
-
 /* ── PILL ── */
 .pill {
   position: fixed;
   right: 14px;
-  bottom: calc(16px + env(safe-area-inset-bottom));
+  bottom: calc(8px + env(safe-area-inset-bottom));
   left: 14px;
   z-index: 4;
   height: 60px;

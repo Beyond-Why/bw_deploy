@@ -70,6 +70,8 @@ export interface EpisodeFrontmatter {
   video?: string;
   /** Builder Log only — the clip's length as shown on the cover chip, e.g. "0:28". */
   videoLength?: string;
+  /** Builder Log only — Deep Dive series slugs shown under the log as "Explore more". */
+  explore?: string[];
   /** Local-only: when true, the loaders treat this as missing in production
    *  (`next build` / `next start`) but show it in `next dev`. */
   draft?: boolean;
@@ -385,6 +387,8 @@ export interface BuilderLogEntry {
   video?: string;
   /** "0:28" — shown on the cover's duration chip. */
   videoLength?: string;
+  /** Deep Dive series slugs for the "Explore more" section ([] when none). */
+  explore: string[];
   /** Raw MDX body. */
   body: string;
   summary: BuilderLogBodySummary;
@@ -471,6 +475,9 @@ export async function getBuilderLog(series: string): Promise<BuilderLog | null> 
           thumbnailAlt: frontmatter.thumbnailAlt,
           video: frontmatter.video,
           videoLength: frontmatter.videoLength,
+          explore: Array.isArray(frontmatter.explore)
+            ? frontmatter.explore.filter((slug): slug is string => typeof slug === "string")
+            : [],
           body: content,
           summary: summarizeLogBody(content),
           frontmatter,

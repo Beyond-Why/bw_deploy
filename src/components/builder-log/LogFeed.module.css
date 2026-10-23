@@ -119,9 +119,9 @@
 /* ── PHONE PAGER (html[data-log-pager], set by LogStateProvider under
    700px once JS is running) ──
    The feed becomes a fixed area below the series strip showing only the
-   current log. Folded: overflow hidden (PhonePager draws the fade and
-   "Read the whole log"). Expanded: the area scrolls. The bottom padding
-   clears the pill. */
+   current log, in full — the area scrolls. The bottom padding (pill 60 +
+   its 8px gap + breathing room + safe area) lets the last lines, the
+   actions row and "Explore more" scroll clear of the pill. */
 .slot {
   min-width: 0;
 }
@@ -133,14 +133,10 @@
   bottom: 0;
   left: 0;
   z-index: 1;
-  overflow: hidden;
-  padding: 20px var(--mdx-bleed, 16px) calc(120px + env(safe-area-inset-bottom));
+  overflow-y: auto;
+  padding: 20px var(--mdx-bleed, 16px) calc(60px + 8px + 28px + env(safe-area-inset-bottom));
   background: var(--bg-primary);
   overscroll-behavior: contain;
-}
-
-:global(html[data-log-pager]) .feed[data-expanded] {
-  overflow-y: auto;
 }
 
 :global(html[data-log-pager]) .feed::before,
@@ -154,26 +150,6 @@
 
 :global(html[data-log-pager]) .slot:not([data-active]) {
   display: none;
-}
-
-.foldBack {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  margin-top: 24px;
-  padding: 0 20px 0 16px;
-  border: 1px solid var(--border-medium);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--text-primary);
-  font-family: var(--font-body), serif;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-.foldBack svg {
-  color: var(--log-accent);
 }
 
 /* The new log slides in from the side it lives on (older from the left),

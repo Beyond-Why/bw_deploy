@@ -1,0 +1,14 @@
+.explore {
+  margin-top: 40px;
+}
+
+.heading {
+  margin-bottom: var(--space-md);
+}
+
+/* Same rhythm as the home feed's Deep Dive list. */
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}

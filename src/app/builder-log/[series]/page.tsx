@@ -5,7 +5,7 @@ import { formatDayLabel } from "@/lib/formatDate";
 import { mdxComponents } from "@/components/mdx/MDXComponents";
 import { mdxOptions } from "@/components/mdx/mdxOptions";
 import "@/components/mdx/katex";
-import LogEntry, { foldHint } from "@/components/builder-log/LogEntry";
+import LogEntry from "@/components/builder-log/LogEntry";
 import LogFeed from "@/components/builder-log/LogFeed";
 import SeriesHeader from "@/components/builder-log/SeriesHeader";
 import JourneyBar from "@/components/builder-log/JourneyBar";
@@ -85,7 +85,6 @@ export default async function BuilderLogSeriesPage({ params, searchParams }: Pag
       thumbnail: entry.thumbnail,
       thumbnailAlt: entry.thumbnailAlt,
       hasThumbnail: entry.thumbnail ? await publicFileExists(entry.thumbnail) : false,
-      hint: foldHint(entry.summary),
     }))
   );
 

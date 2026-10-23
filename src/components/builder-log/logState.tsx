@@ -70,9 +70,6 @@ export interface LogMeta {
   thumbnailAlt?: string;
   /** The thumbnail file exists (checked on the server). */
   hasThumbnail: boolean;
-  /** "Inside: 3 photos and a look under the hood" — shown with "Read the
-   *  whole log" when the log is cut off. */
-  hint?: string;
 }
 
 interface CurrentLogState {
@@ -84,12 +81,10 @@ interface CurrentLogState {
 
 const LogsContext = createContext<LogMeta[]>([]);
 
-/** Phone layout (under 700px, with JS): one log per screen. */
+/** Phone layout (under 700px, with JS): one log per screen, shown in full
+ *  in its own scroll area — nothing folds on a phone. */
 interface PagerState {
   isPager: boolean;
-  /** The current log was opened past the screen ("Read the whole log"). */
-  expanded: boolean;
-  setExpanded: (expanded: boolean) => void;
   /** Which side the current log slid in from, with a key that changes on
    *  every move so the animation replays. */
   slide: { from: "left" | "right"; key: number } | null;
@@ -97,8 +92,6 @@ interface PagerState {
 
 const PagerContext = createContext<PagerState>({
   isPager: false,
-  expanded: false,
-  setExpanded: () => {},
   slide: null,
 });
 
@@ -181,7 +174,6 @@ export function LogStateProvider({
   const syncPausedRef = useRef(false);
   const goToTokenRef = useRef(0);
   const [isPager, setIsPager] = useState(false);
-  const [expanded, setExpanded] = useState(false);
   const [slide, setSlide] = useState<PagerState["slide"]>(null);
   const pagerRef = useRef(false);
   const currentDayRef = useRef(currentDay);
@@ -254,16 +246,15 @@ export function LogStateProvider({
   const goToDay = useCallback(
     (day: number, { instant = false }: { instant?: boolean } = {}) => {
       if (pagerRef.current) {
-        // Phone: swap the visible log in place; the new one starts folded
-        // and at its top, and slides in from the side it lives on (older
-        // from the left — the content follows the finger).
+        // Phone: swap the visible log in place; the new one starts at its
+        // top and slides in from the side it lives on (older from the
+        // left — the content follows the finger).
         const from = currentDayRef.current;
         if (from !== null && from !== day && !instant && !prefersReducedMotion()) {
           setSlide((prev) => ({ from: day < from ? "left" : "right", key: (prev?.key ?? 0) + 1 }));
         } else {
           setSlide(null);
         }
-        setExpanded(false);
         setCurrentDay(day);
         requestAnimationFrame(() => {
           const area = document.getElementById("log-feed");
@@ -302,7 +293,6 @@ export function LogStateProvider({
       if (on === pagerRef.current) return;
       pagerRef.current = on;
       setIsPager(on);
-      setExpanded(false);
       setSlide(null);
       if (on) {
         document.documentElement.dataset.logPager = "on";
@@ -347,7 +337,7 @@ export function LogStateProvider({
 
   const orderValue = useMemo(() => ({ order, setOrder, switchCount }), [order, setOrder, switchCount]);
   const currentValue = useMemo(() => ({ currentDay, goToDay }), [currentDay, goToDay]);
-  const pagerValue = useMemo(() => ({ isPager, expanded, setExpanded, slide }), [isPager, expanded, slide]);
+  const pagerValue = useMemo(() => ({ isPager, slide }), [isPager, slide]);
 
   return (
     <OrderContext.Provider value={orderValue}>
@@ -426,7 +416,7 @@ export function LogFoldScope({
 }) {
   const { index, openRequest } = useContext(PositionContext);
   const { isPager } = useContext(PagerContext);
-  // The phone pager folds the whole screen instead (see PhonePager).
+  // Nothing folds on a phone: the log is the only thing on the screen.
   const alwaysOpen = isPager || index < ALWAYS_OPEN_COUNT;
   const [expanded, setExpanded] = useState(false);
   const [measuredTall, setMeasuredTall] = useState<boolean | null>(null);

@@ -5,13 +5,14 @@ import LogCover from "./LogCover";
 import LogFold from "./LogFold";
 import LogActions from "./LogActions";
 import RailNumeral from "./RailNumeral";
+import LogExplore from "./LogExplore";
 import { LogFoldScope } from "./logState";
 import styles from "./LogEntry.module.css";
 
 /**
  * One Builder Log day: the sticky rail (glyph on the line, "Day", the
  * outlined numeral, date, "Latest" chip, highlight label) beside the main
- * column (title, cover, MDX body, actions). Used by the series feed and,
+ * column (title, cover, MDX body, actions, "Explore more"). Used by the series feed and,
  * on its own, by the single-log share page.
  *
  *   <LogEntry series="line-follower" log={log} body={<MDXRemote … />}
@@ -86,6 +87,7 @@ export default function LogEntry({
             <LogFold hint={foldHint(log.summary)}>{body}</LogFold>
           </div>
           <LogActions series={series} slug={log.slug} day={log.day} />
+          <LogExplore slugs={log.explore} />
         </div>
       </LogFoldScope>
     </section>
