@@ -5,6 +5,12 @@ import LogGlyph from "./LogGlyph";
 import { LogPositionProvider, useLogOrder } from "./logState";
 import styles from "./LogFeed.module.css";
 
+/** The site sets `scroll-behavior: smooth` on html for everyone; honour
+ *  reduced motion here by asking for an instant jump explicitly. */
+function scrollBehavior(): ScrollBehavior {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth";
+}
+
 export interface FeedLog {
   day: number;
   /** The server-rendered <LogEntry>. */
@@ -33,7 +39,7 @@ export default function LogFeed({
 
   // After switching order, start reading from the top of the feed.
   useEffect(() => {
-    if (switchCount > 0) feedRef.current?.scrollIntoView({ block: "start" });
+    if (switchCount > 0) feedRef.current?.scrollIntoView({ block: "start", behavior: scrollBehavior() });
   }, [switchCount]);
 
   // #day-N: unfold that log and bring it into view — on load (the browser's
@@ -45,7 +51,8 @@ export default function LogFeed({
       if (!match) return;
       const day = Number(match[1]);
       setOpenRequest({ day, token: Date.now() });
-      const scroll = () => document.getElementById(`day-${day}`)?.scrollIntoView({ block: "start" });
+      const scroll = () =>
+        document.getElementById(`day-${day}`)?.scrollIntoView({ block: "start", behavior: scrollBehavior() });
       requestAnimationFrame(scroll);
       // Images and folds above it can still shift the page as they settle.
       setTimeout(scroll, 350);
