@@ -61,7 +61,7 @@ export default async function InsightCardPage({ params }: PageProps) {
           headline: frontmatter.title,
           description: metaDescription(frontmatter, content),
           path: cardPath,
-          images: [`${cardPath}/opengraph-image`, frontmatter.thumbnail],
+          images: [`${cardPath}/opengraph-image/card`, frontmatter.thumbnail],
           datePublished: publishedDate(frontmatter),
           dateModified: modifiedDate(frontmatter),
           keywords: Array.isArray(frontmatter.tags) ? frontmatter.tags : undefined,

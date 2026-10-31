@@ -78,7 +78,7 @@ export default async function BuilderLogEpisodePage({ params }: PageProps) {
       headline: entry.title,
       description: metaDescription(entry.frontmatter, entry.body),
       path: episodePath,
-      images: [`${episodePath}/opengraph-image`, entry.thumbnail || log.frontmatter.thumbnail],
+      images: [`${episodePath}/opengraph-image/card`, entry.thumbnail || log.frontmatter.thumbnail],
       datePublished: publishedDate(entry.frontmatter),
       dateModified: modifiedDate(entry.frontmatter),
       position: entry.day,
