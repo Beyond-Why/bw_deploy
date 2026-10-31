@@ -24,10 +24,12 @@ import {
   breadcrumbJsonLd,
   isPlaceholder,
   isUnreleased,
+  keywordList,
   metaDescription,
   modifiedDate,
   pageMetadata,
   publishedDate,
+  seoTitle,
 } from "@/lib/seo";
 
 interface PageProps {
@@ -45,7 +47,7 @@ export async function generateMetadata({ params }: PageProps) {
   const { frontmatter, content } = episodeData;
   if (isPlaceholder(frontmatter) || isPlaceholder(seriesData.frontmatter)) notFound();
   return pageMetadata({
-    title: `${frontmatter.title} — ${seriesData.frontmatter.title}`,
+    title: seoTitle(frontmatter, `${frontmatter.title} — ${seriesData.frontmatter.title}`),
     description: metaDescription(frontmatter, content),
     path: `/deep-dives/${series}/${episode}`,
     type: "article",
@@ -148,9 +150,11 @@ export default async function DeepDiveEpisodePage({ params, searchParams }: Page
       headline: frontmatter.title,
       description: metaDescription(frontmatter, content),
       path: episodePath,
-      images: [`${episodePath}/opengraph-image`, frontmatter.thumbnail || seriesData.frontmatter.thumbnail],
+      images: [`${episodePath}/opengraph-image/card`, frontmatter.thumbnail || seriesData.frontmatter.thumbnail],
       datePublished: publishedDate(frontmatter),
       dateModified: modifiedDate(frontmatter),
+      // An episode without its own keywords inherits the series'.
+      keywords: keywordList(frontmatter.keywords) ?? keywordList(seriesData.frontmatter.keywords),
       position: frontmatter.episode,
       partOf: { name: seriesData.frontmatter.title, path: seriesPath },
     }),

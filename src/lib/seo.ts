@@ -117,6 +117,18 @@ export function metaDescription(
   return text ? truncate(text) : undefined;
 }
 
+/** Frontmatter seoTitle when set, else the given page title. */
+export function seoTitle(frontmatter: { seoTitle?: unknown } | undefined, fallback: string): string {
+  return nonEmpty(frontmatter?.seoTitle) ?? fallback;
+}
+
+/** Frontmatter keywords as a clean list — non-strings and blanks dropped. */
+export function keywordList(value: unknown): string[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const keywords = value.filter((k): k is string => typeof k === "string" && k.trim() !== "").map((k) => k.trim());
+  return keywords.length > 0 ? keywords : undefined;
+}
+
 /* ── PUBLISHING STATE ── */
 
 interface PublishableFrontmatter {

@@ -15,6 +15,7 @@ import {
   metaDescription,
   pageMetadata,
   seriesJsonLd,
+  seoTitle,
 } from "@/lib/seo";
 
 interface PageProps {
@@ -28,7 +29,7 @@ export async function generateMetadata({ params }: PageProps) {
   const { frontmatter, content } = seriesData;
   if (isPlaceholder(frontmatter)) notFound();
   return pageMetadata({
-    title: frontmatter.title,
+    title: seoTitle(frontmatter, frontmatter.title),
     description: metaDescription(frontmatter, content),
     path: `/deep-dives/${series}`,
     noindex: isUnreleased(frontmatter),

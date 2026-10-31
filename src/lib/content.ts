@@ -42,6 +42,11 @@ export interface SeriesFrontmatter {
   eta?: string;
   /** Overrides description/excerpt/body for the meta description only. */
   seoDescription?: string;
+  /** Deep Dives: replaces the title in <title>, og:title and twitter:title
+   *  only — the title shown on the page never changes. */
+  seoTitle?: string;
+  /** Deep Dives: Article JSON-LD "keywords" only — never a meta tag. */
+  keywords?: string[];
   /** Last meaningful revision — sitemap lastModified and JSON-LD dateModified. */
   updated?: string;
   /** Describes the thumbnail/hero image for screen readers and search.
@@ -87,6 +92,11 @@ export interface EpisodeFrontmatter {
   category?: string;
   /** Overrides description/excerpt/body for the meta description only. */
   seoDescription?: string;
+  /** Deep Dives: replaces the title in <title>, og:title and twitter:title
+   *  only — the title shown on the page never changes. */
+  seoTitle?: string;
+  /** Deep Dives: Article JSON-LD "keywords" only — never a meta tag. */
+  keywords?: string[];
   /** Last meaningful revision — sitemap lastModified and JSON-LD dateModified. */
   updated?: string;
   /** Describes the thumbnail/hero image for screen readers and search.
