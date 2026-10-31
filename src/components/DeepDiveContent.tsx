@@ -1,5 +1,6 @@
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { mdxComponents } from "@/components/mdx/MDXComponents";
+import mdxStyles from "@/components/mdx/MDXComponents.module.css";
 import { mdxOptions } from "@/components/mdx/mdxOptions";
 import "@/components/mdx/katex";
 import type { SeriesFrontmatter, EpisodeInfo, InsightCollection, EpisodeStats } from "@/lib/content";
@@ -12,6 +13,17 @@ import type { HubRecommendations } from "@/lib/hubRecommendations";
 import styles from "./DeepDiveContent.module.css";
 import Link from "next/link";
 import Image from "next/image";
+import type { ComponentProps } from "react";
+
+/* The hub's sidebar intro repeats index.mdx's "# Series title", which the
+   hero already shows as the page's one <h1>. Inside the intro, an MDX h1
+   renders as an h2 — same look — so the page keeps exactly one h1. */
+const introComponents = {
+  ...mdxComponents,
+  h1: ({ className, ...props }: ComponentProps<"h2">) => (
+    <h2 className={[mdxStyles.h1, styles.introTitle, className].filter(Boolean).join(" ")} {...props} />
+  ),
+};
 
 /* ──────────────────────────────────────────────────────────────
    Shared Deep Dive content renderer.
@@ -215,7 +227,7 @@ export function DeepDiveContent({
         <aside className={styles.sidebarCol}>
           {!compact && content && (
             <div className={styles.introBox}>
-              <MDXRemote source={content} components={mdxComponents} options={mdxOptions} />
+              <MDXRemote source={content} components={introComponents} options={mdxOptions} />
             </div>
           )}
         </aside>

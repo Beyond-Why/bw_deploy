@@ -265,7 +265,9 @@
   padding-left: var(--space-sm);
 }
 
-.introBox h1:first-of-type {
+/* index.mdx's leading "# Series title" (rendered as h2.introTitle — see
+   introComponents) duplicates the hero title. */
+.introBox > .introTitle:first-child {
   display: none;
 }
 
