@@ -36,15 +36,30 @@ function nonEmpty(value: unknown): string | undefined {
   return typeof value === "string" && value.trim() !== "" ? value.trim() : undefined;
 }
 
+/** Episode components that only wrap prose — their text is the author's own words. */
+const PROSE_COMPONENTS = ["Lede", "Beat", "PullQuote", "Closer", "Step"];
+
+/** A JSX attribute list; tolerates `>` inside quoted values and `{…}` expressions (e.g. `=>`). */
+const JSX_ATTRS = String.raw`(?:[^>"'{]|"[^"]*"|'[^']*'|\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\})*`;
+const PROSE_COMPONENT_RE = new RegExp(
+  String.raw`<(${PROSE_COMPONENTS.join("|")})\b${JSX_ATTRS}>([\s\S]*?)<\/\1>`,
+  "g"
+);
+const SELF_CLOSING_COMPONENT_RE = new RegExp(String.raw`<[A-Z][\w.]*\b${JSX_ATTRS}\/>`, "g");
+const PAIRED_COMPONENT_RE = new RegExp(String.raw`<([A-Z][\w.]*)\b${JSX_ATTRS}>[\s\S]*?<\/\1>`, "g");
+
 /** Plain-text paragraphs of an MDX body, with markdown, JSX/HTML and LaTeX removed. */
 function proseParagraphs(body: string): string[] {
   const stripped = body
+    .replace(/\{\/\*[\s\S]*?\*\/\}/g, "\n\n")
     .replace(/```[\s\S]*?```/g, "\n\n")
     .replace(/\$\$[\s\S]*?\$\$/g, "\n\n")
     .replace(/<figure[\s\S]*?<\/figure>/gi, "\n\n")
-    // JSX components (capitalised tags), self-closing or with children
-    .replace(/<([A-Z][\w.]*)\b[^>]*\/>/g, "\n\n")
-    .replace(/<([A-Z][\w.]*)\b[^>]*>[\s\S]*?<\/\1>/g, "\n\n")
+    // Prose wrappers become their own paragraph; every other JSX component
+    // (visuals, toggles, spacers) is dropped along with its children.
+    .replace(PROSE_COMPONENT_RE, "\n\n$2\n\n")
+    .replace(SELF_CLOSING_COMPONENT_RE, "\n\n")
+    .replace(PAIRED_COMPONENT_RE, "\n\n")
     .replace(/^\s*(import|export)\s.*$/gm, "");
 
   const paragraphs: string[] = [];
@@ -71,11 +86,12 @@ function proseParagraphs(body: string): string[] {
   return paragraphs;
 }
 
+/** Cut on the last word boundary that fits, so no word is ever split. */
 function truncate(text: string, max = DESCRIPTION_MAX): string {
   if (text.length <= max) return text;
-  const cut = text.slice(0, max - 1);
-  const lastSpace = cut.lastIndexOf(" ");
-  return `${(lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut).replace(/[\s,;:.\-—–]+$/, "")}…`;
+  const cut = text.slice(0, max); // leaves room for the ellipsis
+  const lastSpace = cut.lastIndexOf(" ", max - 1);
+  return `${(lastSpace > 0 ? cut.slice(0, lastSpace) : cut.slice(0, max - 1)).replace(/[\s,;:.\-—–…]+$/, "")}…`;
 }
 
 /**
@@ -157,7 +173,7 @@ export function modifiedDate(fm: PublishableFrontmatter): Date | undefined {
 export const NOINDEX: Metadata["robots"] = { index: false, follow: true };
 
 interface PageMetadataInput {
-  /** Bare title — the root layout's template appends " — Beyond Why". */
+  /** Bare title — the root layout's template appends " | Beyond Why". */
   title: string;
   description?: string;
   /** Clean path, no query string. Used for canonical and og:url. */

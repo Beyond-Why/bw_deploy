@@ -60,7 +60,7 @@ const inter = Inter({
 // by every route (sign-in, 404s, …) that doesn't override it.
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: { default: SITE_NAME, template: `%s — ${SITE_NAME}` },
+  title: { default: SITE_NAME, template: `%s | ${SITE_NAME}` },
   description: SITE_DESCRIPTION,
   openGraph: {
     type: "website",

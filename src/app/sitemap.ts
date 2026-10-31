@@ -6,14 +6,19 @@ import { absoluteUrl, isUnreleased, modifiedDate } from "@/lib/seo";
 export const revalidate = 3600;
 
 /**
- * Homepage, every released series hub, episode and insight card. Bare
+ * Homepage, the legal pages, and every released series hub, episode and
+ * insight card. Bare
  * collection URLs (they redirect to the first card) and the rewritten
  * /deep-dives, /insight-cards and /builder-log aliases of the homepage
  * are deliberately absent. Unreleased (comingSoon / future publishedAt)
  * and zero-byte placeholder entries are skipped — see isUnreleased().
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const entries: MetadataRoute.Sitemap = [{ url: absoluteUrl("/") }];
+  const entries: MetadataRoute.Sitemap = [
+    { url: absoluteUrl("/") },
+    { url: absoluteUrl("/privacy") },
+    { url: absoluteUrl("/terms") },
+  ];
 
   for (const type of ["deep-dives", "builder-log"] as const) {
     for (const series of await getAllSeries(type)) {

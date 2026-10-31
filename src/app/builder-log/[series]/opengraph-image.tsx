@@ -1,18 +1,30 @@
 import { notFound } from "next/navigation";
 import { getBuilderLog } from "@/lib/content";
-import { renderBuilderLogOgImage, ogImageContentType, ogImageSize } from "@/lib/og";
+import { ogImageMetadata, renderBuilderLogOgImage } from "@/lib/og";
 import { isPlaceholder } from "@/lib/seo";
 
-export const alt = "Builder Log series on Beyond Why";
-export const size = ogImageSize;
-export const contentType = ogImageContentType;
+type Params = Promise<{ series: string }>;
 
-/** The newest log's cover, stamped with the series title. */
-export default async function Image({ params }: { params: Promise<{ series: string }> }) {
+async function load(params: Params) {
   const { series } = await params;
   const log = await getBuilderLog(series);
   if (!log || isPlaceholder(log.frontmatter)) notFound();
-  const newest = log.logs[log.logs.length - 1];
+  return { log, newest: log.logs[log.logs.length - 1] };
+}
+
+export async function generateImageMetadata({ params }: { params: Params }) {
+  const { log, newest } = await load(params);
+  return ogImageMetadata({
+    title: log.frontmatter.title,
+    kind: "Builder Log",
+    context: log.frontmatter.category,
+    thumbnailAlt: newest?.thumbnail ? newest.thumbnailAlt : log.frontmatter.thumbnailAlt,
+  });
+}
+
+/** The newest log's cover, stamped with the series title. */
+export default async function Image({ params }: { params: Params }) {
+  const { log, newest } = await load(params);
   return renderBuilderLogOgImage({
     cover: newest?.thumbnail ?? log.frontmatter.thumbnail,
     stamp: "Builder Log",

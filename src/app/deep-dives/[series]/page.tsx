@@ -8,7 +8,14 @@ import { getLikeCountsByContentIds } from "@/lib/likes";
 import { getCommentCountsByContentIds } from "@/lib/comments";
 import type { CurrentUser } from "@/components/comments/CommentSection";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { isPlaceholder, isUnreleased, metaDescription, pageMetadata, seriesJsonLd } from "@/lib/seo";
+import {
+  breadcrumbJsonLd,
+  isPlaceholder,
+  isUnreleased,
+  metaDescription,
+  pageMetadata,
+  seriesJsonLd,
+} from "@/lib/seo";
 
 interface PageProps {
   params: Promise<{ series: string }>;
@@ -72,19 +79,25 @@ export default async function DeepDiveSeriesPage({ params }: PageProps) {
     };
   }
 
-  const structuredData = seriesJsonLd({
-    name: frontmatter.title,
-    description: metaDescription(frontmatter, content),
-    path: `/deep-dives/${series}`,
-    image: frontmatter.thumbnail,
-    parts: episodes
-      .filter((ep) => !isUnreleased(frontmatter, ep.frontmatter))
-      .map((ep) => ({
-        headline: ep.frontmatter.title,
-        path: `/deep-dives/${series}/${ep.slug}`,
-        position: ep.episode,
-      })),
-  });
+  const structuredData = [
+    seriesJsonLd({
+      name: frontmatter.title,
+      description: metaDescription(frontmatter, content),
+      path: `/deep-dives/${series}`,
+      image: frontmatter.thumbnail,
+      parts: episodes
+        .filter((ep) => !isUnreleased(frontmatter, ep.frontmatter))
+        .map((ep) => ({
+          headline: ep.frontmatter.title,
+          path: `/deep-dives/${series}/${ep.slug}`,
+          position: ep.episode,
+        })),
+    }),
+    breadcrumbJsonLd([
+      { name: "Home", path: "/" },
+      { name: frontmatter.title, path: `/deep-dives/${series}` },
+    ]),
+  ];
 
   return (
     <>

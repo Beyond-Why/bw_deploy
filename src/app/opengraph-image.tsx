@@ -1,6 +1,6 @@
 import { renderOgImage, ogImageContentType, ogImageSize } from "@/lib/og";
 
-export const alt = "Beyond Why";
+export const alt = "Beyond Why — Deep Dives, Insight Cards and Builder Logs: exploring ideas beyond the surface.";
 export const size = ogImageSize;
 export const contentType = ogImageContentType;
 

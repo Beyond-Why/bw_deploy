@@ -16,7 +16,14 @@ import { getCurrentUser } from "@/lib/auth/getUser";
 import { getBookmarkState } from "@/lib/bookmarks";
 import { publicFileExists } from "@/lib/publicAsset";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { isPlaceholder, isUnreleased, metaDescription, pageMetadata, seriesJsonLd } from "@/lib/seo";
+import {
+  breadcrumbJsonLd,
+  isPlaceholder,
+  isUnreleased,
+  metaDescription,
+  pageMetadata,
+  seriesJsonLd,
+} from "@/lib/seo";
 import styles from "./page.module.css";
 
 interface PageProps {
@@ -48,19 +55,25 @@ export default async function BuilderLogSeriesPage({ params, searchParams }: Pag
   const newest = logs[logs.length - 1];
   const firstInOrder = initialOrder === "newest" ? newest : logs[0];
 
-  const structuredData = seriesJsonLd({
-    name: frontmatter.title,
-    description: metaDescription(frontmatter, log.intro),
-    path: `/builder-log/${series}`,
-    image: frontmatter.thumbnail,
-    parts: logs
-      .filter((entry) => !isUnreleased(frontmatter, entry.frontmatter))
-      .map((entry) => ({
-        headline: entry.title,
-        path: `/builder-log/${series}/${entry.slug}`,
-        position: entry.day,
-      })),
-  });
+  const structuredData = [
+    seriesJsonLd({
+      name: frontmatter.title,
+      description: metaDescription(frontmatter, log.intro),
+      path: `/builder-log/${series}`,
+      image: frontmatter.thumbnail,
+      parts: logs
+        .filter((entry) => !isUnreleased(frontmatter, entry.frontmatter))
+        .map((entry) => ({
+          headline: entry.title,
+          path: `/builder-log/${series}/${entry.slug}`,
+          position: entry.day,
+        })),
+    }),
+    breadcrumbJsonLd([
+      { name: "Home", path: "/" },
+      { name: frontmatter.title, path: `/builder-log/${series}` },
+    ]),
+  ];
 
   const feedLogs = logs.map((entry) => ({
     day: entry.day,
