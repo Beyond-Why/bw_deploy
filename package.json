@@ -7,7 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "validate:content": "node scripts/validate-content.js"
+    "validate:content": "node scripts/validate-content.js",
+    "trail": "node scripts/log-to-trail.js"
+  },
+  "engines": {
+    "node": "22.x"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.5",

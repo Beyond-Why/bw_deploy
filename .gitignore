@@ -4,4 +4,5 @@ next-env.d.ts
 *.tsbuildinfo
 
 # local env files
-.env*.local
+.env*
+!.env.example
