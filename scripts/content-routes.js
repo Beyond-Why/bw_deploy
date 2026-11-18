@@ -128,4 +128,4 @@ function contentRoutes() {
   };
 }
 
-module.exports = { contentRoutes };
+module.exports = { contentRoutes, NOT_FOUND_PATH };

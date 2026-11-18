@@ -33,3 +33,62 @@
 .sub .meta {
   font-size: 0.8rem;
 }
+
+/* ── Display level (v2) — home and /explore sections. Serif 34px, a muted
+   subtitle, and an optional "See all" link on the right. ── */
+.display {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.displayTitle {
+  margin: 0;
+  font: 400 34px/1.1 var(--font-heading), "DM Serif Display", Georgia, serif;
+  color: var(--text-primary);
+}
+
+.subtitle {
+  margin: 6px 0 0;
+  font: 400 14px/1.4 var(--font-ui), "Inter", system-ui, sans-serif;
+  color: var(--text-muted);
+}
+
+.action {
+  margin-left: auto;
+  flex: none;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  font: 400 14px var(--font-ui), "Inter", system-ui, sans-serif;
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.action:hover {
+  text-decoration: underline;
+  text-decoration-color: currentColor;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+@media (max-width: 640px) {
+  .display {
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  .displayTitle {
+    font-size: 26px;
+  }
+
+  .subtitle {
+    font-size: 13.5px;
+    margin-top: 5px;
+  }
+
+  .action {
+    font-size: 13.5px;
+  }
+}

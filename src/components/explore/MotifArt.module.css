@@ -1,0 +1,36 @@
+/* Motif strokes. The mock-ups' --motif is the text colour at about half
+   strength (.55 dark / .42 light); one mix of --text-primary covers both. */
+.art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.art [data-m="l"],
+.art [data-m="f"] {
+  fill: none;
+  stroke: color-mix(in srgb, var(--text-primary) 50%, transparent);
+  stroke-width: 1.2;
+}
+
+.art [data-m="f"] {
+  stroke-dasharray: 4 5;
+}
+
+.art [data-m="a"] {
+  fill: none;
+  stroke: var(--accent-strong);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+
+.art [data-m="d"] {
+  fill: var(--text-primary);
+}
+
+.art [data-m="o"] {
+  fill: var(--tone, var(--bg-primary));
+  stroke: var(--text-primary);
+  stroke-width: 2;
+}

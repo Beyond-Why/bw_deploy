@@ -1,0 +1,233 @@
+/* Marks */
+.mark {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  background: var(--timeline-bg, var(--bg-primary));
+}
+
+.star {
+  color: var(--accent-strong);
+}
+
+.c_done {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--text-secondary);
+}
+
+.c_next {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--timeline-bg, var(--bg-primary));
+  border: 2px solid var(--accent-strong);
+}
+
+.c_planned {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid var(--text-muted);
+}
+
+/* ── Across ── */
+.track {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr));
+  margin: 0 0 8px;
+  padding: 30px 0 0;
+  list-style: none;
+}
+
+.track::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 10px;
+  width: var(--done);
+  height: 1.5px;
+  background: var(--text-secondary);
+}
+
+.track::after {
+  content: "";
+  position: absolute;
+  left: var(--done);
+  right: 0;
+  top: 10px;
+  border-top: 1.5px dashed var(--border-medium);
+}
+
+.node {
+  position: relative;
+}
+
+.nodeLink {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-right: 12px;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+a.nodeLink:hover {
+  text-decoration: none;
+}
+
+a.nodeLink:hover .title,
+a.rowLink:hover .rowTitle {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+.track .mark {
+  position: absolute;
+  top: -30px;
+  left: -6px;
+}
+
+.date,
+.rowDate {
+  font: 600 10.5px/1.3 var(--font-ui), "Inter", system-ui, sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.title {
+  font: 400 17px/1.25 var(--font-heading), "DM Serif Display", Georgia, serif;
+}
+
+.imp .date,
+.next .date,
+.imp .rowDate,
+.next .rowDate {
+  color: var(--accent);
+}
+
+.planned .title,
+.planned .rowTitle {
+  color: var(--text-secondary);
+}
+
+/* ── Down ── */
+.down {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 78px 22px minmax(0, 1fr);
+  gap: 0 16px;
+  padding-bottom: 26px;
+}
+
+.row:last-child {
+  padding-bottom: 0;
+}
+
+.rowDate {
+  padding-top: 4px;
+  text-align: right;
+}
+
+.rail {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding-top: 2px;
+}
+
+.rail .mark {
+  position: relative;
+  z-index: 1;
+}
+
+.rail::after {
+  content: "";
+  position: absolute;
+  top: 24px;
+  bottom: -26px;
+  left: 50%;
+  margin-left: -0.75px;
+  border-left: 1.5px solid var(--text-secondary);
+}
+
+.fut .rail::after {
+  border-left: 1.5px dashed var(--border-medium);
+}
+
+.row:last-child .rail::after {
+  display: none;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rowLink {
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.rowTitle {
+  font: 400 20px/1.25 var(--font-heading), "DM Serif Display", Georgia, serif;
+  color: var(--text-primary);
+}
+
+.note {
+  font: 400 14.5px/1.55 var(--font-body), "Lora", Georgia, serif;
+  color: var(--text-secondary);
+}
+
+.note b {
+  margin-right: 8px;
+  font: 600 10.5px var(--font-ui), "Inter", system-ui, sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Compact (phone build banner): short date column, smaller titles. */
+.compact .row {
+  grid-template-columns: 56px 22px minmax(0, 1fr);
+  gap: 0 12px;
+  padding-bottom: 16px;
+}
+
+.compact .rail::after {
+  bottom: -16px;
+}
+
+.compact .rowTitle {
+  font-size: 17px;
+  line-height: 1.3;
+}
+
+.compact .rowDate {
+  font-size: 10px;
+  padding-top: 5px;
+}
+
+@media (max-width: 640px) {
+  .row {
+    grid-template-columns: 56px 22px minmax(0, 1fr);
+    gap: 0 12px;
+  }
+  .rowTitle { font-size: 18px; }
+}

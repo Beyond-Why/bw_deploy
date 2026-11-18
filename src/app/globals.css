@@ -46,6 +46,14 @@
   --border-subtle: #E8E0D6;
   --border-medium: #D1C8BC;
 
+  /* v2: the build banner's band, and the tones behind motif art
+     (docs/design/v2/README.md, "Tokens") */
+  --bg-band: #EFE6DA;
+  --tone-peri: #E6ECF7;
+  --tone-sand: #F0E6D8;
+  --tone-sage: #E4EBE0;
+  --tone-clay: #F3E2D8;
+
   /* Shadows */
   --shadow-sm: 0 1px 3px rgba(42, 42, 42, 0.04);
   --shadow-md: 0 4px 12px rgba(42, 42, 42, 0.06);
@@ -135,6 +143,12 @@
 
   --border-subtle: #2A2A2A;
   --border-medium: #3A3A3A;
+
+  --bg-band: #15140F;
+  --tone-peri: #121722;
+  --tone-sand: #1A1813;
+  --tone-sage: #131915;
+  --tone-clay: #1C1512;
 
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);

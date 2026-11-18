@@ -1,0 +1,190 @@
+.band {
+  --timeline-bg: var(--bg-band);
+  background: linear-gradient(
+    180deg,
+    var(--bg-primary) 0,
+    var(--bg-band) 140px,
+    var(--bg-band) calc(100% - 140px),
+    var(--bg-primary) 100%
+  );
+}
+
+.inner {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: 56px;
+  align-items: center;
+  min-height: 60vh;
+  max-width: var(--page-max, 1296px);
+  margin: 0 auto;
+  padding: 112px var(--page-gutter, 48px);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.number {
+  margin-bottom: -12px;
+  font: 400 132px/0.8 var(--font-heading), "DM Serif Display", Georgia, serif;
+  color: transparent;
+  -webkit-text-stroke: 1.2px var(--border-medium);
+}
+
+.kickerRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.kicker {
+  font: 600 11.5px/1.3 var(--font-ui), "Inter", system-ui, sans-serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.title {
+  margin: 0;
+  font: 400 54px/1.06 var(--font-heading), "DM Serif Display", Georgia, serif;
+}
+
+.description {
+  max-width: 500px;
+  margin: 0;
+  font: 400 18px/1.6 var(--font-body), "Lora", Georgia, serif;
+  color: var(--text-secondary);
+}
+
+.count {
+  display: flex;
+  align-items: flex-end;
+  gap: 22px;
+  padding-top: 22px;
+  border-top: 1px solid var(--border-medium);
+}
+
+.countText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 10px;
+}
+
+.label {
+  font: 600 10.5px/1.3 var(--font-ui), "Inter", system-ui, sans-serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.countName {
+  font: 400 22px/1.25 var(--font-heading), "DM Serif Display", Georgia, serif;
+}
+
+.countDate {
+  font: 400 13.5px var(--font-ui), "Inter", system-ui, sans-serif;
+  color: var(--text-muted);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.downward {
+  display: none;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 10px 16px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-medium);
+  border-radius: 999px;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.chip:hover {
+  text-decoration: none;
+}
+
+.chipTitle {
+  font: 400 15px/1.3 var(--font-heading), "DM Serif Display", Georgia, serif;
+}
+
+.chip:hover .chipTitle {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+@media (max-width: 900px) {
+  .inner {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 18px;
+  }
+  /* One column: the text's children join the column so the buttons can
+     move to the end, as in the phone mock-up. */
+  .text,
+  .side {
+    display: contents;
+  }
+  .actions { order: 10; }
+  .title { font-size: 40px; }
+}
+
+@media (max-width: 640px) {
+  .band {
+    background: linear-gradient(
+      180deg,
+      var(--bg-primary) 0,
+      var(--bg-band) 56px,
+      var(--bg-band) calc(100% - 56px),
+      var(--bg-primary) 100%
+    );
+  }
+  .inner { min-height: 0; padding: 60px var(--page-gutter, 16px) 64px; }
+  .number { font-size: 88px; margin-bottom: 0; }
+  .title { font-size: 34px; }
+  .description { display: none; }
+  .count { gap: 16px; padding-top: 16px; }
+  .countText { gap: 3px; padding-bottom: 6px; }
+  .countName { font-size: 18px; }
+  .countDate { display: none; }
+  .across { display: none; }
+  .downward { display: block; }
+  .group { margin-top: 0; }
+  .chips { flex-direction: column; align-items: flex-start; }
+}

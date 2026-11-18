@@ -1,0 +1,6 @@
+/* Tone backgrounds for motif art (tokens --tone-*). Each class also sets
+   --tone so open rings in the art are filled with the same colour. */
+.peri { --tone: var(--tone-peri); }
+.sand { --tone: var(--tone-sand); }
+.sage { --tone: var(--tone-sage); }
+.clay { --tone: var(--tone-clay); }

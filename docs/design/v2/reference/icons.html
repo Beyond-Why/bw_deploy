@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Icons and the timeline · design reference</title>
+<!-- Design reference for the v2 rebuild. Not shipped. Swap "theme-dark" for "theme-light" on the root div to see the light theme. -->
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&amp;family=Inter:wght@400;500;600&amp;family=Lora:ital,wght@0,400;0,500;1,400&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.bw{--serif:'DM Serif Display',Georgia,serif;--read:'Lora',Georgia,serif;--ui:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace;font-family:var(--ui);-webkit-font-smoothing:antialiased;color:var(--ink);background:var(--bg)}
+.theme-dark{--bg:#0D0D0D;--surface:#121212;--raised:#1A1A1A;--band:#15140F;--ink:#E8E0D6;--ink2:#B0A89E;--muted:#8F887F;--line:#2A2A2A;--line2:#3A3A3A;--accent:#7BA4E0;--accent-strong:#5B9CF6;--accent-soft:rgba(91,156,246,.12);--green:#86B36B}
+.theme-light{--bg:#FFF8F0;--surface:#F7F1E9;--raised:#FFFFFF;--band:#EFE6DA;--ink:#2A2A2A;--ink2:#5A5550;--muted:#6F6860;--line:#E8E0D6;--line2:#D1C8BC;--accent:#4570B8;--accent-strong:#5887D3;--accent-soft:rgba(88,135,211,.10);--green:#4E7C3A}
+.bw h1,.bw h2,.bw h3,.bw p{margin:0}
+.ico{fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.ico .f{fill:currentColor;stroke:none}
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;border-bottom:1px solid var(--line);padding-bottom:28px}
+.head h1{font:400 48px/1 var(--serif)}
+.spec{display:flex;gap:22px;font-size:13px;color:var(--ink2)}
+.spec span{display:inline-flex;align-items:center;gap:8px}
+.spec b{font:400 12px var(--mono);color:var(--muted)}
+.grp{display:flex;flex-direction:column;gap:16px}
+.gl{display:flex;align-items:baseline;gap:14px}
+.gl h2{font:400 26px/1 var(--serif)}
+.gl span{font-size:13px;color:var(--muted)}
+.tiles{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:10px}
+.it{height:120px;border-radius:14px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--ink)}
+.it .nm{font-size:13px;color:var(--ink)}
+.it code{font:400 10.5px var(--mono);color:var(--muted)}
+.it.acc{color:var(--accent-strong)}
+.it.acc .nm{color:var(--ink)}
+.sizes{display:flex;gap:28px;align-items:flex-end;color:var(--ink2)}
+.sizes div{display:flex;flex-direction:column;align-items:center;gap:8px;font:400 11px var(--mono);color:var(--muted)}
+.sizes svg{color:var(--ink)}
+.two{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:40px;align-items:start}
+.card{border-radius:16px;border:1px solid var(--line);background:var(--surface);padding:24px 26px;display:flex;flex-direction:column;gap:20px}
+.lab{font:600 10.5px var(--ui);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.legend{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.lg{display:flex;align-items:center;gap:12px;font-size:13.5px;color:var(--ink2)}
+.mk{width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.c-done{width:10px;height:10px;border-radius:50%;background:var(--ink2)}
+.c-next{width:12px;height:12px;border-radius:50%;background:var(--surface);border:2px solid var(--accent-strong);box-sizing:border-box}
+.c-plan{width:10px;height:10px;border-radius:50%;background:transparent;border:1.5px solid var(--muted);box-sizing:border-box}
+.star{color:var(--accent-strong)}
+.track{position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding-top:30px}
+.track::before{content:'';position:absolute;left:5px;width:var(--done);top:10px;height:1.5px;background:var(--ink2)}
+.track::after{content:'';position:absolute;left:var(--done);right:0;top:10px;height:0;border-top:1.5px dashed var(--line2)}
+.tn{position:relative;display:flex;flex-direction:column;gap:4px;padding-right:12px}
+.tn .mk{position:absolute;top:-30px;left:-6px;background:var(--bg-of-card,var(--surface))}
+.tn .d{font:600 10.5px var(--ui);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.tn .t{font:400 17px/1.25 var(--serif)}
+.tn.imp .d{color:var(--accent)}
+.tn.next .d{color:var(--accent)}
+.tn.plan .t{color:var(--ink2)}
+.vt{position:relative;display:flex;flex-direction:column}
+.vr{display:grid;grid-template-columns:78px 22px minmax(0,1fr);gap:0 16px;position:relative;padding-bottom:26px}
+.vr:last-child{padding-bottom:0}
+.vr .dt{font:600 10.5px var(--ui);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding-top:4px;text-align:right}
+.vr .rail{position:relative;display:flex;justify-content:center;padding-top:2px}
+.vr .rail::after{content:'';position:absolute;top:26px;bottom:-24px;left:50%;width:0;border-left:1.5px solid var(--line2)}
+.vr.fut .rail::after{border-left-style:dashed}
+.vr:last-child .rail::after{display:none}
+.vr .rail .mk{background:var(--surface);position:relative;z-index:1}
+.vr .body{display:flex;flex-direction:column;gap:6px}
+.vr .t{font:400 20px/1.25 var(--serif)}
+.vr .x{font:400 14.5px/1.55 var(--read);color:var(--ink2)}
+.vr .x b{font:600 10.5px var(--ui);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:8px}
+.vr.imp .dt{color:var(--accent)}
+.rules{display:flex;flex-direction:column;gap:12px;font:400 15px/1.55 var(--read);color:var(--ink2)}
+.rules div{display:grid;grid-template-columns:22px minmax(0,1fr);gap:12px;align-items:start}
+</style>
+</head>
+<body>
+<div class="bw theme-dark" style="width: 1330px; height: 2060px; box-sizing: border-box; padding: 56px; display: flex; flex-direction: column; gap: 44px">
+
+<div class="head">
+<div style="display: flex; flex-direction: column; gap: 12px"><span class="lab">Beyond Why</span><h1>Icons and the timeline</h1></div>
+<div class="spec"><span><b>grid</b>24 px</span><span><b>stroke</b>1.75</span><span><b>ends</b>round</span><span><b>colour</b>the text colour</span></div>
+</div>
+
+<!-- ── Trail steps ── -->
+<section class="grp" aria-labelledby="g1">
+<div class="gl"><h2 id="g1">Trail steps</h2><span>The seven kinds of step, and the counts under every card</span></div>
+<div class="tiles">
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M9.6 9.4a2.5 2.5 0 1 1 3.6 2.3c-.7.3-1.2 1-1.2 1.8v.5"></path><circle class="f" cx="12" cy="16.9" r="1"></circle></svg><span class="nm">Question</span><code>step-question</code></div>
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h11v15H8z"></path><path d="M5 6v15h11"></path></svg><span class="nm">Source</span><code>step-source</code></div>
+<div class="it acc"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 17.5h6M10 21h4"></path><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.1v.1h5v-.1c0-.8.4-1.6 1.1-2.1A6 6 0 0 0 12 3z"></path></svg><span class="nm">Insight</span><code>step-insight</code></div>
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17c4 0 6-6 10-6"></path><path d="M16 6v10"></path></svg><span class="nm">Dead end</span><code>step-dead-end</code></div>
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"></path><path d="M7.4 15h9.2"></path></svg><span class="nm">Experiment</span><code>step-experiment</code></div>
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-10.5a6.5 6.5 0 0 1 13 0C18.5 15.4 12 21 12 21z"></path><circle cx="12" cy="10.5" r="2.3"></circle></svg><span class="nm">What I think now</span><code>step-now</code></div>
+<div class="it acc"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h10" stroke-dasharray="2.5 3"></path><path d="M14 7l5 5-5 5"></path></svg><span class="nm">Open thread</span><code>step-open</code></div>
+</div>
+</section>
+
+<!-- ── Sources ── -->
+<section class="grp" aria-labelledby="g2">
+<div class="gl"><h2 id="g2">Sources</h2><span>One per source type in trail.json</span></div>
+<div class="tiles">
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"></rect><path class="f" d="M10 9v6l5-3z"></path></svg><span class="nm">Video</span><code>src-video</code></div>
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8.5L19 7.5V21H6z"></path><path d="M14 3v5h5"></path><path d="M9 12.5h7M9 16.5h5"></path></svg><span class="nm">Article</span><code>src-article</code></div>
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5C9.5 4.8 6.5 4.4 3 5v14c3.5-.6 6.5-.2 9 1.5 2.5-1.7 5.5-2.1 9-1.5V5c-3.5-.6-6.5-.2-9 1.5z"></path><path d="M12 6.5v14"></path></svg><span class="nm">Book</span><code>src-book</code></div>
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="1.5"></rect><path d="M8.5 7.5h7M8.5 11h7M8.5 14.5h7M8.5 18h3.5"></path></svg><span class="nm">Paper</span><code>src-paper</code></div>
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0"></path><path d="M12 17.5V21M9 21h6"></path></svg><span class="nm">Podcast</span><code>src-podcast</code></div>
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h11v8H8.5L4 16.5z"></path><path d="M15 9h5v8.5L16.5 15H10v-2"></path></svg><span class="nm">Conversation</span><code>src-conversation</code></div>
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"></path><circle cx="16" cy="7" r="2"></circle><circle cx="10" cy="17" r="2"></circle></svg><span class="nm">Tool</span><code>src-tool</code></div>
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M8 20h8M12 16v4"></path><path class="f" d="M10.5 7.8v4.4l3.8-2.2z"></path></svg><span class="nm">Course</span><code>src-course</code></div>
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="1.5"></rect><path d="M4 9h16M4 15h16M10 3v18"></path></svg><span class="nm">Datasheet</span><code>src-datasheet</code></div>
+</div>
+</section>
+
+<!-- ── Builds ── -->
+<section class="grp" aria-labelledby="g3">
+<div class="gl"><h2 id="g3">Builds</h2><span>Build pages, logs and kits</span></div>
+<div class="tiles">
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="6" height="6" rx="1.2"></rect><circle cx="5.5" cy="5.5" r="2.5"></circle><circle cx="18.5" cy="5.5" r="2.5"></circle><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle><path d="M7.3 7.3 9 9M16.7 7.3 15 9M7.3 16.7 9 15M16.7 16.7 15 15"></path></svg><span class="nm">Build</span><code>build</code></div>
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"></rect><path d="M9 3v18"></path><path d="M12 8h4M12 12h4"></path></svg><span class="nm">Log</span><code>build-log</code></div>
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4"></path><path d="M5 4h12l-2.5 4L17 12H5"></path></svg><span class="nm">Milestone</span><code>build-milestone</code></div>
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5z"></path><path d="M3.5 7.5 12 12l8.5-4.5M12 12v9"></path></svg><span class="nm">Kit</span><code>build-kit</code></div>
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7.8 4.5v9L12 21l-7.8-4.5v-9z"></path><circle cx="12" cy="12" r="3"></circle></svg><span class="nm">Parts</span><code>build-parts</code></div>
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H9l2 2h8.5A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"></path></svg><span class="nm">Files</span><code>build-files</code></div>
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M12.5 4l-2.5 5 4 3-3 8"></path></svg><span class="nm">What broke</span><code>build-broke</code></div>
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><span class="nm">Countdown</span><code>build-time</code></div>
+</div>
+</section>
+
+<!-- ── Actions and navigation ── -->
+<section class="grp" aria-labelledby="g4">
+<div class="gl"><h2 id="g4">Actions and navigation</h2><span>Buttons, the tab bar and the nav</span></div>
+<div class="tiles">
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20h-5.5v-6h-5v6H4z"></path></svg><span class="nm">Home</span><code>nav-home</code></div>
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M15.5 8.5l-2 5-5 2 2-5z"></path></svg><span class="nm">Explore</span><code>nav-explore</code></div>
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v17l-6-4-6 4z"></path></svg><span class="nm">Save</span><code>act-save</code></div>
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg><span class="nm">Search</span><code>act-search</code></div>
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12V4h8l10 10-8 8z"></path><circle cx="7.5" cy="8" r="1.3"></circle></svg><span class="nm">Topics</span><code>act-topics</code></div>
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"></path></svg><span class="nm">Like</span><code>act-like</code></div>
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"></path></svg><span class="nm">Discuss</span><code>act-discuss</code></div>
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 5l6 6-6 6M20 11H10a6 6 0 0 0-6 6v2"></path></svg><span class="nm">Share</span><code>act-share</code></div>
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 16.5v-9M8.5 11 12 7.5l3.5 3.5"></path></svg><span class="nm">I want this</span><code>act-vote</code></div>
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 10h16M4 14h16M4 18h10"></path></svg><span class="nm">Read the story</span><code>act-story</code></div>
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.5c1.7 0 2.6 1.7 2.6 4.1S8.7 12.5 7 12.5 4.4 10 4.4 7.6 5.3 3.5 7 3.5z"></path><path d="M5 15h4"></path><path d="M17 8c1.7 0 2.6 1.7 2.6 4.1S18.7 17 17 17s-2.6-2.5-2.6-4.9S15.3 8 17 8z"></path><path d="M15 19.5h4"></path></svg><span class="nm">Walk the trail</span><code>act-trail</code></div>
+<div class="it"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg><span class="nm">Go</span><code>act-go</code></div>
+</div>
+</section>
+
+<section class="grp" aria-labelledby="g5">
+<div class="gl"><h2 id="g5">Sizes</h2><span>16 in meta lines, 20 in buttons and the tab bar, 24 and up for headings</span></div>
+<div class="sizes">
+<div><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"></path><path d="M7.4 15h9.2"></path></svg>16</div>
+<div><svg class="ico" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"></path><path d="M7.4 15h9.2"></path></svg>20</div>
+<div><svg class="ico" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"></path><path d="M7.4 15h9.2"></path></svg>24</div>
+<div><svg class="ico" width="32" height="32" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"></path><path d="M7.4 15h9.2"></path></svg>32</div>
+<div><svg class="ico" width="48" height="48" viewBox="0 0 24 24" style="stroke-width: 1.4" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"></path><path d="M7.4 15h9.2"></path></svg>48 · stroke 1.4</div>
+</div>
+</section>
+
+<!-- ── Timeline ── -->
+<section class="grp" aria-labelledby="g6">
+<div class="gl"><h2 id="g6">The timeline</h2><span>Logs and milestones: a plain circle, and a star when something important happened</span></div>
+<div class="legend">
+<div class="lg"><span class="mk"><span class="c-done"></span></span>Done</div>
+<div class="lg"><span class="mk star"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.75 5.6 6.15.9-4.45 4.35 1.05 6.1L12 16.85 6.5 19.75l1.05-6.1L3.1 9.3l6.15-.9z" fill="currentColor"></path></svg></span>Important: a breakthrough or a milestone</div>
+<div class="lg"><span class="mk"><span class="c-next"></span></span>Next</div>
+<div class="lg"><span class="mk"><span class="c-plan"></span></span>Planned</div>
+</div>
+
+<div class="two">
+<div class="card" style="--bg-of-card: var(--surface)">
+<span class="lab">Across · build banner and build page header</span>
+<div class="track" style="--done: 50%" aria-label="Milestones">
+<div class="tn"><span class="mk"><span class="c-done"></span></span><span class="d">22 Nov</span><span class="t">The board is ordered</span></div>
+<div class="tn imp"><span class="mk star"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.75 5.6 6.15.9-4.45 4.35 1.05 6.1L12 16.85 6.5 19.75l1.05-6.1L3.1 9.3l6.15-.9z" fill="currentColor"></path></svg></span><span class="d">7 Dec</span><span class="t">First signs of life</span></div>
+<div class="tn next"><span class="mk"><span class="c-next"></span></span><span class="d">Next · 20 Dec</span><span class="t">First hover</span></div>
+<div class="tn plan"><span class="mk"><span class="c-plan"></span></span><span class="d">Planned · 20 Jan</span><span class="t">Kit goes on sale</span></div>
+</div>
+</div>
+
+<div class="card">
+<span class="lab">Rules</span>
+<div class="rules">
+<div><span class="mk"><span class="c-done"></span></span><span>Every log and milestone gets a circle. Most of them stay circles.</span></div>
+<div><span class="mk star"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.75 5.6 6.15.9-4.45 4.35 1.05 6.1L12 16.85 6.5 19.75l1.05-6.1L3.1 9.3l6.15-.9z" fill="currentColor"></path></svg></span><span>A star only when you mark it: <code style="font: 400 12.5px var(--mono); color: var(--ink)">highlight: breakthrough</code> or <code style="font: 400 12.5px var(--mono); color: var(--ink)">milestone</code> in the log's frontmatter.</span></div>
+<div><span class="mk"><span class="c-next"></span></span><span>The line is solid up to today and dashed after it.</span></div>
+</div>
+</div>
+</div>
+
+<div class="card" style="max-width: 760px">
+<span class="lab">Down · the logs on a build page, newest first</span>
+<div class="vt">
+<div class="vr fut"><span class="dt">20 Dec</span><span class="rail"><span class="mk"><span class="c-next"></span></span></span><div class="body"><span class="t">Log 03 · First hover</span><span class="x"><b>Expected</b>It lifts off and holds level for ten seconds.</span></div></div>
+<div class="vr imp"><span class="dt">7 Dec</span><span class="rail"><span class="mk star"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.75 5.6 6.15.9-4.45 4.35 1.05 6.1L12 16.85 6.5 19.75l1.05-6.1L3.1 9.3l6.15-.9z" fill="currentColor"></path></svg></span></span><div class="body"><span class="t">Log 02 · First signs of life</span><span class="x"><b>Happened</b>The board powers up, the IMU answers and the phone connects.</span><span class="x"><b>Broke</b>The motors don't spin yet.</span></div></div>
+<div class="vr"><span class="dt">22 Nov</span><span class="rail"><span class="mk"><span class="c-done"></span></span></span><div class="body"><span class="t">Log 01 · The board is ordered</span><span class="x"><b>Happened</b>The flight board design went out for manufacturing.</span></div></div>
+</div>
+</div>
+</section>
+
+</div>
+</body>
+</html>

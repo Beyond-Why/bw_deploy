@@ -1,0 +1,32 @@
+.hero {
+  white-space: nowrap;
+}
+
+.num {
+  font: 400 96px/0.82 var(--font-heading), "DM Serif Display", Georgia, serif;
+  color: var(--text-primary);
+}
+
+.unit {
+  font: 400 26px var(--font-heading), "DM Serif Display", Georgia, serif;
+  color: var(--text-secondary);
+}
+
+/* Keeps the space the number will take, so nothing jumps when it fills in. */
+.heroPlaceholder {
+  display: inline-block;
+  width: 2.5em;
+  height: 79px;
+}
+
+.placeholder {
+  display: inline-block;
+  width: 5em;
+  height: 1em;
+}
+
+@media (max-width: 640px) {
+  .num { font-size: 66px; line-height: 0.85; }
+  .unit { font-size: 20px; }
+  .heroPlaceholder { height: 56px; }
+}

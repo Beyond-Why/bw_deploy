@@ -1,0 +1,241 @@
+/* The root layout hard-codes a dark body (the live site is dark-only), so
+   the kit paints its own background to make the light theme reviewable. */
+.page {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  padding-bottom: 140px;
+  font-family: var(--font-ui), "Inter", system-ui, sans-serif;
+}
+
+.wrap {
+  --page-gutter: 48px;
+  max-width: 1296px;
+  margin: 0 auto;
+  padding: 0 var(--page-gutter);
+}
+
+@media (max-width: 640px) {
+  .wrap { --page-gutter: 16px; }
+}
+
+.top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 40px 0 20px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.h1 {
+  margin: 6px 0 0;
+  font: 400 48px/1 var(--font-heading), "DM Serif Display", Georgia, serif;
+}
+
+.switch {
+  display: inline-flex;
+  padding: 3px;
+  gap: 3px;
+  border: 1px solid var(--border-medium);
+  border-radius: 12px;
+}
+
+.switch button {
+  min-width: 72px;
+  height: 40px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text-secondary);
+  font: 500 14px var(--font-ui), "Inter", system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.switch button[aria-pressed="true"] {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+.toc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  padding: 14px 0;
+  font-size: 13.5px;
+}
+
+.toc a {
+  color: var(--text-secondary);
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.section {
+  padding-top: 72px;
+}
+
+.sectionHead {
+  margin-bottom: 24px;
+  padding-top: 72px;
+}
+
+.section > .sectionHead {
+  padding-top: 0;
+}
+
+.kitTitle {
+  margin: 0;
+  font: 600 12px/1.3 ui-monospace, "SFMono-Regular", Menlo, monospace;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+}
+
+.kitNote {
+  margin: 6px 0 0;
+  font: 400 13px/1.5 var(--font-ui), "Inter", system-ui, sans-serif;
+  color: var(--text-muted);
+}
+
+.swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.swatches li {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.swatch {
+  height: 48px;
+  border-radius: 10px;
+  border: 1px solid var(--border-medium);
+}
+
+.swatches code,
+.icons code,
+.sizes code {
+  font: 400 11px ui-monospace, Menlo, monospace;
+  color: var(--text-muted);
+}
+
+.icons {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.icons li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 120px;
+  padding: 8px;
+  border-radius: 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  font-size: 13px;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.sizes {
+  display: flex;
+  align-items: flex-end;
+  gap: 28px;
+  margin-top: 24px;
+}
+
+.sizes span {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.empty {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.fakeNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 68px;
+  padding: 0 4px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.fakeLogo {
+  font: 400 22px var(--font-heading), "DM Serif Display", Georgia, serif;
+}
+
+.afterPills {
+  padding-top: 40px;
+}
+
+.surface {
+  --timeline-bg: var(--bg-surface);
+  margin-bottom: 20px;
+  padding: 24px 26px;
+  border-radius: 16px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.duo {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: 32px;
+  align-items: start;
+}
+
+.duoEven {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .duo,
+  .duoEven {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .h1 { font-size: 36px; }
+  .section { padding-top: 48px; }
+  .sectionHead { padding-top: 48px; }
+  .surface { padding: 16px; }
+}

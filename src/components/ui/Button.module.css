@@ -1,0 +1,61 @@
+/* v2 buttons (docs/design/v2/README.md). Buttons never underline. */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 10px;
+  font: 500 14px/1 var(--font-ui), "Inter", system-ui, sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.btn:hover {
+  text-decoration: none;
+}
+
+.solid {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  border: 1px solid var(--text-primary);
+}
+
+.solid:hover {
+  background: var(--text-secondary);
+  border-color: var(--text-secondary);
+}
+
+.line {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-medium);
+}
+
+.line:hover {
+  border-color: var(--text-muted);
+}
+
+.square {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 10px;
+  border: 1px solid var(--border-medium);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.square:hover {
+  color: var(--text-primary);
+  border-color: var(--text-muted);
+}

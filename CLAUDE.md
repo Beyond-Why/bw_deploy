@@ -18,8 +18,10 @@ code depends on them.
 - Repo: Beyond-Why/bw_deploy. Vercel serves beyondwhy.org from it.
 - `main` = the live site. Only urgent fixes go there; they get merged into `v2`.
 - Tag `v1-live` = the commit that was live when the rebuild started (9045182).
-- `v2` = the rebuild. Each step is a branch `v2/<step>` merged into `v2` after
-  review. `v2` replaces `main` in one switch-over before 31 January 2027.
+- `v2` = the rebuild (integration branch). Each step is a branch `v2-<step>`
+  (dash, not slash: git can't have both `v2` and `v2/<step>`), cut from the
+  latest `v2` and merged into `v2` after review. `v2` replaces `main` in one
+  switch-over before 31 January 2027.
 - `wip/local-2026-11-07` = a safety snapshot; it is identical to main.
 - The older repo bangadmadhav/bw_website is NOT part of this. Nothing in it
   moves into v2 unless a prompt says so.
@@ -40,15 +42,26 @@ code depends on them.
 - Interactive text underlines on hover.
 - Status pills are hairline (1px border, no fill).
 - Fonts: DM Serif Display (titles), Lora (reading), Inter (UI).
-- Design references:
-  - Baseline mock-ups: claude.ai/artifact/8aMtc7uECQ42TMHANq12k1
-  - Combined direction (baseline + ideas from the OneFootball app):
-    claude.ai/artifact/WZ1B3pwFVpw8mZMN4Gzaia, the "Combined" row.
+- **The design spec is `docs/design/v2/README.md`**, with static mock-ups in
+  `docs/design/v2/reference/`. Build from those. Components, token mapping,
+  icons, the timeline and the home feed rules are all there.
+- Design canvases (for Madhav; Claude Code can't open them):
+  - Combined direction: claude.ai/artifact/WZ1B3pwFVpw8mZMN4Gzaia
+  - Baseline: claude.ai/artifact/8aMtc7uECQ42TMHANq12k1 (still the reference
+    for the trail canvas, /builds and /builds/[slug])
   - Where Madhav's brief and a mock-up differ, the brief wins (e.g. the
     current hero stays exactly as it is).
-- Rule of thumb from the combined direction: content cards sit on the page
-  with no box (YouTube-style grid); tools and grouped lists sit on surfaces
-  (tiles, polls, the quick-questions list, source cards).
+- Content cards sit on the page with no box; tools and grouped lists sit on
+  surfaces (tiles, polls, the quick-questions list, source cards).
+- Trail marks under cards: **icon counts** (option A). The old row of dots
+  is not used anywhere.
+- Icons: the custom set in `src/components/icons/iconPaths.ts`, one `<Icon>`
+  component, no icon library.
+- Timelines (build milestones and logs): plain circle for each entry, a star
+  only when frontmatter has `highlight: breakthrough | milestone`, a blue
+  ring for the next one, a hollow ring for planned ones; solid line up to
+  today, dashed after.
+- Say "All", not "For you", until there is real personalisation.
 
 ## Scope and deadline
 
@@ -117,15 +130,43 @@ code depends on them.
   `drizzle-kit generate` diffs against the latest snapshot (0014), so this is
   harmless; don't regenerate old migrations.
 
+## Decided
+
+- Trail marks: icon counts (option A).
+- Scope for 31 Jan: everything in the design spec. The build prediction poll
+  and "guess first, then read" are built last and are the first things cut
+  if time runs short.
+- Most Popular: ranked by likes plus readers with reading progress; if the
+  database is unreachable or fewer than 4 explorations have any engagement,
+  fall back to the hand-picked list in `src/content/curation/homepage.mdx`.
+
+## Build order
+
+Each step is one branch, reviewed before the next starts.
+
+1. `v2-foundation`: CLAUDE.md, trail tooling, repo hygiene.
+2. `v2-ui-kit`: tokens, Icon, and every component in the design spec on a
+   dev-only page (`/dev/kit`), with sample data. No real pages change.
+3. `v2-content-model`: loaders for explorations, builds and resources;
+   validation; draft sample content.
+4. `v2-routes`: /explore, /explore/[slug] (story view), /builds,
+   /builds/[slug], /resources/[id], redirects, sitemap, share images.
+5. `v2-home`: the new homepage.
+6. `v2-trail`: the React Flow trail view and the phone step list.
+7. `v2-polls`: edge-of-map votes, guess first, the build prediction.
+8. `v2-cleanup`: remove Insight Cards, Deep Dive and Builder Log code and
+   old routes; profile tabs; nav.
+9. `v2-data`: re-key engagement rows (needs Madhav's OK and a staging
+   database first).
+
 ## Open decisions
 
-- [ ] Trail marks under cards: A icon counts (recommended), B footpath, C source faces.
-- [ ] Which ideas from the combined direction go into this version.
 - [ ] Deep Dive "The Field That Powers the World" (4 episodes): four
-      explorations, or one?
+      explorations, or one? Needed before step 3 moves it.
 - [ ] Engagement keys: re-key likes/bookmarks/progress/comments from path
       strings (`deep-dives/<series>/<episode>`) to the content UUID?
-- [ ] Most Popular: computed from likes + reads, or hand-picked in
-      `src/content/curation/homepage.mdx`?
-- [ ] First real build to seed the banner and build page (the ESP32 drone).
-- [ ] A staging Supabase project for Vercel previews.
+      Needed before step 9.
+- [ ] Build 01 (the ESP32 drone): real status, dates and logs. Sample data
+      until then.
+- [ ] A staging Supabase project for Vercel previews (Madhav, in the
+      Supabase and Vercel dashboards).

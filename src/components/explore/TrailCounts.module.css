@@ -1,0 +1,31 @@
+.counts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 14px;
+  font: 500 13px/1.4 var(--font-ui), "Inter", system-ui, sans-serif;
+  color: var(--text-secondary);
+}
+
+.sm {
+  font-size: 12px;
+  gap: 4px 10px;
+}
+
+.item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.icon {
+  color: var(--text-muted);
+}
+
+.open {
+  color: var(--accent);
+}
+
+.open .icon {
+  color: var(--accent-strong);
+}

@@ -38,3 +38,13 @@
   border-color: var(--status-paused);
   color: var(--status-paused);
 }
+
+/* v2 hairline pill (kind="build"): 1px border in currentColor, no fill. */
+.pill_v2 {
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  line-height: 1.4;
+  padding: 3px 9px;
+  border-width: 1px;
+  border-color: currentColor;
+}

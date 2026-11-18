@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 import { PHASE_DEVELOPMENT_SERVER, PHASE_PRODUCTION_BUILD } from "next/constants";
 import { validateContent } from "./scripts/validate-content";
-import { contentRoutes } from "./scripts/content-routes";
+import { contentRoutes, NOT_FOUND_PATH } from "./scripts/content-routes";
 
 function buildConfig(phase: string): NextConfig {
   // Snapshotted from src/content at build time — skipped in dev so newly
@@ -28,7 +28,11 @@ function buildConfig(phase: string): NextConfig {
       return {
         // Before route matching, so unknown slugs never reach the dynamic
         // pages (whose 404s would otherwise arrive after a 200 shell).
-        beforeFiles: routes?.notFoundRewrites ?? [],
+        // routes is null only in dev, so outside dev /dev/* (the UI kit) is
+        // sent to the same no-route path the content 404s use.
+        beforeFiles: routes
+          ? [...routes.notFoundRewrites, { source: "/dev/:path*", destination: NOT_FOUND_PATH }]
+          : [],
         afterFiles: [
           { source: "/deep-dives", destination: "/" },
           { source: "/insight-cards", destination: "/" },

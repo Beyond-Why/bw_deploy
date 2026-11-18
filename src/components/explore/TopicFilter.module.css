@@ -1,0 +1,123 @@
+/* ── TopicPills ── */
+.bar {
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.sticky {
+  position: sticky;
+  top: var(--nav-height);
+  z-index: 50;
+}
+
+.pills {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 72px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.pills::-webkit-scrollbar {
+  display: none;
+}
+
+.pill {
+  flex: none;
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid var(--border-medium);
+  background: transparent;
+  color: var(--text-secondary);
+  font: 500 14.5px var(--font-ui), "Inter", system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.pill:hover {
+  color: var(--text-primary);
+}
+
+/* 1.5px border on the selected pill; padding drops by .5px so it doesn't shift. */
+.pill[aria-pressed="true"] {
+  border: 1.5px solid var(--text-primary);
+  padding: 0 17.5px;
+  color: var(--text-primary);
+}
+
+@media (max-width: 640px) {
+  .pills { min-height: 64px; gap: 8px; }
+  .pill { padding: 0 16px; font-size: 14px; }
+  .pill[aria-pressed="true"] { padding: 0 15.5px; }
+}
+
+/* ── TopicPicker ── */
+.picker {
+  position: relative;
+}
+
+.pickerButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 14px 0 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border-medium);
+  background: transparent;
+  color: var(--text-primary);
+  font: 500 14px var(--font-ui), "Inter", system-ui, sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.pickerButton:hover {
+  border-color: var(--text-muted);
+}
+
+.divider {
+  width: 1px;
+  height: 20px;
+  background: var(--border-medium);
+}
+
+.menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 70;
+  min-width: 220px;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-medium);
+  border-radius: 14px;
+  box-shadow: var(--shadow-lg);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-secondary);
+  font: 500 14px var(--font-ui), "Inter", system-ui, sans-serif;
+  text-align: left;
+  cursor: pointer;
+}
+
+.option:hover {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+.option[aria-pressed="true"] {
+  color: var(--text-primary);
+  box-shadow: inset 0 0 0 1.5px var(--text-primary);
+}

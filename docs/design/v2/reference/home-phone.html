@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Combined · phone home, feed, exploration · design reference</title>
+<!-- Design reference for the v2 rebuild. Not shipped. Swap "theme-dark" for "theme-light" on the root div to see the light theme. -->
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&amp;family=Inter:wght@400;500;600&amp;family=Lora:ital,wght@0,400;0,500;1,400&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.bw{--serif:'DM Serif Display',Georgia,serif;--read:'Lora',Georgia,serif;--ui:'Inter',system-ui,sans-serif;font-family:var(--ui);-webkit-font-smoothing:antialiased}
+.theme-dark{--bg:#0D0D0D;--surface:#121212;--raised:#1A1A1A;--band:#15140F;--ink:#E8E0D6;--ink2:#B0A89E;--muted:#8F887F;--line:#2A2A2A;--line2:#3A3A3A;--accent:#7BA4E0;--accent-strong:#5B9CF6;--accent-soft:rgba(91,156,246,.12);--green:#86B36B;--btn-bg:#E8E0D6;--btn-ink:#0D0D0D;--motif:rgba(232,224,214,.55);--t-peri:#121722;--t-sand:#1A1813;--t-sage:#131915;--t-clay:#1C1512;--desk:#1C1B19;--shadow:0 18px 40px -10px rgba(0,0,0,.75)}
+.theme-light{--bg:#FFF8F0;--surface:#F7F1E9;--raised:#FFFFFF;--band:#EFE6DA;--ink:#2A2A2A;--ink2:#5A5550;--muted:#6F6860;--line:#E8E0D6;--line2:#D1C8BC;--accent:#4570B8;--accent-strong:#5887D3;--accent-soft:rgba(88,135,211,.10);--green:#4E7C3A;--btn-bg:#2A2A2A;--btn-ink:#FFF8F0;--motif:rgba(42,42,42,.42);--t-peri:#E6ECF7;--t-sand:#F0E6D8;--t-sage:#E4EBE0;--t-clay:#F3E2D8;--desk:#E4DCD1;--shadow:0 18px 40px -14px rgba(42,42,42,.3)}
+.bw a{color:inherit;text-decoration:none}
+.bw a:hover .u{text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px}
+.bw h1,.bw h2,.bw h3,.bw p{margin:0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.cap{font:600 12px var(--ui);letter-spacing:.12em;text-transform:uppercase;color:var(--ink2)}
+.phone{width:390px;height:2300px;border-radius:40px;border:1px solid var(--line2);background:var(--bg);color:var(--ink);overflow:hidden;position:relative;box-sizing:border-box}
+.top{height:64px;display:flex;align-items:center;gap:8px;padding:0 12px 0 16px;border-bottom:1px solid var(--line)}
+.logo{display:flex;align-items:center;gap:8px;font:400 21px var(--serif)}
+.circ{width:44px;height:44px;border-radius:50%;border:1px solid var(--line2);background:transparent;color:var(--ink);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:none;padding:0}
+.picker{height:44px;border-radius:999px;border:1px solid var(--line2);padding:0 12px 0 14px;display:inline-flex;align-items:center;gap:8px;font:500 14px var(--ui);background:transparent;color:var(--ink);cursor:pointer;flex:none}
+.picker .bar{width:1px;height:20px;background:var(--line2)}
+.heroph{margin:16px 16px 0;height:300px;border:1px dashed var(--line2);border-radius:16px;display:flex;flex-direction:column;gap:6px;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:13.5px;padding:24px;box-sizing:border-box}
+.heroph b{font:400 20px var(--serif);color:var(--ink2)}
+.kicker{font:600 11px var(--ui);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.lab{font:600 10.5px var(--ui);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.pill{font:600 10px var(--ui);letter-spacing:.1em;text-transform:uppercase;border:1px solid currentColor;border-radius:999px;padding:3px 8px;display:inline-block}
+.green{color:var(--green)}
+.strip{display:flex;gap:10px;padding:20px 0 0 16px;overflow:hidden}
+.tile{flex:none;width:140px;height:128px;border-radius:16px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;justify-content:space-between;padding:14px;box-sizing:border-box;color:var(--ink)}
+.tile .ic{height:22px;display:flex;align-items:center;gap:6px;color:var(--ink2)}
+.tile .tl{display:block;font:400 17px/1.25 var(--serif)}
+.tile .ts{display:block;font-size:12.5px;color:var(--muted);margin-top:3px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block}
+.sec{padding:40px 16px 0}
+.shead{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:18px}
+.shead h2{font:400 26px/1.1 var(--serif)}
+.shead .sub{font-size:13.5px;color:var(--muted);margin-top:5px}
+.shead a{font-size:13.5px;color:var(--ink2);min-height:44px;display:inline-flex;align-items:flex-end;padding-bottom:2px;flex:none}
+.shead a:hover{text-decoration:underline;text-underline-offset:4px}
+.cards{display:flex;flex-direction:column;gap:32px}
+.card{display:flex;flex-direction:column;gap:9px}
+.thumb{position:relative;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:var(--tone);border:1px solid var(--line)}
+.tone-peri{--tone:var(--t-peri)}.tone-sand{--tone:var(--t-sand)}.tone-sage{--tone:var(--t-sage)}.tone-clay{--tone:var(--t-clay)}
+.thumb svg,.pc svg.art{position:absolute;inset:0;width:100%;height:100%}
+.tbadge{position:absolute;right:8px;bottom:8px;background:rgba(13,13,13,.84);color:#E8E0D6;font:500 12px var(--ui);padding:3px 7px;border-radius:6px}
+.m-l{fill:none;stroke:var(--motif);stroke-width:1.2}
+.m-f{fill:none;stroke:var(--motif);stroke-width:1.2;stroke-dasharray:4 5}
+.m-a{fill:none;stroke:var(--accent-strong);stroke-width:2.4;stroke-linecap:round}
+.m-d{fill:var(--ink)}
+.m-o{fill:var(--tone,var(--bg));stroke:var(--ink);stroke-width:2}
+.ctopic{font:600 11px var(--ui);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.ctitle{font:400 21px/1.22 var(--serif)}
+.tc{display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;font:500 13px var(--ui);color:var(--ink2)}
+.tc > span{display:inline-flex;align-items:center;gap:5px}
+.tc svg{color:var(--muted);flex:none}
+.tc .op{color:var(--accent)}
+.tc .op svg{color:var(--accent-strong)}
+.band{margin-top:44px;background:linear-gradient(180deg,var(--bg) 0,var(--band) 56px,var(--band) calc(100% - 56px),var(--bg) 100%);padding:60px 16px 64px;display:flex;flex-direction:column;gap:18px}
+.bnum{font:400 88px/0.8 var(--serif);color:transparent;-webkit-text-stroke:1.2px var(--line2)}
+.count{display:flex;gap:16px;align-items:flex-end;border-top:1px solid var(--line2);padding-top:16px}
+.count .num{font:400 66px/0.85 var(--serif)}
+.count .unit{font:400 20px var(--serif);color:var(--ink2)}
+.mts{display:flex;gap:8px;overflow:hidden;margin-right:-16px}
+.mt{flex:none;width:132px;border-radius:14px;border:1px solid var(--line2);padding:12px;display:flex;flex-direction:column;gap:5px;min-height:84px;box-sizing:border-box}
+.mt .st{font:600 10px var(--ui);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.mt .t{font:400 15.5px/1.25 var(--serif)}
+.mt.done .st{color:var(--green)}
+.mt.next{border-color:var(--accent-strong);background:var(--accent-soft)}
+.mt.next .st{color:var(--accent)}
+.mt.plan{border-style:dashed}
+.mt.plan .t{color:var(--ink2)}
+.vt{display:flex;flex-direction:column}
+.vr{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:0 12px;align-items:start;position:relative;padding-bottom:16px}
+.vr:last-child{padding-bottom:0}
+.vr .mk{width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;position:relative;z-index:1;background:var(--band)}
+.vr::after{content:'';position:absolute;left:10.25px;top:22px;bottom:0;border-left:1.5px solid var(--ink2)}
+.vr.fut::after{border-left:1.5px dashed var(--line2)}
+.vr:last-child::after{display:none}
+.vr .t{font:400 17px/1.3 var(--serif);padding-top:1px}
+.vr .d{font:600 10px var(--ui);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding-top:5px;white-space:nowrap}
+.vr.imp .d,.vr.next .d{color:var(--accent)}
+.vr.plan .t{color:var(--ink2)}
+.c-done{width:10px;height:10px;border-radius:50%;background:var(--ink2)}
+.c-next{width:12px;height:12px;border-radius:50%;background:var(--band);border:2px solid var(--accent-strong);box-sizing:border-box}
+.c-plan{width:10px;height:10px;border-radius:50%;border:1.5px solid var(--muted);box-sizing:border-box}
+.star{color:var(--accent-strong)}
+.split{display:grid;grid-template-columns:1fr 1fr;border-radius:16px;overflow:hidden;border:1px solid var(--line2)}
+.split > div{padding:14px;display:flex;flex-direction:column;gap:6px}
+.split .exp{background:var(--raised)}
+.split .hap{background:var(--accent-soft);border-left:1px solid var(--line2)}
+.split .t{font:400 17px/1.3 var(--serif)}
+.chip{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--line2);border-radius:999px;padding:10px 14px;font:400 15px var(--serif);min-height:44px;box-sizing:border-box;background:var(--raised);align-self:flex-start}
+.chip:hover{text-decoration:underline;text-underline-offset:4px}
+.btn{height:44px;padding:0 16px;border-radius:10px;font:500 14px var(--ui);display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;box-sizing:border-box}
+.btn.solid{background:var(--btn-bg);color:var(--btn-ink);border:1px solid var(--btn-bg)}
+.btn.line{background:transparent;color:var(--ink);border:1px solid var(--line2)}
+.pills{display:flex;gap:8px;padding:10px 0 10px 16px;overflow:hidden;border-bottom:1px solid var(--line);background:var(--bg)}
+.fp{flex:none;height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line2);background:transparent;color:var(--ink2);font:500 14px var(--ui);cursor:pointer}
+.fp.on{border:1.5px solid var(--ink);color:var(--ink)}
+.group{border-radius:16px;background:var(--surface);border:1px solid var(--line);padding:0 16px}
+.gi{display:flex;flex-direction:column;gap:6px;padding:15px 0;border-bottom:1px solid var(--line)}
+.gi:last-child{border-bottom:0}
+.gi .q{font:400 18px/1.3 var(--serif)}
+.row{display:flex;gap:12px;overflow:hidden;margin-right:-16px}
+.pc{flex:none;width:170px;height:290px;border-radius:16px;overflow:hidden;position:relative;background:var(--tone);border:1px solid var(--line)}
+.pcb{position:absolute;left:0;right:0;bottom:0;padding:44px 12px 12px;background:linear-gradient(180deg,rgba(13,13,13,0) 0,rgba(13,13,13,.9) 46%);display:flex;flex-direction:column;gap:4px}
+.pcb .t{font:400 17px/1.25 var(--serif);color:#E8E0D6}
+.pcb .f{font-size:12px;color:#B0A89E}
+.dur{position:absolute;left:10px;top:10px;display:inline-flex;align-items:center;gap:5px;background:rgba(13,13,13,.84);color:#E8E0D6;font:500 12px var(--ui);padding:4px 8px 4px 6px;border-radius:6px}
+.src{flex:none;width:236px;border-radius:16px;background:var(--surface);border:1px solid var(--line);padding:14px;display:flex;flex-direction:column;gap:10px;box-sizing:border-box}
+.src .tag{font:600 10px var(--ui);letter-spacing:.1em;text-transform:uppercase;color:var(--ink2);border:1px solid var(--line2);border-radius:999px;padding:3px 8px;align-self:flex-start}
+.src .t{font:400 18px/1.25 var(--serif)}
+.src .uses{font-size:12.5px;color:var(--muted)}
+.loadhint{display:flex;align-items:center;gap:10px;margin:36px 16px 0;color:var(--muted);font-size:12.5px}
+.loadhint .ln{flex:1;height:1px;background:var(--line)}
+.oq{display:grid;grid-template-columns:18px minmax(0,1fr);gap:12px;align-items:start;padding:14px 0;border-bottom:1px solid var(--line)}
+.oq .q{font:400 18px/1.3 var(--serif)}
+.oq .f{font-size:12.5px;color:var(--muted);margin-top:4px}
+.oq .act{margin-top:10px}
+.oqi{color:var(--accent-strong);margin-top:4px}
+.tabbar{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);display:flex;gap:2px;padding:5px;border-radius:999px;background:var(--raised);border:1px solid var(--line2);box-shadow:var(--shadow)}
+.tab{width:80px;height:56px;border-radius:999px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font:500 11.5px var(--ui);color:var(--ink2);background:transparent;border:0;cursor:pointer;padding:0}
+.tab.on{background:var(--bg);color:var(--ink)}
+.rtop{height:56px;display:flex;align-items:center;gap:6px;padding:0 10px 0 6px;border-bottom:1px solid var(--line)}
+.iconbtn{width:44px;height:44px;border:0;border-radius:10px;background:transparent;color:var(--ink2);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:none;padding:0}
+.seg{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line2);border-radius:12px;padding:3px;gap:3px}
+.seg button{height:40px;border:0;border-radius:9px;background:transparent;color:var(--ink2);font:500 14px var(--ui);cursor:pointer}
+.seg button.on{background:var(--btn-bg);color:var(--btn-ink)}
+.cover{height:200px;position:relative;background:var(--t-peri);border-bottom:1px solid var(--line)}
+.cover svg{position:absolute;inset:0;width:100%;height:100%}
+.poll{background:var(--raised);border:1px solid var(--line2);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.ph{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.pq{font:600 12px var(--ui);letter-spacing:.1em;text-transform:uppercase}
+.pv{font-size:13px;color:var(--muted);white-space:nowrap}
+.pt{font:400 19px/1.3 var(--serif)}
+.opts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-radius:999px;border:1px solid var(--line2);overflow:hidden}
+.opts button{height:48px;border:0;border-left:1px solid var(--line2);background:transparent;color:var(--ink);font:500 13.5px var(--ui);cursor:pointer;padding:0 6px}
+.opts button:first-child{border-left:0}
+.res{display:flex;height:6px;border-radius:3px;overflow:hidden;gap:2px}
+.res i{display:block;height:100%;background:var(--line2)}
+.res i.mine{background:var(--accent-strong)}
+.res i.oth{background:var(--ink2)}
+.reslab{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;font-size:12.5px;color:var(--ink2)}
+.reslab b{display:block;font:400 20px var(--serif);color:var(--ink)}
+.reslab .me b{color:var(--accent-strong)}
+.story{padding:0 16px;display:flex;flex-direction:column;gap:18px}
+.story p{font:400 17px/1.7 var(--read)}
+.ref{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;border-radius:999px;border:1px solid var(--accent-strong);color:var(--accent);font:600 11px var(--ui);vertical-align:2px;margin:0 2px;padding:0 4px;box-sizing:border-box}
+.sc{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:7px}
+.sc .tt{font:400 18px/1.25 var(--serif)}
+.sc .nt{font:400 14px/1.5 var(--read);color:var(--ink2)}
+.sc .nt b{font:600 11px var(--ui);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+.sc.ins{background:var(--accent-soft);border-color:var(--accent-strong)}
+.sc.open{background:transparent;border:1px dashed var(--accent-strong)}
+.skip{display:flex;align-items:center;gap:12px;color:var(--muted);font:italic 400 13.5px var(--read)}
+.skip i{flex:1;height:0;border-top:1px dashed var(--line2)}
+.actbar{position:absolute;left:12px;right:12px;bottom:22px;height:60px;border-radius:999px;background:var(--raised);border:1px solid var(--line2);box-shadow:var(--shadow);display:flex;align-items:center;gap:2px;padding:0 8px 0 18px}
+</style>
+</head>
+<body>
+<div class="bw theme-dark" style="width: 1330px; height: 2440px; background: var(--desk); box-sizing: border-box; padding: 40px; display: flex; gap: 40px; align-items: flex-start">
+
+<!-- ═════════════ PHONE 1 · HOME ═════════════ -->
+<div style="display: flex; flex-direction: column; gap: 16px">
+<span class="cap">1 · Home: hero, now strip, popular, build</span>
+<div class="phone">
+<div class="top">
+<a class="logo" href="#"><svg width="24" height="24" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11" fill="none" stroke="currentColor" stroke-width="1.6"></circle><circle cx="13" cy="13" r="5" fill="none" stroke="#5B9CF6" stroke-width="2"></circle></svg>Beyond Why</a>
+<span style="flex: 1"></span>
+<button class="circ" aria-label="Search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg></button>
+<button class="picker" aria-label="Choose your topics"><span>All topics</span><span class="bar" aria-hidden="true"></span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button>
+</div>
+
+<div class="heroph" role="note"><b>Your current hero</b><span>Stays exactly as it is now.</span></div>
+
+<div class="strip" aria-label="Right now">
+<a class="tile" href="#"><span class="ic"><span class="dot" aria-hidden="true"></span><span class="lab" style="color: var(--green)">Build 01</span></span><span><span class="tl u">First signs of life</span><span class="ts">Log 02 · 2 days ago</span></span></a>
+<a class="tile" href="#"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><path d="M12 7v5l3 2"></path></svg><span class="lab">Next</span></span><span><span class="tl u">First hover</span><span class="ts">in 13 days</span></span></a>
+<a class="tile" href="#"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3h11v15H8z"></path><path d="M5 6v15h11"></path></svg><span class="lab">New trail</span></span><span><span class="tl u">How does a drone stay level?</span></span></a>
+<a class="tile" href="#"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" style="color: var(--accent-strong)"><path d="M3 12h10" stroke-dasharray="2.5 3"></path><path d="M14 7l5 5-5 5"></path></svg><span class="lab">Vote</span></span><span><span class="tl u">Pick what's next</span><span class="ts">4 open questions</span></span></a>
+</div>
+
+<section class="sec" aria-labelledby="pop-1">
+<div class="shead"><div><h2 id="pop-1">Most popular</h2><div class="sub">The trails people walk the most</div></div><a href="#">See all</a></div>
+<div class="cards">
+<a class="card" href="#">
+<div class="thumb tone-sage"><svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path class="m-f" d="M24 156 C80 146 110 124 150 106"></path><ellipse class="m-l" cx="162" cy="98" rx="88" ry="52"></ellipse><ellipse class="m-f" cx="162" cy="98" rx="58" ry="34"></ellipse><ellipse class="m-a" cx="162" cy="98" rx="28" ry="16"></ellipse><path class="m-d" d="M153 108 L162 86 L171 108 Z"></path></svg><span class="tbadge">22 min</span></div>
+<span class="ctopic">Robotics</span>
+<h3 class="ctitle u">How does a robot know where it is?</h3>
+<span class="tc"><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3h11v15H8z"></path><path d="M5 6v15h11"></path></svg>8<span class="sr"> sources</span></span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 17c4 0 6-6 10-6"></path><path d="M16 6v9"></path></svg>1<span class="sr"> dead end</span></span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"></path></svg>1<span class="sr"> experiment</span></span><span class="op"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 12h10" stroke-dasharray="2.5 3"></path><path d="M14 7l5 5-5 5"></path></svg>2 open</span></span>
+</a>
+<a class="card" href="#">
+<div class="thumb tone-clay"><svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect class="m-l" x="74" y="150" width="52" height="14" rx="3"></rect><path class="m-f" d="M30 150 A70 70 0 0 1 170 150"></path><path class="m-a" d="M100 150 L150 92 L222 104 L248 72"></path><circle class="m-o" cx="100" cy="150" r="7"></circle><circle class="m-o" cx="150" cy="92" r="6"></circle></svg><span class="tbadge">16 min</span></div>
+<span class="ctopic">Robotics</span>
+<h3 class="ctitle u">How much should each joint of an arm move?</h3>
+<span class="tc"><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3h11v15H8z"></path><path d="M5 6v15h11"></path></svg>6<span class="sr"> sources</span></span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"></path></svg>1<span class="sr"> experiment</span></span><span class="op"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 12h10" stroke-dasharray="2.5 3"></path><path d="M14 7l5 5-5 5"></path></svg>2 open</span></span>
+</a>
+</div>
+</section>
+
+<section class="band" aria-label="Current build">
+<span class="bnum" aria-hidden="true">01</span>
+<div style="display: flex; gap: 10px; align-items: center"><span class="kicker">Build</span><span class="pill green">Active build</span></div>
+<h2 style="font: 400 34px/1.06 var(--serif)">A drone you fly from your phone</h2>
+<div class="count">
+<div><span class="num">13</span> <span class="unit">days</span></div>
+<div style="display: flex; flex-direction: column; gap: 3px; padding-bottom: 6px"><span class="lab">To the next milestone</span><span style="font: 400 18px/1.25 var(--serif)">First hover</span></div>
+</div>
+<div class="vt" aria-label="Milestones">
+<div class="vr next fut"><span class="mk" aria-hidden="true"><span class="c-next"></span></span><span class="t">First hover</span><span class="d">Next · 20 Dec</span></div>
+<a class="vr imp" href="#"><span class="mk star" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M12 2.8l2.75 5.6 6.15.9-4.45 4.35 1.05 6.1L12 16.85 6.5 19.75l1.05-6.1L3.1 9.3l6.15-.9z" fill="currentColor"></path></svg></span><span class="t u">First signs of life</span><span class="d">7 Dec</span></a>
+<a class="vr" href="#"><span class="mk" aria-hidden="true"><span class="c-done"></span></span><span class="t u">The board is ordered</span><span class="d">22 Nov</span></a>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span class="lab">Log 02 · Latest</span>
+<div class="split">
+<div class="exp"><span class="lab">What I expected</span><span class="t">Board powers up, motors spin</span></div>
+<div class="hap"><span class="lab" style="color: var(--accent)">What happened</span><span class="t">IMU answers, phone connects. Motors silent.</span></div>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span class="lab">Explorations behind this build</span>
+<a class="chip" href="#">How does a drone stay level?</a>
+<a class="chip" href="#">Why does a drone need four propellers?</a>
+</div>
+<a class="btn solid" href="#">Follow the build</a>
+</section>
+</div>
+</div>
+
+<!-- ═════════════ PHONE 2 · FEED ═════════════ -->
+<div style="display: flex; flex-direction: column; gap: 16px">
+<span class="cap">2 · The feed: rows that change shape</span>
+<div class="phone">
+<div class="pills" role="group" aria-label="Topics">
+<button class="fp on" aria-pressed="true">All</button><button class="fp">Robotics</button><button class="fp">Physics</button><button class="fp">Control</button><button class="fp">Mind</button>
+</div>
+
+<section class="sec" style="padding-top: 28px" aria-labelledby="start-2">
+<div class="shead"><div><h2 id="start-2">Start anywhere</h2><div class="sub">One question each. No order needed.</div></div><a href="#">See all</a></div>
+<a class="card" href="#">
+<div class="thumb tone-sand"><svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path class="m-l" d="M112 90 C140 40 180 40 208 90"></path><path class="m-l" d="M112 90 C140 4 180 4 208 90"></path><path class="m-l" d="M112 90 C140 140 180 140 208 90"></path><path class="m-a" d="M121 90 H199"></path><circle class="m-d" cx="112" cy="90" r="9"></circle><circle class="m-o" cx="208" cy="90" r="9"></circle></svg><span class="tbadge">14 min</span></div>
+<span class="ctopic">Physics</span>
+<h3 class="ctitle u">The space that isn't empty</h3>
+<span class="tc"><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3h11v15H8z"></path><path d="M5 6v15h11"></path></svg>7<span class="sr"> sources</span></span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 17c4 0 6-6 10-6"></path><path d="M16 6v9"></path></svg>1<span class="sr"> dead end</span></span><span class="op"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 12h10" stroke-dasharray="2.5 3"></path><path d="M14 7l5 5-5 5"></path></svg>2 open</span></span>
+</a>
+</section>
+
+<section class="sec" style="padding-top: 32px" aria-labelledby="qs-2">
+<div class="shead"><div><h2 id="qs-2">Quick questions</h2><div class="sub">Short trails, one line each</div></div></div>
+<div class="group">
+<a class="gi" href="#"><span class="q u">Can a circuit remember?</span><span class="tc"><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"></path></svg>1<span class="sr"> experiment</span></span><span style="color: var(--muted); font-weight: 400">12 min</span></span></a>
+<a class="gi" href="#"><span class="q u">Why does a spinning top stay up?</span><span class="tc"><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"></path></svg>1<span class="sr"> experiment</span></span><span style="color: var(--muted); font-weight: 400">10 min</span></span></a>
+<a class="gi" href="#"><span class="q u">How does a battery actually work?</span><span class="tc"><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 17c4 0 6-6 10-6"></path><path d="M16 6v9"></path></svg>1<span class="sr"> dead end</span></span><span style="color: var(--muted); font-weight: 400">15 min</span></span></a>
+<a class="gi" href="#"><span class="q u">Why does a drone need four propellers?</span><span class="tc"><span class="op"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 12h10" stroke-dasharray="2.5 3"></path><path d="M14 7l5 5-5 5"></path></svg>2 open</span><span style="color: var(--muted); font-weight: 400">9 min</span></span></a>
+</div>
+</section>
+
+<section class="sec" style="padding-top: 32px" aria-labelledby="ex-2">
+<div class="shead"><div><h2 id="ex-2">Tried it myself</h2><div class="sub">Experiments from inside the trails</div></div><a href="#">See all</a></div>
+<div class="row">
+<a class="pc tone-peri" href="#"><svg class="art" viewBox="0 0 170 290" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path class="m-l" d="M0 140 H170"></path><path class="m-a" d="M20 40 L90 140 L130 270"></path><path class="m-f" d="M90 30 V270"></path></svg><span class="dur"><svg width="10" height="10" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>0:48</span><span class="pcb"><span class="t u">A laser through a tank of water</span><span class="f">Step 5 · Who told nature which path…</span></span></a>
+<a class="pc tone-sage" href="#"><svg class="art" viewBox="0 0 170 290" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path class="m-f" d="M10 200 H160"></path><path class="m-a" d="M40 150 L130 130"></path><ellipse class="m-l" cx="40" cy="150" rx="22" ry="5"></ellipse><ellipse class="m-l" cx="130" cy="130" rx="22" ry="5"></ellipse></svg><span class="dur"><svg width="10" height="10" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>1:12</span><span class="pcb"><span class="t u">Tuning the gains on my drone</span><span class="f">Step 4 · How does a drone stay level?</span></span></a>
+<a class="pc tone-clay" href="#"><svg class="art" viewBox="0 0 170 290" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect class="m-l" x="40" y="100" width="90" height="70" rx="6"></rect><path class="m-a" d="M60 135 H110"></path></svg><span class="dur"><svg width="10" height="10" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>0:35</span><span class="pcb"><span class="t u">A two-transistor latch</span><span class="f">Step 3 · Can a circuit remember?</span></span></a>
+</div>
+</section>
+
+<section class="sec" style="padding-top: 32px" aria-labelledby="src-2">
+<div class="shead"><div><h2 id="src-2">Sources worth your time</h2><div class="sub">Each one used in more than one trail</div></div></div>
+<div class="row">
+<a class="src" href="#"><span class="tag">Book</span><span class="t u">The Feynman Lectures, vol. 2</span><span class="uses">Used in 3 trails</span></a>
+<a class="src" href="#"><span class="tag">Book</span><span class="t u">Probabilistic Robotics</span><span class="uses">Used in 2 trails</span></a>
+</div>
+</section>
+
+<div class="loadhint" role="status"><span class="ln"></span><span>More rows as you scroll. Nothing repeats.</span><span class="ln"></span></div>
+
+<section class="sec" style="padding-top: 36px" aria-labelledby="edge-2">
+<span class="kicker">The edge of the map</span>
+<h2 id="edge-2" style="font: 400 28px/1.12 var(--serif); margin-top: 10px">You have seen everything here, for now.</h2>
+<div style="margin-top: 6px">
+<div class="oq"><svg class="oqi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 12h10" stroke-dasharray="2.5 3"></path><path d="M14 7l5 5-5 5"></path></svg><div><div class="q">Do ant swarms find short paths the way light does?</div><div class="f">Opened by: Who told nature which path to take?</div><div class="act"><button class="btn line">I want this</button></div></div></div>
+<div class="oq"><svg class="oqi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 12h10" stroke-dasharray="2.5 3"></path><path d="M14 7l5 5-5 5"></path></svg><div><div class="q">Could a drone learn its own control gains?</div><div class="f">Opened by: How does a drone stay level?</div><div class="act"><button class="btn line">I want this</button></div></div></div>
+</div>
+</section>
+
+<nav class="tabbar" aria-label="Main">
+<a class="tab on" href="#" aria-current="page"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3z"></path></svg>Home</a>
+<a class="tab" href="#"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M15.5 8.5l-2 5-5 2 2-5z"></path></svg>Explore</a>
+<a class="tab" href="#"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="8" y="8" width="8" height="8" rx="1.5"></rect><circle cx="5" cy="5" r="2.5"></circle><circle cx="19" cy="5" r="2.5"></circle><circle cx="5" cy="19" r="2.5"></circle><circle cx="19" cy="19" r="2.5"></circle></svg>Builds</a>
+<a class="tab" href="#"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M6 4h12v17l-6-4-6 4z"></path></svg>Saved</a>
+</nav>
+</div>
+</div>
+
+<!-- ═════════════ PHONE 3 · EXPLORATION ═════════════ -->
+<div style="display: flex; flex-direction: column; gap: 16px">
+<span class="cap">3 · Exploration: guess first, then read</span>
+<div class="phone">
+<div class="rtop">
+<a class="iconbtn" href="#" aria-label="Back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+<span style="font-size: 14px; color: var(--ink2)">Explore</span>
+</div>
+<div class="cover" aria-hidden="true"><svg viewBox="0 0 390 200" preserveAspectRatio="xMidYMid slice"><path class="m-l" d="M40 160 C110 40 260 30 350 70"></path><path class="m-l" d="M40 160 C140 210 280 190 350 70"></path><path class="m-f" d="M40 160 Q200 230 350 70"></path><path class="m-a" d="M40 160 C130 120 240 86 350 70"></path><circle class="m-d" cx="40" cy="160" r="5"></circle><circle class="m-d" cx="350" cy="70" r="5"></circle></svg></div>
+
+<div style="padding: 22px 16px 18px; display: flex; flex-direction: column; gap: 12px">
+<span class="kicker">Physics · 18 min</span>
+<h1 style="font: 400 31px/1.08 var(--serif)">Who told nature which path to take?</h1>
+<span class="tc"><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3h11v15H8z"></path><path d="M5 6v15h11"></path></svg>9 sources</span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 17c4 0 6-6 10-6"></path><path d="M16 6v9"></path></svg>1 dead end</span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"></path></svg>1 experiment</span><span class="op"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 12h10" stroke-dasharray="2.5 3"></path><path d="M14 7l5 5-5 5"></path></svg>3 open threads</span></span>
+<div class="seg" role="group" aria-label="View"><button class="on" aria-pressed="true">Story</button><button>Trail</button></div>
+</div>
+
+<div style="padding: 0 16px 24px">
+<div class="poll">
+<div class="ph"><span class="pq">Before you read</span><span class="pv">One tap</span></div>
+<span class="pt">A ray of light takes the quickest path. Who picks it?</span>
+<div class="opts" role="group" aria-label="Your guess"><button>The light</button><button>Nothing does</button><button>Not sure</button></div>
+<span style="font-size: 12.5px; color: var(--muted)">You'll see what others guessed, and you can change your answer at the end.</span>
+</div>
+</div>
+
+<div class="story">
+<p>Shine a torch into a pool and the beam bends where it meets the water. It bends at exactly the angle that gets the light to the bottom in the least time <a class="ref" href="#">2</a>. That sounded like planning ahead, so I went looking for who does the planning.</p>
+<div class="sc">
+<span class="lab">2 · Video · Least action</span>
+<span class="tt">Least action and every possible path</span>
+<span class="nt"><b>Took</b>Nature can be written as picking the path that keeps one quantity as small as possible.</span>
+<span class="nt"><b>Led to</b>I wanted the real derivation <a class="ref" href="#">3</a></span>
+</div>
+<div class="skip"><i></i><span>later in the story</span><i></i></div>
+<div class="sc ins">
+<span class="lab" style="color: var(--accent)">6 · What I think now</span>
+<span class="tt">The rule describes the path. Nothing has to choose it.</span>
+</div>
+<div class="poll">
+<div class="ph"><span class="pq">What do you think now?</span><span class="pv">You said: The light</span></div>
+<div class="res" aria-hidden="true"><i class="oth" style="width: 34%"></i><i class="mine" style="width: 48%"></i><i style="width: 18%"></i></div>
+<div class="reslab"><span><b>34%</b>The light</span><span class="me"><b>48%</b>Nothing does</span><span><b>18%</b>Not sure</span></div>
+<div style="display: flex; gap: 10px; align-items: center"><button class="btn line">Change my answer</button><span style="font-size: 12.5px; color: var(--muted)">Sample numbers</span></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span class="lab">Where this leads</span>
+<a class="sc open" href="#"><span class="tt u" style="font-size: 17px">Do ant swarms find short paths the same way?</span><span class="nt">Not explored yet</span></a>
+</div>
+</div>
+
+<div class="actbar">
+<span style="font-size: 13px; color: var(--muted)">Step 6 of 9</span>
+<span style="flex: 1"></span>
+<button class="iconbtn" aria-label="Like"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"></path></svg></button>
+<button class="iconbtn" aria-label="Save"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 4h12v17l-6-4-6 4z"></path></svg></button>
+<button class="iconbtn" aria-label="Discussion"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"></path></svg></button>
+<button class="iconbtn" aria-label="Share"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 5l6 6-6 6M20 11H10a6 6 0 0 0-6 6v2"></path></svg></button>
+</div>
+</div>
+</div>
+
+</div>
+</body>
+</html>
